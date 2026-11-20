@@ -6,6 +6,7 @@ import '../data/repositories/master_repository.dart';
 import '../data/repositories/plan_repository.dart';
 import '../data/repositories/stamp.dart';
 import '../data/repositories/template_repository.dart';
+import '../data/repositories/txn_repository.dart';
 
 /// アプリ起動時（main）に開いた DB で上書きする。
 final databaseProvider = Provider<AppDatabase>(
@@ -94,3 +95,16 @@ final groupsUsingTemplateProvider =
           .watch(templateRepositoryProvider)
           .watchGroupsUsingTemplate(templateId),
     );
+
+final txnRepositoryProvider = Provider<TxnRepository>(
+  (ref) => TxnRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+/// 期間を指定したプランの実績。
+typedef TxnQuery = ({String planId, String? from, String? to});
+
+final txnsProvider = StreamProvider.family<List<TxnRow>, TxnQuery>(
+  (ref, q) => ref
+      .watch(txnRepositoryProvider)
+      .watchTxns(q.planId, from: q.from, to: q.to),
+);

@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/models/enums.dart';
+import '../features/assets/account_detail_screen.dart';
+import '../features/ledger/ledger_screen.dart';
+import '../features/ledger/txn_edit_screen.dart';
+import '../features/shared/plan_switch_sheet.dart';
 import '../features/groups/group_edit_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/masters/account_edit_screen.dart';
@@ -91,8 +95,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/ledger',
-                builder: (context, state) =>
-                    const PlanTabPlaceholder(title: '家計簿', milestone: 'M3'),
+                builder: (context, state) => const LedgerScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'txn/:id',
+                    builder: (context, state) => TxnEditScreen(
+                      txnId: _idOrNull(state.pathParameters['id']),
+                      initialDate: state.uri.queryParameters['date'],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -100,8 +112,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/assets',
-                builder: (context, state) =>
-                    const PlanTabPlaceholder(title: '資産', milestone: 'M5'),
+                builder: (context, state) => Scaffold(
+                  appBar: AppBar(title: const PlanSwitchTitle(title: '資産')),
+                  body: AssetsTabM3(
+                    onOpenAccount: (id) => context.push('/assets/account/$id'),
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'account/:id',
+                    builder: (context, state) => AccountDetailScreen(
+                      accountId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
