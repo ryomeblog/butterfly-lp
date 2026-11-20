@@ -1,1 +1,10 @@
 .DS_Store
+*.iml
+.idea/
+.vscode/
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
