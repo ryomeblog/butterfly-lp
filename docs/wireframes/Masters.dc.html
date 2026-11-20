@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>カテゴリ・口座</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.lbl{font-size:12px;color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;border-bottom:1px solid #E5E7EB}
+.sw{width:14px;height:14px;border-radius:3px;border:1px solid #9CA3AF;display:inline-block;margin-right:8px;vertical-align:-2px}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg button{flex:1;text-align:center;padding:10px 0;font:inherit;font-size:13px;color:#111827;border:0;background:#fff;cursor:pointer}
+.seg .on{background:#111827;color:#FFFFFF}
+.dlg{border:1px solid #111827;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.btn{height:44px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 900px">
+<header class="bar">
+<a class="ib" href="Settings.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>カテゴリ・口座</h1>
+<a class="ib" href="{{addHref}}" aria-label="{{addLabel}}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
+</header>
+<main class="body">
+<div class="lbl">カテゴリと口座は全プラン共通です（口座の残高はプランごとの実績で計算）。資産はプランごとに「資産」タブで管理します。</div><!--どちらも全プラン共通-->
+<div class="seg"><button class="{{catCls}}" onClick="{{showCat}}">カテゴリ</button><button class="{{accCls}}" onClick="{{showAcc}}">口座</button></div>
+<sc-if value="{{isCat}}" hint-placeholder-val="{{true}}">
+<section style="display: flex; flex-direction: column">
+<div class="lbl">支出（長押しで並べ替え）</div>
+<a class="row" href="CategoryEdit.dc.html" style="color: #111827; text-decoration: none"><span><span class="sw" style="background: #D1D5DB"></span>食費</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" href="CategoryEdit.dc.html" style="color: #111827; text-decoration: none"><span><span class="sw" style="background: #9CA3AF"></span>住宅費</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" href="CategoryEdit.dc.html" style="color: #111827; text-decoration: none"><span><span class="sw" style="background: #6B7280"></span>娯楽費</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" href="CategoryEdit.dc.html" style="color: #111827; text-decoration: none"><span><span class="sw" style="background: #374151"></span>所得税 <span class="tag">固定・削除不可</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<div class="lbl" style="margin-top: 10px">資産（資産一覧のまとまりに使います）</div>
+<a class="row" style="color: #111827; text-decoration: none" href="CategoryEdit.dc.html"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #4E79A7; flex: none"></span><span>株式・投資信託</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" style="color: #111827; text-decoration: none" href="CategoryEdit.dc.html"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 14px; height: 14px; border-radius: 3px; background: #9C755F; flex: none"></span><span>不動産</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+</section>
+<section class="dlg" role="dialog" aria-label="使用中のカテゴリの削除">
+<strong>「娯楽費」を削除</strong>
+<div style="font-size: 13px">このカテゴリは実績 00件・計画行 00件で使われています。</div>
+<button class="btn" style="color: #B91C1C; border-color: #B91C1C">関連する履歴ごと削除</button>
+<div style="display: grid; grid-template-columns: 1fr auto; gap: 8px"><select class="in" aria-label="付け替え先"><option>付け替え先：食費</option></select><button class="btn">付け替えて削除</button></div>
+<button class="btn" style="border-color: #D1D5DB">キャンセル</button>
+</section>
+</sc-if>
+<sc-if value="{{isAcc}}" hint-placeholder-val="{{false}}">
+<section style="display: flex; flex-direction: column">
+<a class="row" href="AccountEdit.dc.html" style="color: #111827; text-decoration: none"><span>現金<br><span class="lbl">現金・初期残高 ¥000,000（2026/01/01）</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" href="AccountEdit.dc.html" style="color: #111827; text-decoration: none"><span>メイン銀行<br><span class="lbl">銀行・初期残高 ¥0,000,000（2026/01/01）</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<a class="row" href="AccountEdit.dc.html" style="color: #111827; text-decoration: none"><span>証券口座<br><span class="lbl">証券・初期残高 ¥000,000（2026/01/01）</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<div class="lbl" style="margin-top: 8px">使用中の口座は「履歴ごと削除」か「別の口座へ付け替えて削除」を選びます。</div>
+</section>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'cat' };
+  }
+  renderVals() {
+    const t = this.state.tab;
+    return {
+      catCls: t === 'cat' ? 'on' : '',
+      accCls: t === 'acc' ? 'on' : '',
+      secCls: t === 'sec' ? 'on' : '',
+      addHref: t === 'cat' ? 'CategoryEdit.dc.html' : 'AccountEdit.dc.html',
+      addLabel: t === 'cat' ? 'カテゴリを追加' : '口座を追加',
+      isCat: t === 'cat',
+      isAcc: t === 'acc',
+      isSec: t === 'sec',
+      showCat: () => this.setState({ tab: 'cat' }),
+      showAcc: () => this.setState({ tab: 'acc' }),
+      showSec: () => this.setState({ tab: 'sec' })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ホーム（ライフプラン）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 8px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;color:#111827;text-decoration:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg a,.seg span,.seg button{flex:1;text-align:center;padding:10px 0;font:inherit;font-size:13px;color:#111827;text-decoration:none;border:0;background:#fff}
+.seg .on{background:#111827;color:#FFFFFF}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.badge{font-size:11px;background:#1D4ED8;color:#FFFFFF;border-radius:4px;padding:1px 6px;font-weight:500}
+.kv3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:13px}
+.btn{height:48px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;box-sizing:border-box}
+.tabs{height:64px;flex:none;border-top:1px solid #D1D5DB;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#4B5563;text-decoration:none}
+.tabs a.on{color:#1D4ED8;font-weight:700}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fab{position:absolute;right:16px;bottom:80px;width:56px;height:56px;border-radius:28px;background:#1D4ED8;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.num{font-variant-numeric:tabular-nums}
+.ax{stroke:#9CA3AF;stroke-width:1}.gr{stroke:#E5E7EB;stroke-width:1}
+.t{font-family:'Noto Sans JP',system-ui,sans-serif;font-size:10.5px;fill:#4B5563}
+.ev{fill:#FFFFFF;stroke:#111827;stroke-width:1.5}
+.inc{fill:none;stroke:#111827;stroke-width:2.2}
+.exp{fill:none;stroke:#1D4ED8;stroke-width:2;stroke-dasharray:6 4}
+.chk{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px}
+.chk input{width:20px;height:20px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:150px;border-bottom:1px solid #9CA3AF;padding:0 2px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;text-decoration:none;color:#111827}
+.bars{display:flex;align-items:flex-end;gap:2px;height:100%}
+.bp{width:11px;border:1.5px dashed #1D4ED8;box-sizing:border-box;background:#EFF6FF;border-bottom:0}
+.ba{width:11px;background:#111827}
+.xl{display:flex;gap:4px;padding:0 2px}
+.xl a,.xl span{flex:1;text-align:center;font-size:11px;color:#111827;min-height:32px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.xl a{color:#1D4ED8;text-decoration:underline}
+.cc{border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cr{display:grid;grid-template-columns:30px 1fr 80px 56px;white-space:nowrap;gap:6px;align-items:center;font-size:13px}
+.cr .num{text-align:right}
+.trk{height:12px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.trk .p{height:12px;border:1.5px dashed #1D4ED8;background:#EFF6FF;box-sizing:border-box;border-radius:3px}
+.trk .a{height:12px;background:#111827;border-radius:3px}
+.over{font-size:12px;border:1px solid #B45309;background:#FFFBEB;color:#78350F;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.under{font-size:12px;border:1px solid #9CA3AF;color:#374151;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.in{height:40px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;background:#fff;color:#111827}
+.menu{position:absolute;right:12px;top:150px;background:#fff;border:1px solid #9CA3AF;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;flex-direction:column;width:260px}
+.menu button{height:48px;border:0;background:none;text-align:left;padding:0 14px;font:inherit;border-bottom:1px solid #E5E7EB}
+.acc{border-bottom:1px solid #E5E7EB}
+.acch{display:flex;align-items:center;gap:10px;min-height:60px;width:100%;border:0;background:none;padding:0;font:inherit;color:#111827;text-align:left;cursor:pointer}
+.acch .nm{flex:1}
+.accb{background:#F9FAFB;border-radius:6px;margin:0 0 10px;padding:4px 10px;display:flex;flex-direction:column}
+.mr{display:grid;grid-template-columns:44px 1fr 1fr 18px;gap:6px;align-items:center;min-height:44px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none;font-size:13px}
+.mr:last-child{border-bottom:0}
+.mr .num{text-align:right}
+.sel{border:2px solid #1D4ED8 !important;background:#F8FAFF}
+.selbar{display:flex;align-items:center;gap:10px;border-radius:8px;background:#1D4ED8;color:#FFFFFF;padding:10px 12px}
+.f{display:flex;flex-direction:column;gap:4px}
+.inw{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.note{border:1px solid #D1D5DB;background:#F9FAFB;border-radius:6px;padding:8px 10px;font-size:12px;color:#374151}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.swb{width:36px;height:36px;border-radius:18px;border:2px solid #fff;box-shadow:0 0 0 1px #9CA3AF}
+.swb.on{box-shadow:0 0 0 3px #1D4ED8}
+</style>
+</helmet>
+<div class="s" style="height: 1290px">
+<header class="bar"><h1>ホーム</h1></header>
+<main class="body">
+<div class="seg" role="tablist"><span class="on" role="tab" aria-selected="true">ライフプラン</span><a href="HomeGroups.dc.html" role="tab">グループ</a><a href="HomeTemplates.dc.html" role="tab">テンプレート</a><a href="HomeCategories.dc.html" role="tab">カテゴリ</a></div>
+<a class="selbar" href="PlanDetail.dc.html" style="text-decoration: none">
+<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M3 20h18M6 16v-4M11 16V8M16 16v-6M20 16V5"/></svg>
+<span style="flex: 1"><span style="font-size: 12px; opacity: .9">表示中のプラン</span><br><strong>プランB（住宅購入）</strong></span>
+<span style="font-size: 12px; opacity: .9; text-align: right">家計簿・資産・予実<br>はこのプラン</span>
+</a>
+<div class="lbl">プランを選ぶと詳細を開き、そのプランが「表示中」に切り替わります。</div>
+<div style="display: flex; gap: 14px; font-size: 12px; color: #374151; flex-wrap: wrap">
+<span style="display: flex; align-items: center; gap: 4px"><svg width="20" height="6" aria-hidden="true"><line x1="0" y1="3" x2="20" y2="3" stroke="#111827" style="stroke-width: 2.2"/></svg>収入（年）</span>
+<span style="display: flex; align-items: center; gap: 4px"><svg width="20" height="6" aria-hidden="true"><line x1="0" y1="3" x2="20" y2="3" stroke="#1D4ED8" style="stroke-width: 2; stroke-dasharray: 6 4"/></svg>支出（年）</span>
+<span style="display: flex; align-items: center; gap: 4px"><svg width="12" height="12" aria-hidden="true"><path class="ev" d="M6 1l5 5-5 5-5-5z"/></svg>イベント</span>
+</div>
+<div style="position: relative">
+<a class="card" href="PlanDetail.dc.html" style="padding: 12px 10px">
+<div style="display: flex; align-items: center; gap: 8px; padding-right: 40px"><h2 class="h2">プランA（現状維持）</h2></div>
+<div class="lbl">主人公：本人　期間：2026〜0000年</div>
+<svg width="332" height="132" viewBox="-14 0 346 132" role="img" aria-label="生涯の収支グラフ：年ごとの収入と支出、イベント">
+<line class="gr" x1="34" y1="30" x2="326" y2="30"/><line class="gr" x1="34" y1="65" x2="326" y2="65"/>
+<line class="ax" x1="34" y1="14" x2="34" y2="100"/><line class="ax" x1="34" y1="100" x2="326" y2="100"/>
+<text class="t" x="30" y="34" style="text-anchor: end">¥0千万</text><text class="t" x="30" y="69" style="text-anchor: end">¥0百万</text><text class="t" x="30" y="104" style="text-anchor: end">0</text>
+<polyline class="inc" points="40,58 120,48 210,40 222,84 320,86"/>
+<polyline class="exp" points="40,72 120,68 210,64 320,76"/>
+<line x1="210" y1="32" x2="210" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M210 20l6 6-6 6-6-6z"/><text class="t" x="210" y="16" style="text-anchor: middle">退職</text>
+<text class="t" x="40" y="116" style="text-anchor: middle">2026</text><text class="t" x="180" y="116" style="text-anchor: middle">0000</text><text class="t" x="318" y="116" style="text-anchor: middle">0000</text>
+<text class="t" x="40" y="129" style="text-anchor: middle">00歳</text><text class="t" x="180" y="129" style="text-anchor: middle">00歳</text><text class="t" x="318" y="129" style="text-anchor: middle">00歳</text>
+</svg>
+<div class="kv3">
+<div><div class="lbl">寿命時の総資産</div><div class="num">¥00,000,000</div></div>
+<div><div class="lbl">FIRE達成予測</div><div class="num">0000年</div></div>
+<div><div class="lbl">資金不足</div><div>なし</div></div>
+</div>
+</a>
+<button class="ib" aria-label="プランA（現状維持）のメニュー" style="position: absolute; right: 2px; top: 2px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h.01M12 12h.01M12 18h.01" style="stroke-width: 3"/></svg></button>
+</div>
+<div style="position: relative">
+<a class="card sel" href="PlanDetail.dc.html" style="padding: 12px 10px" aria-current="true">
+<div style="display: flex; align-items: center; gap: 8px; padding-right: 40px"><h2 class="h2">プランB（住宅購入）</h2> <span class="badge" style="display: inline-flex; align-items: center; gap: 2px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px"><path d="M5 12l5 5 9-10"/></svg>表示中</span></div>
+<div class="lbl">主人公：本人　期間：2026〜0000年</div>
+<svg width="332" height="132" viewBox="-14 0 346 132" role="img" aria-label="生涯の収支グラフ：年ごとの収入と支出、イベント">
+<line class="gr" x1="34" y1="30" x2="326" y2="30"/><line class="gr" x1="34" y1="65" x2="326" y2="65"/>
+<line class="ax" x1="34" y1="14" x2="34" y2="100"/><line class="ax" x1="34" y1="100" x2="326" y2="100"/>
+<text class="t" x="30" y="34" style="text-anchor: end">¥0千万</text><text class="t" x="30" y="69" style="text-anchor: end">¥0百万</text><text class="t" x="30" y="104" style="text-anchor: end">0</text>
+<polyline class="inc" points="40,58 120,48 210,40 222,84 320,86"/>
+<polyline class="exp" points="40,72 84,70 92,24 100,62 210,60 320,74"/>
+<line x1="92" y1="30" x2="92" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M92 18l6 6-6 6-6-6z"/><text class="t" x="92" y="14" style="text-anchor: middle">住宅購入</text>
+<line x1="60" y1="46" x2="60" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M60 34l6 6-6 6-6-6z"/><text class="t" x="60" y="30" style="text-anchor: middle">第1子</text>
+<line x1="210" y1="32" x2="210" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M210 20l6 6-6 6-6-6z"/><text class="t" x="210" y="16" style="text-anchor: middle">退職</text>
+<text class="t" x="40" y="116" style="text-anchor: middle">2026</text><text class="t" x="180" y="116" style="text-anchor: middle">0000</text><text class="t" x="318" y="116" style="text-anchor: middle">0000</text>
+<text class="t" x="40" y="129" style="text-anchor: middle">00歳</text><text class="t" x="180" y="129" style="text-anchor: middle">00歳</text><text class="t" x="318" y="129" style="text-anchor: middle">00歳</text>
+</svg>
+<div class="kv3">
+<div><div class="lbl">寿命時の総資産</div><div class="num">¥00,000,000</div></div>
+<div><div class="lbl">FIRE達成予測</div><div class="num">0000年</div></div>
+<div><div class="lbl">資金不足</div><div>0000年0月〜</div></div>
+</div>
+</a>
+<button class="ib" aria-label="プランB（住宅購入）のメニュー" style="position: absolute; right: 2px; top: 2px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h.01M12 12h.01M12 18h.01" style="stroke-width: 3"/></svg></button>
+</div>
+<div style="position: relative">
+<a class="card" href="PlanDetail.dc.html" style="padding: 12px 10px">
+<div style="display: flex; align-items: center; gap: 8px; padding-right: 40px"><h2 class="h2">プランC（転職）</h2></div>
+<div class="lbl">主人公：本人　期間：2027〜0000年</div>
+<svg width="332" height="132" viewBox="-14 0 346 132" role="img" aria-label="生涯の収支グラフ：年ごとの収入と支出、イベント">
+<line class="gr" x1="34" y1="30" x2="326" y2="30"/><line class="gr" x1="34" y1="65" x2="326" y2="65"/>
+<line class="ax" x1="34" y1="14" x2="34" y2="100"/><line class="ax" x1="34" y1="100" x2="326" y2="100"/>
+<text class="t" x="30" y="34" style="text-anchor: end">¥0千万</text><text class="t" x="30" y="69" style="text-anchor: end">¥0百万</text><text class="t" x="30" y="104" style="text-anchor: end">0</text>
+<polyline class="inc" points="40,60 70,62 78,44 150,36 215,30 226,82 320,84"/>
+<polyline class="exp" points="40,72 120,70 215,66 320,78"/>
+<line x1="78" y1="36" x2="78" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M78 24l6 6-6 6-6-6z"/><text class="t" x="78" y="20" style="text-anchor: middle">転職</text>
+<line x1="215" y1="22" x2="215" y2="100" stroke="#9CA3AF" style="stroke-width: 1; stroke-dasharray: 2 3"/><path class="ev" d="M215 10l6 6-6 6-6-6z"/><text class="t" x="215" y="6" style="text-anchor: middle">退職</text>
+<text class="t" x="40" y="116" style="text-anchor: middle">2027</text><text class="t" x="180" y="116" style="text-anchor: middle">0000</text><text class="t" x="318" y="116" style="text-anchor: middle">0000</text>
+<text class="t" x="40" y="129" style="text-anchor: middle">00歳</text><text class="t" x="180" y="129" style="text-anchor: middle">00歳</text><text class="t" x="318" y="129" style="text-anchor: middle">00歳</text>
+</svg>
+<div class="kv3">
+<div><div class="lbl">寿命時の総資産</div><div class="num">¥00,000,000</div></div>
+<div><div class="lbl">FIRE達成予測</div><div class="num">未達</div></div>
+<div><div class="lbl">資金不足</div><div>なし</div></div>
+</div>
+</a>
+<button class="ib" aria-label="プランC（転職）のメニュー" style="position: absolute; right: 2px; top: 2px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h.01M12 12h.01M12 18h.01" style="stroke-width: 3"/></svg></button>
+</div>
+<div class="lbl">各プランの「⋮」メニュー：名前を変更／複製（今日を起点に計算し直す）／JSONで書き出す／削除（配下のデータごと）</div>
+<a class="btn" href="PlanDetail.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>プランを作成</a>
+</main>
+<nav class="tabs" aria-label="メインメニュー">
+<a href="Main.dc.html" class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</a>
+<a href="Ledger.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>家計簿</a>
+<a href="Assets.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>資産</a>
+<a href="Events.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>イベント</a>
+<a href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>設定</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1290}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

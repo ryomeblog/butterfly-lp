@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>同期</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.kv{display:flex;justify-content:space-between}
+.btn{height:44px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-sizing:border-box}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF;height:56px;font-size:16px}
+.note{font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:8px 10px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div class="s" style="height: 900px">
+<header class="bar">
+<a class="ib" href="Settings.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>同期</h1>
+</header>
+<main class="body">
+<button class="btn pri"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3M18 3v4h-4M6 21v-4h4"/></svg>今すぐ同期</button>
+<div class="note">自宅Wi-Fi内でだけ同期できます。他の端末のデータを取り込み、更新日時が新しい方を採用してから、この端末の全データを書き込みます（キャッシュは1日で消えます）。</div>
+<section class="card">
+<h2 class="h2">前回の結果</h2>
+<div class="kv"><span class="lbl">日時</span><span class="num">2026/11/11 21:30</span></div>
+<div class="kv"><span class="lbl">取り込んだ端末</span><span class="num">2台</span></div>
+<div class="kv"><span class="lbl">取り込んだ件数</span><span class="num">00件</span></div>
+<div class="kv"><span class="lbl">参照切れ</span><span class="num">0件</span></div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<h2 class="h2">接続先（自宅Redis）</h2>
+<div class="g2">
+<label class="f"><span class="lbl">アドレス</span><input class="in" value="192.168.0.10"/></label>
+<label class="f"><span class="lbl">ポート</span><input class="in" value="6379"/></label>
+</div>
+<label class="f"><span class="lbl">パスワード</span><input class="in" type="password" value="password"/></label>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<h2 class="h2">合言葉（家族で共通）</h2>
+<label class="f"><span class="lbl">合言葉</span><input class="in" type="password" value="passphrase"/></label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn">QRコードを表示</button>
+<button class="btn">QRコードを読み取る</button>
+</div>
+<div class="lbl">合言葉を変えるときは、家族の全端末で新しい合言葉を登録し直します。</div>
+<div class="lbl">この端末のID：xxxxxxxx-xxxx-xxxx</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

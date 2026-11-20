@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>プラン詳細</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.ps{flex:1;height:44px;border:0;background:none;display:flex;align-items:center;gap:6px;padding:0 8px;font:inherit;font-size:17px;font-weight:700;color:#111827;text-align:left;cursor:pointer}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.kv3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.bar2{height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden}
+.bar2 div{height:8px;background:#1D4ED8}
+.warn{border:1px solid #B45309;background:#FFFBEB;color:#78350F;border-radius:8px;padding:10px 12px;font-size:13px;display:flex;gap:8px;align-items:flex-start}
+.ax{stroke:#9CA3AF;stroke-width:1}
+.gr{stroke:#E5E7EB;stroke-width:1}
+.act{fill:none;stroke:#111827;stroke-width:2.5}
+.pln{fill:none;stroke:#1D4ED8;stroke-width:2;stroke-dasharray:6 4}
+.zero{stroke:#B45309;stroke-width:1;stroke-dasharray:3 3}
+.t{font-family:'Noto Sans JP',system-ui,sans-serif;font-size:10.5px;fill:#4B5563}
+.ev{fill:#FFFFFF;stroke:#111827;stroke-width:1.5}
+.dim{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(17,24,39,.35)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:4px}
+.opt{display:flex;align-items:center;gap:12px;min-height:56px;border-bottom:1px solid #E5E7EB;cursor:pointer}
+.opt input{width:20px;height:20px}
+.tabs{height:64px;flex:none;border-top:1px solid #D1D5DB;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#4B5563;text-decoration:none}
+.tabs a.on{color:#1D4ED8;font-weight:700}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fab{position:absolute;right:16px;bottom:80px;width:56px;height:56px;border-radius:28px;background:#1D4ED8;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.num{font-variant-numeric:tabular-nums}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+</style>
+</helmet>
+<div class="s" style="height: 1130px">
+<header class="bar">
+<a class="ib" href="Main.dc.html" aria-label="ホームへ戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>プランB（住宅購入）</h1>
+</header>
+<main class="body">
+<nav style="display: flex; gap: 8px; flex-wrap: wrap" aria-label="プランの編集と比較">
+<a class="tb" href="PlanYear.dc.html">計画（年別）</a>
+<a class="tb" href="Family.dc.html">家族</a>
+<a class="tb" href="Events.dc.html">イベント</a>
+<a class="tb" href="PlanGroups.dc.html">登録グループ</a>
+<a class="tb" href="Rates.dc.html">率・FIRE</a>
+<a class="tb" href="YearsCompare.dc.html">年別の予実</a>
+</nav>
+<div class="lbl">主人公：本人（1990年生・寿命00歳）　期間：2026〜0000年　起点日：2026/10/22（変更不可）</div>
+<section class="card" style="padding: 12px 8px">
+<h2 class="h2" style="padding: 0 4px">資産推移（生涯）</h2>
+<div style="display: flex; gap: 16px; font-size: 12px; color: #374151; padding: 0 4px">
+<span style="display: flex; align-items: center; gap: 4px"><svg width="20" height="6" aria-hidden="true"><line x1="0" y1="3" x2="20" y2="3" stroke="#111827" style="stroke-width: 2.5"/></svg>実績線</span>
+<span style="display: flex; align-items: center; gap: 4px"><svg width="20" height="6" aria-hidden="true"><line x1="0" y1="3" x2="20" y2="3" stroke="#1D4ED8" style="stroke-width: 2; stroke-dasharray: 6 4"/></svg>計画線</span>
+<span style="display: flex; align-items: center; gap: 4px"><svg width="12" height="12" aria-hidden="true"><path class="ev" d="M6 1l5 5-5 5-5-5z"/></svg>イベント</span>
+</div>
+<svg width="356" height="250" viewBox="0 0 356 250" role="img" aria-label="資産推移グラフのワイヤーフレーム：実績線と計画線、イベント、横軸は年と主人公の年齢">
+<line class="gr" x1="44" y1="30" x2="346" y2="30"/><line class="gr" x1="44" y1="80" x2="346" y2="80"/><line class="gr" x1="44" y1="130" x2="346" y2="130"/>
+<line class="zero" x1="44" y1="180" x2="346" y2="180"/>
+<line class="ax" x1="44" y1="20" x2="44" y2="200"/>
+<line class="ax" x1="44" y1="200" x2="346" y2="200"/>
+<text class="t" x="38" y="34" style="text-anchor: end">¥0億</text>
+<text class="t" x="38" y="84" style="text-anchor: end">¥0千万</text>
+<text class="t" x="38" y="134" style="text-anchor: end">¥0千万</text>
+<text class="t" x="38" y="184" style="text-anchor: end">0</text>
+<polyline class="pln" points="50,150 80,140 100,110 140,115 180,92 220,70 260,58 290,90 320,140 340,175"/>
+<polyline class="act" points="50,150 60,146 70,147 80,138"/>
+<path class="ev" d="M100 104l6 6-6 6-6-6z"/>
+<text class="t" x="100" y="96" style="text-anchor: middle">住宅購入</text>
+<path class="ev" d="M260 52l6 6-6 6-6-6z"/>
+<text class="t" x="260" y="44" style="text-anchor: middle">退職</text>
+<text class="t" x="50" y="216" style="text-anchor: middle">2026</text>
+<text class="t" x="140" y="216" style="text-anchor: middle">2040</text>
+<text class="t" x="230" y="216" style="text-anchor: middle">2055</text>
+<text class="t" x="330" y="216" style="text-anchor: middle">2070</text>
+<text class="t" x="50" y="232" style="text-anchor: middle">00歳</text>
+<text class="t" x="140" y="232" style="text-anchor: middle">00歳</text>
+<text class="t" x="230" y="232" style="text-anchor: middle">00歳</text>
+<text class="t" x="330" y="232" style="text-anchor: middle">00歳</text>
+<text class="t" x="196" y="247" style="text-anchor: middle">年（上）・主人公の年齢（下）</text>
+</svg>
+<div class="kv3" style="padding: 0 4px">
+<div><div class="lbl">退職時の総資産</div><div class="num">¥00,000,000</div></div>
+<div><div class="lbl">寿命時の総資産</div><div class="num">¥00,000,000</div></div>
+<div><div class="lbl">最大の総資産</div><div class="num">¥00,000,000</div></div>
+</div>
+</section>
+<a href="LedgerCompare.dc.html" style="display: flex; justify-content: space-between; align-items: center; border: 1px solid #D1D5DB; border-radius: 8px; padding: 10px 12px; color: #111827; text-decoration: none"><span>計画との差（11月末の総資産）<br><span class="lbl">家計簿の比較を見る</span></span><strong class="num">−¥000,000</strong></a>
+<div class="warn" role="alert"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; width: 20px; height: 20px"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></svg><span>資金不足：計画線で <strong>0000年0月</strong>（主人公 00歳）に現金系口座の合計がマイナスになります。</span></div>
+<section class="card">
+<h2 class="h2">FIRE</h2>
+<div class="lbl">目標額（自動：年間支出 ÷ 取崩し率 0.0%）</div>
+<div class="num" style="font-weight: 700">¥00,000,000</div>
+<div style="display: flex; justify-content: space-between"><span class="lbl">達成度</span><span class="num">00%</span></div>
+<div class="bar2" role="img" aria-label="FIRE達成度"><div style="width: 38%"></div></div>
+<div class="lbl">達成予測年（計画線）：<span style="color: #111827">0000年（主人公 00歳）</span></div>
+</section>
+<section style="display: flex; flex-direction: column">
+<h2 class="h2" style="margin-bottom: 4px">ライフイベント</h2>
+<a class="row" href="Events.dc.html"><span>2028年4月　第1子誕生<br><span class="lbl">本人 00歳</span></span><span class="num">−¥000,000</span></a>
+<a class="row" href="Events.dc.html"><span>2030年3月　住宅購入<br><span class="lbl">本人 00歳</span></span><span class="num">−¥0,000,000</span></a>
+<a class="row" href="Events.dc.html"><span>2055年3月　退職<br><span class="lbl">本人 00歳</span></span><span class="num">+¥00,000,000</span></a>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1130}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

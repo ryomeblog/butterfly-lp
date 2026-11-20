@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>家族</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:12px;color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.badge{font-size:11px;background:#1D4ED8;color:#FFFFFF;border-radius:4px;padding:1px 6px}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.btn{height:44px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 844px">
+<header class="bar">
+<a class="ib" href="PlanDetail.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>家族（プランB）</h1>
+<button class="ib" aria-label="家族を追加"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+</header>
+<main class="body">
+<section style="display: flex; flex-direction: column">
+<div class="row"><span>本人 <span class="badge">主人公</span><br><span class="lbl">本人・1990/01/01生・寿命 00歳</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="row"><span>配偶者<br><span class="lbl">配偶者・1991/01/01生・寿命 00歳</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="row"><span>第1子<br><span class="lbl">子・2028/04/01生（予定）・寿命 00歳</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+</section>
+<section class="card" aria-label="家族の編集">
+<strong>配偶者を編集</strong>
+<label class="f"><span class="lbl">名前</span><input class="in" value="配偶者"/></label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<label class="f"><span class="lbl">続柄</span><select class="in"><option>配偶者</option><option>本人</option><option>子</option><option>親</option><option>その他</option></select></label>
+<label class="f"><span class="lbl">寿命（歳）</span><input class="in" inputmode="numeric" value="00"/></label>
+</div>
+<label class="f"><span class="lbl">生年月日（将来の子は予定日）</span><input class="in" type="date" value="1991-01-01"/></label>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 44px"><input type="checkbox" style="width: 20px; height: 20px"/>この人を主人公にする</label>
+<div class="lbl">続柄と年齢は、給与計算の扶養・配偶者控除の判定に使います。実績・計画行から参照されている人と主人公は削除できません。</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn">削除</button>
+<button class="btn pri">保存</button>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

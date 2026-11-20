@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>計画（年別）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:12px;color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.mh{font-size:12px;font-weight:700;color:#374151;background:#F3F4F6;padding:4px 8px;border-radius:4px;display:flex;justify-content:space-between}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.btn{height:48px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.dim{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(17,24,39,.35)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:12px}
+.note{font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:8px 10px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div class="s" style="height: 960px">
+<header class="bar">
+<a class="ib" href="PlanDetail.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>計画（年別）</h1>
+<button class="ib" aria-label="計画行を追加"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+</header>
+<main class="body">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<button class="ib" aria-label="前の年"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<strong style="font-size: 16px">2027年（主人公 00歳）</strong>
+<button class="ib" aria-label="次の年"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button class="tb">グループを登録</button>
+<a class="tb" href="PlanGroups.dc.html">登録済みグループ（取り消し・削除）</a>
+</div>
+<div class="lbl">年間　収入 <span class="num" style="color: #111827">+¥0,000,000</span>　支出 <span class="num" style="color: #111827">−¥0,000,000</span></div>
+<div class="mh"><span>1月</span><span class="num">収支 +¥000,000</span></div>
+<div class="row"><span>給与 <span class="tag">グループ</span><br><span class="lbl">メイン銀行</span></span><span class="num">+¥000,000</span></div>
+<div class="row"><span>所得税 <span class="tag">グループ</span><br><span class="lbl">メイン銀行</span></span><span class="num">−¥00,000</span></div>
+<div class="row"><span>住宅費 <span class="tag">グループ</span><br><span class="lbl">メイン銀行・家賃</span></span><span class="num">−¥00,000</span></div>
+<div class="row"><span>食費 <span class="tag">手入力</span><br><span class="lbl">現金</span></span><span class="num">−¥00,000</span></div>
+<div class="row"><span><span class="tag">購入</span> 銘柄A <span class="tag">グループ</span><br><span class="lbl">証券口座</span></span><span class="num">¥00,000</span></div>
+</main>
+<div class="dim" aria-hidden="true"></div>
+<section class="sheet" role="dialog" aria-label="グループを登録">
+<div style="display: flex; justify-content: space-between; align-items: center"><strong style="font-size: 16px">グループをこのプランに登録</strong><button class="ib" aria-label="閉じる"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<label class="f"><span class="lbl">グループ</span><select class="in"><option>A社の給与明細</option></select></label>
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end">
+<label class="f"><span class="lbl">開始年月</span><select class="in"><option>2026年4月</option></select></label>
+<span style="padding-bottom: 10px">〜</span>
+<label class="f"><span class="lbl">終了年月</span><select class="in"><option>2031年3月</option></select></label>
+</div>
+<div class="note">項目ごとの頻度で、この期間の計画行を作ります。固定額の収入・支出はカテゴリ別の上昇率で増やし（基準＝開始年。給与は給与カテゴリの上昇率＝昇給率）、割合の項目はそれに連動します。登録していない期間は収入・支出なしとして扱います。</div>
+<div class="lbl">作成される計画行：000件</div>
+<button class="btn pri">登録する</button>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

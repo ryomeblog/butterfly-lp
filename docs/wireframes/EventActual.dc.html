@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>イベントの実績を入力</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 8px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;color:#111827;text-decoration:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg a,.seg span,.seg button{flex:1;text-align:center;padding:10px 0;font:inherit;font-size:13px;color:#111827;text-decoration:none;border:0;background:#fff}
+.seg .on{background:#111827;color:#FFFFFF}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.badge{font-size:11px;background:#1D4ED8;color:#FFFFFF;border-radius:4px;padding:1px 6px;font-weight:500}
+.kv3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:13px}
+.btn{height:48px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;box-sizing:border-box}
+.tabs{height:64px;flex:none;border-top:1px solid #D1D5DB;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#4B5563;text-decoration:none}
+.tabs a.on{color:#1D4ED8;font-weight:700}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fab{position:absolute;right:16px;bottom:80px;width:56px;height:56px;border-radius:28px;background:#1D4ED8;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.num{font-variant-numeric:tabular-nums}
+.ax{stroke:#9CA3AF;stroke-width:1}.gr{stroke:#E5E7EB;stroke-width:1}
+.t{font-family:'Noto Sans JP',system-ui,sans-serif;font-size:10.5px;fill:#4B5563}
+.ev{fill:#FFFFFF;stroke:#111827;stroke-width:1.5}
+.inc{fill:none;stroke:#111827;stroke-width:2.2}
+.exp{fill:none;stroke:#1D4ED8;stroke-width:2;stroke-dasharray:6 4}
+.chk{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px}
+.chk input{width:20px;height:20px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:150px;border-bottom:1px solid #9CA3AF;padding:0 2px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;text-decoration:none;color:#111827}
+.bars{display:flex;align-items:flex-end;gap:2px;height:100%}
+.bp{width:11px;border:1.5px dashed #1D4ED8;box-sizing:border-box;background:#EFF6FF;border-bottom:0}
+.ba{width:11px;background:#111827}
+.xl{display:flex;gap:4px;padding:0 2px}
+.xl a,.xl span{flex:1;text-align:center;font-size:11px;color:#111827;min-height:32px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.xl a{color:#1D4ED8;text-decoration:underline}
+.cc{border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cr{display:grid;grid-template-columns:30px 1fr 80px 56px;white-space:nowrap;gap:6px;align-items:center;font-size:13px}
+.cr .num{text-align:right}
+.trk{height:12px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.trk .p{height:12px;border:1.5px dashed #1D4ED8;background:#EFF6FF;box-sizing:border-box;border-radius:3px}
+.trk .a{height:12px;background:#111827;border-radius:3px}
+.over{font-size:12px;border:1px solid #B45309;background:#FFFBEB;color:#78350F;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.under{font-size:12px;border:1px solid #9CA3AF;color:#374151;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.in{height:40px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;background:#fff;color:#111827}
+.menu{position:absolute;right:12px;top:150px;background:#fff;border:1px solid #9CA3AF;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;flex-direction:column;width:260px}
+.menu button{height:48px;border:0;background:none;text-align:left;padding:0 14px;font:inherit;border-bottom:1px solid #E5E7EB}
+.acc{border-bottom:1px solid #E5E7EB}
+.acch{display:flex;align-items:center;gap:10px;min-height:60px;width:100%;border:0;background:none;padding:0;font:inherit;color:#111827;text-align:left;cursor:pointer}
+.acch .nm{flex:1}
+.accb{background:#F9FAFB;border-radius:6px;margin:0 0 10px;padding:4px 10px;display:flex;flex-direction:column}
+.mr{display:grid;grid-template-columns:44px 1fr 1fr 18px;gap:6px;align-items:center;min-height:44px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none;font-size:13px}
+.mr:last-child{border-bottom:0}
+.mr .num{text-align:right}
+.sel{border:2px solid #1D4ED8 !important;background:#F8FAFF}
+.selbar{display:flex;align-items:center;gap:10px;border-radius:8px;background:#1D4ED8;color:#FFFFFF;padding:10px 12px}
+.f{display:flex;flex-direction:column;gap:4px}
+.inw{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.note{border:1px solid #D1D5DB;background:#F9FAFB;border-radius:6px;padding:8px 10px;font-size:12px;color:#374151}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.swb{width:36px;height:36px;border-radius:18px;border:2px solid #fff;box-shadow:0 0 0 1px #9CA3AF}
+.swb.on{box-shadow:0 0 0 3px #1D4ED8}
+.tg{display:inline-flex;align-items:center;gap:8px;min-height:44px;border:0;background:none;font:inherit;font-size:13px;padding:0;color:#111827;cursor:pointer}
+.tg .tr{width:44px;height:26px;border-radius:13px;background:#9CA3AF;position:relative;flex:none}
+.tg .tr::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:10px;background:#FFFFFF;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.tg[aria-checked=true] .tr{background:#1D4ED8}
+.tg[aria-checked=true] .tr::after{left:21px}
+.tx{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:center;min-height:48px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none;font-size:13px}
+.tx:last-child{border-bottom:0}
+.pr{display:grid;grid-template-columns:34px 1fr auto 36px;gap:8px;align-items:center;min-height:48px;border-bottom:1px solid #E5E7EB;font-size:13px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kv2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sub{font-size:12px;font-weight:700;color:#374151;background:#F3F4F6;padding:4px 8px;border-radius:4px;margin-top:6px}
+.chip{height:40px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;font:inherit;font-size:13px;color:#111827}
+.chip.on{border:2px solid #1D4ED8;background:#EFF6FF;font-weight:700}
+.cr2{display:grid;grid-template-columns:1fr 120px 36px;gap:8px;align-items:center;min-height:48px;border-bottom:1px solid #E5E7EB}
+.al{fill:none;stroke:#111827;stroke-width:2.5}.pl{fill:none;stroke:#1D4ED8;stroke-width:2;stroke-dasharray:6 4}
+.mode{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid #111827;border-radius:10px;overflow:hidden}
+.mode a,.mode span{text-align:center;padding:10px 0;font-size:14px;font-weight:700;color:#111827;text-decoration:none}
+.mode .on{background:#111827;color:#FFFFFF}
+.sumA{border:1px solid #111827;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.sumP{border:1.5px dashed #1D4ED8;background:#F8FAFF;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.s3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.s3 .v{font-size:16px;font-weight:700}
+.mc{display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px;align-items:center;min-height:40px;border-bottom:1px solid #E5E7EB;font-size:12.5px;color:#111827;text-decoration:none}
+.mc .num{text-align:right}
+.body>*{flex-shrink:0}
+.ev-card{border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;color:#111827;text-decoration:none}
+.st{font-size:11px;border-radius:4px;padding:1px 6px;font-weight:500}
+.st.plan{border:1px solid #1D4ED8;color:#1D4ED8}
+.st.done{background:#111827;color:#FFFFFF}
+.yr{font-size:13px;font-weight:700;color:#374151;margin-top:6px}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#FFFFFF;border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+.radio{display:flex;align-items:center;gap:10px;min-height:56px;border-bottom:1px solid #E5E7EB}
+.radio input{width:20px;height:20px}
+.linkbtn{display:inline-flex;align-items:center;min-height:36px;font-size:13px}
+</style>
+</helmet>
+<div class="s" style="height: 980px">
+<header class="bar">
+<a class="ib" href="EventDetail.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1 style="margin-left: 4px">イベントの実績を入力</h1>
+</header>
+<main class="body" style="gap: 12px">
+<div class="lbl">住宅購入（予定 2030年3月20日）の予定の収支を実績にします。金額には予定の金額が入っています。予定どおりならそのまま保存し、違う項目だけ直します。金額を空にした項目は実績にしません。記録した項目は、どれもこのイベントの実績になります。</div>
+<div class="g2"><label class="f"><span class="lbl">実施日（全項目共通）</span><input class="inw" type="date" value="2030-03-20" aria-label="実施日（カレンダーで選ぶ）"/></label><label class="f"><span class="lbl">口座</span><select class="inw"><option>予定どおり</option><option>メイン銀行</option></select></label></div>
+<section style="display: flex; flex-direction: column">
+<label style="display: grid; grid-template-columns: 1fr 124px; gap: 8px; align-items: center; min-height: 60px; border-bottom: 1px solid #E5E7EB"><span><span class="tag">支出</span> 頭金<br><span class="lbl">予定 ¥0,000,000</span></span><input class="inw num" inputmode="numeric" value="0,000,000" placeholder="記録しない" style="text-align: right" aria-label="頭金の実績額"/></label><label style="display: grid; grid-template-columns: 1fr 124px; gap: 8px; align-items: center; min-height: 60px; border-bottom: 1px solid #E5E7EB"><span><span class="tag">資産の購入</span> 自宅<br><span class="lbl">予定 ¥00,000,000</span></span><input class="inw num" inputmode="numeric" value="00,000,000" placeholder="記録しない" style="text-align: right" aria-label="自宅の実績額"/></label><label style="display: grid; grid-template-columns: 1fr 124px; gap: 8px; align-items: center; min-height: 60px; border-bottom: 1px solid #E5E7EB"><span><span class="tag">支出</span> 諸費用<br><span class="lbl">予定 ¥000,000</span></span><input class="inw num" inputmode="numeric" value="000,000" placeholder="記録しない" style="text-align: right" aria-label="諸費用の実績額"/></label><label style="display: grid; grid-template-columns: 1fr 124px; gap: 8px; align-items: center; min-height: 60px; border-bottom: 1px solid #E5E7EB"><span><span class="tag">振替</span> 住宅ローン借入<br><span class="lbl">予定 ¥00,000,000</span></span><input class="inw num" inputmode="numeric" value="00,000,000" placeholder="記録しない" style="text-align: right" aria-label="住宅ローン借入の実績額"/></label>
+</section>
+<button class="tb" style="align-self: flex-start">＋ 予定になかった収支を追加</button>
+<div class="note">資産の購入は、資産「自宅」の購入として記録し、購入日の評価額にもなります。数量×単価の資産は、金額から実施日の単価で数量を計算します。</div>
+<button class="tg" role="switch" aria-checked="{{dOn}}" onClick="{{tD}}" style="align-self: flex-start"><span class="tr" aria-hidden="true"></span>保存したらイベントを「実施済み」にする</button>
+<div class="g2" style="margin-top: auto"><a class="btn" href="EventDetail.dc.html">キャンセル</a><a class="btn pri" href="EventDetail.dc.html">実績を保存</a></div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":980}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: true }; }
+  renderVals() {
+    return { dOn: this.state.d ? 'true' : 'false', tD: () => this.setState({ d: !this.state.d }) };
+  }
+}
+</script>
+</body>
+</html>

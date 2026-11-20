@@ -1,0 +1,491 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-11T14:30:00Z"
+  },
+  "title": "家計簿兼ライフプランアプリ ワイヤーフレーム",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 300,
+      "w": 390,
+      "h": 1290,
+      "title": "ホーム（ライフプラン一覧）",
+      "is_interactive": true
+    },
+    "HomeGroups.dc.html": {
+      "x": 470,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "ホーム（グループ）",
+      "is_interactive": true
+    },
+    "HomeTemplates.dc.html": {
+      "x": 940,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "ホーム（テンプレート・削除の警告）",
+      "is_interactive": true
+    },
+    "TemplateEdit.dc.html": {
+      "x": 1410,
+      "y": 300,
+      "w": 390,
+      "h": 1240,
+      "title": "テンプレートの追加・編集（上昇率）",
+      "is_interactive": true
+    },
+    "HomeCategories.dc.html": {
+      "x": 1880,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "ホーム（カテゴリ）",
+      "is_interactive": true
+    },
+    "CategoryEdit.dc.html": {
+      "x": 2350,
+      "y": 300,
+      "w": 390,
+      "h": 900,
+      "title": "カテゴリの追加・編集",
+      "is_interactive": true
+    },
+    "GroupEdit.dc.html": {
+      "x": 2820,
+      "y": 300,
+      "w": 390,
+      "h": 1270,
+      "title": "グループ編集",
+      "is_interactive": true
+    },
+    "PlanDetail.dc.html": {
+      "x": 3290,
+      "y": 300,
+      "w": 390,
+      "h": 1130,
+      "title": "プラン詳細",
+      "is_interactive": true
+    },
+    "PlanYear.dc.html": {
+      "x": 3760,
+      "y": 300,
+      "w": 390,
+      "h": 960,
+      "title": "計画（年別）",
+      "is_interactive": true
+    },
+    "Family.dc.html": {
+      "x": 4230,
+      "y": 300,
+      "w": 390,
+      "h": 844,
+      "title": "家族",
+      "is_interactive": true
+    },
+    "PlanGroups.dc.html": {
+      "x": 4700,
+      "y": 300,
+      "w": 390,
+      "h": 1300,
+      "title": "登録済みグループ",
+      "is_interactive": true
+    },
+    "GroupRegister.dc.html": {
+      "x": 5170,
+      "y": 300,
+      "w": 390,
+      "h": 900,
+      "title": "グループを登録（欠けた項目の確認）",
+      "is_interactive": true
+    },
+    "Rates.dc.html": {
+      "x": 5640,
+      "y": 300,
+      "w": 390,
+      "h": 1020,
+      "title": "率の設定",
+      "is_interactive": true
+    },
+    "Events.dc.html": {
+      "x": 0,
+      "y": 2100,
+      "w": 390,
+      "h": 1240,
+      "title": "イベント（一覧）",
+      "is_interactive": true
+    },
+    "EventDetail.dc.html": {
+      "x": 470,
+      "y": 2100,
+      "w": 390,
+      "h": 980,
+      "title": "イベント詳細（予定と実績）",
+      "is_interactive": true
+    },
+    "EventEdit.dc.html": {
+      "x": 940,
+      "y": 2100,
+      "w": 390,
+      "h": 1260,
+      "title": "イベントの追加・編集（日付・年月・年齢）",
+      "is_interactive": true
+    },
+    "EventActual.dc.html": {
+      "x": 1410,
+      "y": 2100,
+      "w": 390,
+      "h": 980,
+      "title": "イベントの実績入力",
+      "is_interactive": true
+    },
+    "Ledger.dc.html": {
+      "x": 0,
+      "y": 3860,
+      "w": 390,
+      "h": 1900,
+      "title": "家計簿（実績・年）",
+      "is_interactive": true
+    },
+    "LedgerMonth.dc.html": {
+      "x": 470,
+      "y": 3860,
+      "w": 390,
+      "h": 1460,
+      "title": "家計簿（実績・月）",
+      "is_interactive": true
+    },
+    "LedgerList.dc.html": {
+      "x": 940,
+      "y": 3860,
+      "w": 390,
+      "h": 1070,
+      "title": "家計簿（実績・リスト）",
+      "is_interactive": true
+    },
+    "LedgerCalendar.dc.html": {
+      "x": 1410,
+      "y": 3860,
+      "w": 390,
+      "h": 1090,
+      "title": "家計簿（実績・カレンダー）",
+      "is_interactive": true
+    },
+    "TxnEdit.dc.html": {
+      "x": 1880,
+      "y": 3860,
+      "w": 390,
+      "h": 1000,
+      "title": "予定・実績の入力・編集",
+      "is_interactive": true
+    },
+    "GroupEntry.dc.html": {
+      "x": 2350,
+      "y": 3860,
+      "w": 390,
+      "h": 1070,
+      "title": "グループから実績入力",
+      "is_interactive": true
+    },
+    "PlannedEntry.dc.html": {
+      "x": 2820,
+      "y": 3860,
+      "w": 390,
+      "h": 2060,
+      "title": "予定から実績入力（未入力の予定）",
+      "is_interactive": true
+    },
+    "LedgerPlan.dc.html": {
+      "x": 0,
+      "y": 6420,
+      "w": 390,
+      "h": 1860,
+      "title": "家計簿（予定・年）",
+      "is_interactive": true
+    },
+    "LedgerPlanMonth.dc.html": {
+      "x": 470,
+      "y": 6420,
+      "w": 390,
+      "h": 1400,
+      "title": "家計簿（予定・月）",
+      "is_interactive": true
+    },
+    "LedgerPlanList.dc.html": {
+      "x": 940,
+      "y": 6420,
+      "w": 390,
+      "h": 1130,
+      "title": "家計簿（予定・リスト）",
+      "is_interactive": true
+    },
+    "LedgerCompare.dc.html": {
+      "x": 1410,
+      "y": 6420,
+      "w": 390,
+      "h": 2450,
+      "title": "家計簿（比較・年）",
+      "is_interactive": true
+    },
+    "LedgerCompareMonth.dc.html": {
+      "x": 1880,
+      "y": 6420,
+      "w": 390,
+      "h": 1870,
+      "title": "家計簿（比較・月）",
+      "is_interactive": true
+    },
+    "PlanSwitch.dc.html": {
+      "x": 2350,
+      "y": 6420,
+      "w": 390,
+      "h": 844,
+      "title": "表示するプランの切り替え",
+      "is_interactive": true
+    },
+    "YearsCompare.dc.html": {
+      "x": 0,
+      "y": 9370,
+      "w": 390,
+      "h": 1550,
+      "title": "年別の予実（一覧・生涯）",
+      "is_interactive": true
+    },
+    "YearlyCompare.dc.html": {
+      "x": 470,
+      "y": 9370,
+      "w": 390,
+      "h": 1480,
+      "title": "年間の予実（年の詳細）",
+      "is_interactive": true
+    },
+    "BudgetActual.dc.html": {
+      "x": 940,
+      "y": 9370,
+      "w": 390,
+      "h": 844,
+      "title": "予実比較",
+      "is_interactive": true
+    },
+    "AssetCompare.dc.html": {
+      "x": 1410,
+      "y": 9370,
+      "w": 390,
+      "h": 1300,
+      "title": "資産の予実（生涯）",
+      "is_interactive": true
+    },
+    "Assets.dc.html": {
+      "x": 0,
+      "y": 11420,
+      "w": 390,
+      "h": 1060,
+      "title": "資産一覧",
+      "is_interactive": true
+    },
+    "AccountDetail.dc.html": {
+      "x": 470,
+      "y": 11420,
+      "w": 390,
+      "h": 844,
+      "title": "口座詳細",
+      "is_interactive": true
+    },
+    "AssetDetail.dc.html": {
+      "x": 940,
+      "y": 11420,
+      "w": 390,
+      "h": 1600,
+      "title": "資産詳細（推移グラフ）",
+      "is_interactive": true
+    },
+    "AssetEdit.dc.html": {
+      "x": 1410,
+      "y": 11420,
+      "w": 390,
+      "h": 1100,
+      "title": "資産の追加・編集",
+      "is_interactive": true
+    },
+    "Buy.dc.html": {
+      "x": 1880,
+      "y": 11420,
+      "w": 390,
+      "h": 960,
+      "title": "購入",
+      "is_interactive": true
+    },
+    "Sell.dc.html": {
+      "x": 2350,
+      "y": 11420,
+      "w": 390,
+      "h": 960,
+      "title": "売却",
+      "is_interactive": true
+    },
+    "AssetFlow.dc.html": {
+      "x": 2820,
+      "y": 11420,
+      "w": 390,
+      "h": 900,
+      "title": "収益・費用",
+      "is_interactive": true
+    },
+    "Settings.dc.html": {
+      "x": 0,
+      "y": 13520,
+      "w": 390,
+      "h": 844,
+      "title": "設定",
+      "is_interactive": true
+    },
+    "Masters.dc.html": {
+      "x": 470,
+      "y": 13520,
+      "w": 390,
+      "h": 900,
+      "title": "カテゴリ・口座",
+      "is_interactive": true
+    },
+    "AccountEdit.dc.html": {
+      "x": 940,
+      "y": 13520,
+      "w": 390,
+      "h": 844,
+      "title": "口座を追加",
+      "is_interactive": true
+    },
+    "Sync.dc.html": {
+      "x": 1410,
+      "y": 13520,
+      "w": 390,
+      "h": 900,
+      "title": "同期",
+      "is_interactive": true
+    },
+    "DataMgmt.dc.html": {
+      "x": 1880,
+      "y": 13520,
+      "w": 390,
+      "h": 1160,
+      "title": "データ管理",
+      "is_interactive": true
+    },
+    "JsonImport.dc.html": {
+      "x": 2350,
+      "y": 13520,
+      "w": 390,
+      "h": 1500,
+      "title": "JSONの取り込み",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "HomeGroups.dc.html",
+    "HomeTemplates.dc.html",
+    "TemplateEdit.dc.html",
+    "HomeCategories.dc.html",
+    "CategoryEdit.dc.html",
+    "GroupEdit.dc.html",
+    "PlanDetail.dc.html",
+    "PlanYear.dc.html",
+    "Family.dc.html",
+    "PlanGroups.dc.html",
+    "GroupRegister.dc.html",
+    "Rates.dc.html",
+    "Events.dc.html",
+    "EventDetail.dc.html",
+    "EventEdit.dc.html",
+    "EventActual.dc.html",
+    "Ledger.dc.html",
+    "LedgerMonth.dc.html",
+    "LedgerList.dc.html",
+    "LedgerCalendar.dc.html",
+    "TxnEdit.dc.html",
+    "GroupEntry.dc.html",
+    "PlannedEntry.dc.html",
+    "LedgerPlan.dc.html",
+    "LedgerPlanMonth.dc.html",
+    "LedgerPlanList.dc.html",
+    "LedgerCompare.dc.html",
+    "LedgerCompareMonth.dc.html",
+    "PlanSwitch.dc.html",
+    "YearsCompare.dc.html",
+    "YearlyCompare.dc.html",
+    "BudgetActual.dc.html",
+    "AssetCompare.dc.html",
+    "Assets.dc.html",
+    "AccountDetail.dc.html",
+    "AssetDetail.dc.html",
+    "AssetEdit.dc.html",
+    "Buy.dc.html",
+    "Sell.dc.html",
+    "AssetFlow.dc.html",
+    "Settings.dc.html",
+    "Masters.dc.html",
+    "AccountEdit.dc.html",
+    "Sync.dc.html",
+    "DataMgmt.dc.html",
+    "JsonImport.dc.html"
+  ],
+  "notes": {
+    "row1": {
+      "x": 0,
+      "y": 0,
+      "text": "ホーム・ライフプラン",
+      "kind": "title1",
+      "maxW": 6030
+    },
+    "row2": {
+      "x": 0,
+      "y": 1800,
+      "text": "イベント",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "row3": {
+      "x": 0,
+      "y": 3560,
+      "text": "家計簿（実績）",
+      "kind": "title1",
+      "maxW": 3210
+    },
+    "row4": {
+      "x": 0,
+      "y": 6120,
+      "text": "家計簿（予定・比較）",
+      "kind": "title1",
+      "maxW": 2740
+    },
+    "row5": {
+      "x": 0,
+      "y": 9070,
+      "text": "予定と実績の比較",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "row6": {
+      "x": 0,
+      "y": 11120,
+      "text": "資産",
+      "kind": "title1",
+      "maxW": 3210
+    },
+    "row7": {
+      "x": 0,
+      "y": 13220,
+      "text": "設定",
+      "kind": "title1",
+      "maxW": 2740
+    }
+  },
+  "designSystems": []
+}

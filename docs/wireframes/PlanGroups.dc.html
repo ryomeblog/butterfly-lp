@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>登録済みグループ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.reg{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px;border-bottom:1px solid #E5E7EB;padding:4px 0}
+.reg.on{background:#EFF6FF;border-left:3px solid #1D4ED8;padding-left:8px}
+.gap{font-size:12px;color:#78350F;background:#FFFBEB;border:1px solid #B45309;border-radius:6px;padding:8px 10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-weight:500;color:#4B5563;text-align:right;padding:4px 2px;border-bottom:1px solid #D1D5DB}
+.tbl td{text-align:right;padding:6px 2px;border-bottom:1px solid #E5E7EB;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:40px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.btn{height:44px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.danger{border-color:#B91C1C;color:#B91C1C}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 1300px">
+<header class="bar">
+<a class="ib" href="PlanDetail.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>登録済みグループ（プランB）</h1>
+<a class="ib" href="GroupRegister.dc.html" aria-label="グループを登録"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
+</header>
+<main class="body">
+<section style="display: flex; flex-direction: column">
+<div class="reg on"><span>A社の給与明細<br><span class="lbl">2026/04〜2031/03</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="reg"><span>B社の給与明細（転職後）<br><span class="lbl">2031/04〜2050/03</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="reg"><span>B社の給与明細（再雇用）<br><span class="lbl">2050/04〜2055/03</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="reg"><span>住居費<br><span class="lbl">2026/04〜2030/02</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="reg"><span>住宅ローンと維持費<br><span class="lbl">2030/03〜2065/02</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+<div class="reg"><span>銘柄A（配当・積立）<br><span class="lbl">2026/04〜2055/03</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></div>
+</section>
+<div class="gap" role="note">登録していない期間は、その収入・支出がないものとして計算します。収入のグループがない年：<strong>2055年4月〜</strong></div>
+
+<section class="card">
+<h2 class="h2">A社の給与明細</h2>
+<div class="lbl">2026/04〜2031/03・上昇率の基準：2026年・作成した計画行 000件</div>
+<table class="tbl">
+<thead><tr><th>年</th><th>収入</th><th>支出</th><th>振替</th><th>差引</th></tr></thead>
+<tbody>
+<tr><td>2026</td><td>0,000,000</td><td>000,000</td><td>000,000</td><td>0,000,000</td></tr>
+<tr><td>2027</td><td>0,000,000</td><td>0,000,000</td><td>000,000</td><td>0,000,000</td></tr>
+<tr><td>2028</td><td>0,000,000</td><td>0,000,000</td><td>000,000</td><td>0,000,000</td></tr>
+<tr><td>2029</td><td>0,000,000</td><td>0,000,000</td><td>000,000</td><td>0,000,000</td></tr>
+</tbody>
+</table>
+<div class="lbl">給与は「給与」カテゴリの上昇率（年0.0%）で増え、割合の項目（税・社会保険料）はそれに連動します。作成した計画行は、グループを後で変えても自動では変わりません。</div>
+</section>
+
+<section class="card">
+<h2 class="h2">作り直し</h2>
+<label class="f"><span class="lbl">この年月以降を、今のグループの内容で作り直す</span><select class="in"><option>2027年1月</option></select></label>
+<button class="btn">作り直す（手で直した行も置き換え）</button>
+</section>
+
+<section class="card">
+<h2 class="h2">削除</h2>
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end">
+<label class="f"><span class="lbl">開始年</span><select class="in"><option>2029年</option></select></label><span style="padding-bottom: 8px">〜</span>
+<label class="f"><span class="lbl">終了年</span><select class="in"><option>2031年</option></select></label>
+</div>
+<button class="btn">この範囲の計画行を削除（登録は残す）</button>
+<button class="btn danger">登録を取り消す（計画行ごと削除）</button>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

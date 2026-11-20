@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>グループ編集</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:40px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.item{border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.item.open{border:2px solid #1D4ED8;gap:8px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden}
+.seg button{flex:1;text-align:center;padding:8px 0;font:inherit;font-size:13px;color:#111827;border:0;background:#fff;cursor:pointer}
+.seg .on{background:#111827;color:#FFFFFF}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+.note{font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:8px 10px}
+.btn{height:48px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div class="s" style="height: 1270px">
+<header class="bar">
+<a class="ib" href="HomeGroups.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>グループを編集</h1>
+<button class="ib" aria-label="グループを削除"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+</header>
+<main class="body">
+<label class="f"><span class="lbl">グループ名</span><input class="in" value="A社の給与明細"/></label>
+<div class="note">グループは収入・支出の項目の集まりです。給与明細も「給与＋税・社会保険料」のグループとして作ります。期間は持たず、ライフプランに登録するときに決めます。</div>
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 class="h2">項目</h2><span class="lbl">7件</span></div>
+<div style="border: 1px solid #B45309; background: #FFFBEB; color: #78350F; border-radius: 6px; padding: 8px 10px; font-size: 12px">削除されたテンプレートの項目が1件あります（ボーナスの税・社会保険料）。この項目は登録・実績入力では使われません。項目を外すか、テンプレートを選び直してください。<div style="display: flex; gap: 8px; margin-top: 6px"><a class="tb" href="HomeTemplates.dc.html" style="height: 32px">別のテンプレートを選ぶ</a><button class="tb" style="height: 32px">この項目を外す</button></div></div>
+
+<section class="item">
+<div class="head"><span><span class="tag">収入</span> 給与（額面）</span><span class="num">¥000,000</span></div>
+<div class="lbl">毎月・固定額・給与／メイン銀行</div>
+</section>
+
+<section class="item open">
+<div class="head"><span><span class="tag">支出</span> 所得税</span><span class="num">{{summary}}</span></div>
+<div class="f"><span class="lbl">金額の決め方</span>
+<div class="seg"><button class="{{fixedCls}}" onClick="{{setFixed}}">固定額</button><button class="{{pctCls}}" onClick="{{setPct}}">別の項目の○%</button></div></div>
+<sc-if value="{{isPct}}" hint-placeholder-val="{{true}}">
+<div class="g2">
+<label class="f"><span class="lbl">基準にする項目</span><select class="in"><option>給与（額面）</option><option>ボーナス</option></select></label>
+<label class="f"><span class="lbl">割合（%）</span><input class="in num" inputmode="decimal" value="0.0"/></label>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><span class="lbl">実績からの提案：0.0%（直近12か月の一括入力 00回分）</span><button class="tb">提案を使う</button></div>
+<div class="lbl">基準の項目が発生する月に、その金額×%で発生します。昇給で給与が増えれば一緒に増えます。</div>
+</sc-if>
+<sc-if value="{{isFixed}}" hint-placeholder-val="{{false}}">
+<div class="g2">
+<label class="f"><span class="lbl">金額（円）</span><input class="in num" inputmode="numeric" value="00,000"/></label>
+<label class="f"><span class="lbl">頻度</span><select class="in"><option>毎月</option><option>毎年</option><option>Nか月ごと</option><option>N年ごと</option><option>毎週</option><option>特定の月のみ</option></select></label>
+</div>
+</sc-if>
+<div class="lbl">テンプレート「所得税」（所得税／メイン銀行）</div>
+</section>
+
+<section class="item">
+<div class="head"><span><span class="tag">支出</span> 住民税</span><span class="num">¥00,000</span></div>
+<div class="lbl">毎月・固定額</div>
+</section>
+
+<section class="item">
+<div class="head"><span><span class="tag">支出</span> 社会保険料</span><span class="num">給与の 00.0%</span></div>
+<div class="lbl">給与（額面）と同じ月</div>
+</section>
+
+<section class="item">
+<div class="head"><span><span class="tag">収入</span> ボーナス</span><span class="num">¥000,000</span></div>
+<div class="lbl">特定の月のみ（6月・12月）・固定額</div>
+</section>
+
+<section class="item">
+<div class="head"><span><span class="tag">支出</span> ボーナスの税・社会保険料</span><span class="num">ボーナスの 00.0%</span></div>
+<div class="lbl">ボーナスと同じ月</div>
+</section>
+
+<section class="item">
+<div class="head"><span><span class="tag">振替</span> 持株会</span><span class="num">¥00,000</span></div>
+<div class="lbl">毎月・固定額・メイン銀行 → 証券口座</div>
+</section>
+
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<a class="tb" href="HomeGroups.dc.html">＋ 項目（テンプレート）を追加</a>
+<a class="tb" href="GroupEntry.dc.html">このグループで実績を入力</a>
+</div>
+<div class="g2" style="margin-top: auto">
+<a class="btn" href="HomeGroups.dc.html">キャンセル</a>
+<a class="btn pri" href="HomeGroups.dc.html">保存</a>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1270}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mode: 'pct' };
+  }
+  renderVals() {
+    const pct = this.state.mode === 'pct';
+    return {
+      isPct: pct,
+      isFixed: !pct,
+      pctCls: pct ? 'on' : '',
+      fixedCls: pct ? '' : 'on',
+      summary: pct ? '給与の 0.0%' : '¥00,000',
+      setPct: () => this.setState({ mode: 'pct' }),
+      setFixed: () => this.setState({ mode: 'fixed' })
+    };
+  }
+}
+</script>
+</body>
+</html>

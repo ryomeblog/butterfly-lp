@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>データ管理</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px}
+.card{border:1px solid #D1D5DB;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.h2{margin:0;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.btn{height:44px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.danger{border-color:#B91C1C;color:#B91C1C}
+.warn{border:1px solid #B45309;background:#FFFBEB;color:#78350F;border-radius:6px;padding:8px 10px;font-size:12px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 1160px">
+<header class="bar">
+<a class="ib" href="Settings.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>データ管理</h1>
+</header>
+<main class="body">
+<section class="card">
+<h2 class="h2">バックアップと復元</h2>
+<div class="lbl">全データを1つのファイルに書き出します（端末の変更・故障に備える用）。</div>
+<button class="btn">バックアップを書き出す</button>
+<div class="warn">この端末のデータをすべて消して、ファイルの内容で上書きします。復元後に同期すると、他の端末のデータは通常どおりマージされます。</div>
+<button class="btn danger">ファイルを選んで復元</button>
+</section>
+<section class="card">
+<h2 class="h2">JSONで書き出し・取り込み</h2>
+<div class="lbl">単位を選んで書き出します。取り込みはファイルの中身を自動で判別します。どの行もUUIDを持ち、参照先（カテゴリ・口座・資産・イベントなど）の名前も一緒に書き出します。</div>
+<label style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">書き出す単位</span><select class="in" onChange="{{pick}}"><option value="pa">予定・実績（プランと期間を指定）</option><option value="plan">ライフプラン</option><option value="group">グループ</option><option value="tpl">テンプレート</option><option value="sec">資産</option><option value="secs">資産リスト（表示中のプランの資産）</option><option value="all">アプリの全データ</option></select></label>
+<sc-if value="{{isPa}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; gap: 16px; flex-wrap: wrap"><label style="display: flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked="checked" style="width: 20px; height: 20px"/>実績</label><label style="display: flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked="checked" style="width: 20px; height: 20px"/>予定</label></div>
+<select class="in" aria-label="書き出すプラン"><option>プランB（住宅購入）</option><option>すべてのプラン</option></select>
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center">
+<input class="in" type="month" value="2026-01" aria-label="開始年月"/><span>〜</span><input class="in" type="month" value="2026-12" aria-label="終了年月"/>
+</div>
+</sc-if>
+<sc-if value="{{isPlan}}" hint-placeholder-val="{{false}}">
+<select class="in" aria-label="書き出すプラン"><option>プランB（住宅購入）</option><option>プランA（現状維持）</option><option>プランC（転職）</option></select>
+<div class="lbl">家族・イベント・率・グループの登録・予定（計画行）と、登録しているグループ・テンプレートを含みます。</div>
+</sc-if>
+<sc-if value="{{isGroup}}" hint-placeholder-val="{{false}}">
+<select class="in" aria-label="書き出すグループ"><option>A社の給与明細</option><option>住居費</option><option>すべてのグループ</option></select>
+<div class="lbl">項目・頻度・金額の決め方と、項目が使うテンプレートを含みます。</div>
+</sc-if>
+<sc-if value="{{isTpl}}" hint-placeholder-val="{{false}}">
+<select class="in" aria-label="書き出すテンプレート"><option>家賃</option><option>給与（額面）</option><option>すべてのテンプレート</option></select>
+</sc-if>
+<sc-if value="{{isSec}}" hint-placeholder-val="{{false}}">
+<select class="in" aria-label="書き出す資産"><option>自宅</option><option>銘柄A</option></select>
+<div class="lbl">資産の情報と日・月単位の価値、その資産を参照する実績・予定、それらが参照するイベントを含みます。</div>
+</sc-if>
+<sc-if value="{{isSecs}}" hint-placeholder-val="{{false}}">
+<div class="lbl">表示中のプランのすべての資産と、それぞれの価値・実績・予定・イベントを含みます。</div>
+</sc-if>
+<sc-if value="{{isAll}}" hint-placeholder-val="{{false}}">
+<div class="lbl">カテゴリ・口座・テンプレート・グループ・全プラン（各プランの家計簿と資産を含む）を含みます。取り込みは「追加・上書き（マージ）」です。端末を丸ごと戻すときは「ファイルから復元」を使います。</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn">JSONを書き出す</button>
+<a class="btn" href="JsonImport.dc.html">JSONを取り込む</a>
+</div>
+</section>
+<section class="card">
+<h2 class="h2">実績をCSVで書き出し</h2>
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center">
+<input class="in" type="date" value="2026-01-01" aria-label="開始日"/><span>〜</span><input class="in" type="date" value="2026-12-31" aria-label="終了日"/>
+</div>
+<div class="lbl">UTF-8（BOM付き）。列：日付・種類・金額・カテゴリ・口座・入金先口座・資産・資産の動き・数量・メモ</div>
+<button class="btn">CSVを書き出す</button>
+</section>
+<section class="card">
+<h2 class="h2">参考アプリ（shin-lifeplan-app）から移行</h2>
+<div class="lbl">取引は年月の1日付の実績、保有資産は購入・売却の実績、家族・イベントは新しいプランとして取り込みます。</div>
+<button class="btn">JSONファイルを選ぶ</button>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1160}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { unit: 'pa' };
+  }
+  renderVals() {
+    const u = this.state.unit;
+    return { pick: (e) => this.setState({ unit: e.target.value }), isPa: u === 'pa', isPlan: u === 'plan', isGroup: u === 'group', isTpl: u === 'tpl', isSec: u === 'sec', isSecs: u === 'secs', isAll: u === 'all' };
+  }
+}
+</script>
+</body>
+</html>

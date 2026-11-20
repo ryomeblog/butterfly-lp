@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>実績入力・編集</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;text-decoration:none;flex:none}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px}
+.lbl{font-size:12px;color:#4B5563}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg a,.seg span,.seg button{flex:1;text-align:center;padding:10px 0;font:inherit;font-size:13px;color:#111827;text-decoration:none;border:0;background:#fff}
+.seg .on{background:#111827;color:#FFFFFF}
+.cg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cg button{height:44px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;font:inherit;font-size:13px;color:#111827}
+.cg .on{border:2px solid #1D4ED8;background:#EFF6FF;font-weight:700}
+.btn{height:48px;border-radius:8px;border:1px solid #111827;background:#fff;color:#111827;font:inherit;font-weight:500;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
+.pri{background:#1D4ED8;border-color:#1D4ED8;color:#FFFFFF}
+.note{font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:8px 10px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 1000px">
+<header class="bar">
+<a class="ib" href="Ledger.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>{{title}}</h1>
+<button class="ib" aria-label="この収支をJSONで書き出す"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
+<button class="ib" aria-label="削除"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+</header>
+<main class="body">
+<div class="seg" aria-label="入力するもの"><button class="{{aCls}}" onClick="{{setAct}}">実績</button><button class="{{pCls}}" onClick="{{setPlan}}">予定</button></div>
+<sc-if value="{{isPlan}}" hint-placeholder-val="{{false}}">
+<div class="note" style="background: #EFF6FF; color: #1E3A8A">予定は、表示中のプラン「プランB（住宅購入）」の計画行（手入力）として保存します。プランを変えるときはホームで切り替えます。</div>
+</sc-if>
+<div class="f"><span class="lbl">テンプレートから入力</span>
+<div style="display: flex; gap: 8px; overflow: hidden">
+<a class="tb" href="GroupEntry.dc.html">グループで一括入力</a>
+<button class="tb">家賃</button><button class="tb">電気代</button><button class="tb">給与</button>
+</div></div>
+<div class="seg"><button>収入</button><button class="on">支出</button><button>振替</button></div>
+<sc-if value="{{isAct}}" hint-placeholder-val="{{true}}">
+<label class="f"><span class="lbl">日付（未来日付も可）</span><input class="in" type="date" value="2026-11-11"/></label>
+</sc-if>
+<sc-if value="{{isPlan}}" hint-placeholder-val="{{false}}">
+<label class="f"><span class="lbl">年月（予定は月単位）</span><input class="in" type="month" value="2026-12"/></label>
+<label class="f"><span class="lbl">イベント（任意）</span><select class="in"><option>なし</option><option>住宅購入（2030年3月）</option><option>第1子誕生（2028年4月）</option></select></label>
+</sc-if>
+<label class="f"><span class="lbl">金額（円）</span><input class="in" inputmode="numeric" placeholder="0" style="font-size: 22px; height: 52px; text-align: right"/></label>
+<div class="f"><span class="lbl">カテゴリ</span>
+<div class="cg">
+<button class="on">食費</button><button>住宅費</button><button>光熱費</button>
+<button>通信費</button><button>交通費</button><button>医療費</button>
+<button>保険料</button><button>教育費</button><button>娯楽費</button>
+<button>所得税</button><button>住民税</button><button>社会保険料</button>
+</div></div>
+<label class="f"><span class="lbl">口座（出金元）</span><select class="in"><option>現金</option><option>普通預金</option></select></label>
+<label class="f"><span class="lbl">メモ</span><input class="in" placeholder="任意"/></label>
+<div class="note">給与明細のように複数の収入・支出をまとめて入れるときは「グループで一括入力」を使います。資産の購入・売却・収益・費用は「資産」タブから入力します。</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: auto">
+<a class="btn" href="Ledger.dc.html">キャンセル</a>
+<a class="btn pri" href="Ledger.dc.html">保存</a>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kind: 'act' };
+  }
+  renderVals() {
+    const act = this.state.kind === 'act';
+    return {
+      title: act ? '実績を入力' : '予定を入力',
+      aCls: act ? 'on' : '',
+      pCls: act ? '' : 'on',
+      setAct: () => this.setState({ kind: 'act' }),
+      setPlan: () => this.setState({ kind: 'plan' }),
+      isAct: act,
+      isPlan: !act
+    };
+  }
+}
+</script>
+</body>
+</html>

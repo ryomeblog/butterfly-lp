@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>家計簿（リスト）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 8px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.tb{height:36px;border:1px solid #9CA3AF;border-radius:18px;background:#fff;padding:0 12px;font:inherit;font-size:13px;color:#111827;display:inline-flex;align-items:center;gap:4px;text-decoration:none;flex:none}
+.tb.on{background:#111827;border-color:#111827;color:#FFFFFF}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px}
+.lbl{font-size:12px;color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:52px;border-bottom:1px solid #E5E7EB;color:#111827;text-decoration:none}
+.day{font-size:12px;font-weight:700;color:#374151;background:#F3F4F6;padding:4px 8px;border-radius:4px;display:flex;justify-content:space-between}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg a,.seg span{flex:1;text-align:center;padding:10px 0;font-size:13px;color:#111827;text-decoration:none}
+.seg .on{background:#111827;color:#FFFFFF}
+.tag{font-size:11px;border:1px solid #9CA3AF;border-radius:4px;padding:0 6px;color:#374151}
+.tabs{height:64px;flex:none;border-top:1px solid #D1D5DB;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#4B5563;text-decoration:none}
+.tabs a.on{color:#1D4ED8;font-weight:700}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fab{position:absolute;right:16px;bottom:80px;width:56px;height:56px;border-radius:28px;background:#1D4ED8;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.num{font-variant-numeric:tabular-nums}
+.mode{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid #111827;border-radius:10px;overflow:hidden}
+.mode a,.mode span{text-align:center;padding:10px 0;font-size:14px;font-weight:700;color:#111827;text-decoration:none}
+.mode .on{background:#111827;color:#FFFFFF}
+.sumA{border:1px solid #111827;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.sumP{border:1.5px dashed #1D4ED8;background:#F8FAFF;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.s3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.s3 .v{font-size:16px;font-weight:700}
+.mc{display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px;align-items:center;min-height:40px;border-bottom:1px solid #E5E7EB;font-size:12.5px;color:#111827;text-decoration:none}
+.mc .num{text-align:right}
+.sumA .lbl{font-size:12px;color:#4B5563}
+</style>
+</helmet>
+<div class="s" style="height: 1070px">
+<header class="bar"><h1>家計簿<span style="margin-left: 6px; vertical-align: 2px; font-size: 11px; background: #1D4ED8; color: #FFFFFF; border-radius: 4px; padding: 1px 6px; font-weight: 500">プランB</span></h1></header>
+<main class="body">
+<nav class="mode" aria-label="表示するもの"><span class="on" aria-current="page">実績</span><a href="LedgerPlanMonth.dc.html">予定</a><a href="LedgerCompareMonth.dc.html">比較</a></nav>
+<div class="seg" role="tablist"><a href="Ledger.dc.html">内訳</a><span class="on">リスト</span><a href="LedgerCalendar.dc.html">カレンダー</a></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap" aria-label="絞り込み">
+<button class="tb on">期間：2026/11/01〜11/30</button>
+<button class="tb">カテゴリ</button>
+<button class="tb">口座</button>
+<button class="tb on">種類：支出・振替</button>
+<button class="tb">金額</button>
+</div>
+<section class="sumA" aria-label="11月の実績"><div class="lbl">11月の実績</div><div class="s3"><div><div class="lbl">収入</div><div class="v num">¥000,000</div></div><div><div class="lbl">支出</div><div class="v num">¥000,000</div></div><div><div class="lbl">収支</div><div class="v num">+¥00,000</div></div></div></section>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="tb" style="justify-content: center">絞り込み結果をJSONで書き出す</button><a class="tb" href="JsonImport.dc.html" style="justify-content: center">収支を取り込む</a></div>
+<div class="lbl">絞り込み結果 42件　支出 <span class="num" style="color: #111827">−¥000,000</span></div>
+<div style="display: flex; flex-direction: column">
+<div class="day"><span>11月11日（水）</span><span class="num">−¥00,000</span></div>
+<a class="row" href="TxnEdit.dc.html"><span>食費<br><span class="lbl">現金・スーパー</span></span><span class="num">−¥0,000</span></a>
+<a class="row" href="TxnEdit.dc.html"><span>住宅費<br><span class="lbl">普通預金・家賃</span></span><span class="num">−¥00,000</span></a>
+<div class="day" style="margin-top: 8px"><span>11月10日（火）</span><span class="num">−¥0,000</span></div>
+<a class="row" href="TxnEdit.dc.html"><span>交通費<br><span class="lbl">普通預金</span></span><span class="num">−¥0,000</span></a>
+<a class="row" href="TxnEdit.dc.html"><span><span class="tag">振替</span> 普通預金 → 証券口座<br><span class="lbl">積立資金</span></span><span class="num">¥00,000</span></a>
+<div class="day" style="margin-top: 8px"><span>11月08日（日）</span><span class="num">−¥0,000</span></div>
+<a class="row" href="TxnEdit.dc.html"><span>娯楽費<br><span class="lbl">現金</span></span><span class="num">−¥0,000</span></a>
+</div>
+</main>
+<a class="fab" href="TxnEdit.dc.html" aria-label="予定・実績を入力"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 26px; height: 26px"><path d="M12 5v14M5 12h14"/></svg></a>
+<nav class="tabs" aria-label="メインメニュー">
+<a href="Main.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</a>
+<a href="Ledger.dc.html" class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>家計簿</a>
+<a href="Assets.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>資産</a>
+<a href="Events.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>イベント</a>
+<a href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>設定</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1070}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

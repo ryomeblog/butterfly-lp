@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>率の設定</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+.s{width:390px;box-sizing:border-box;background:#FFFFFF;color:#111827;font-family:'Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid #D1D5DB}
+.bar h1{margin:0 0 0 4px;font-size:17px;font-weight:700;flex:1}
+.ib{width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#111827;padding:0;text-decoration:none;font:inherit}
+.body{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px}
+.h2{margin:0 0 4px;font-size:15px;font-weight:700}
+.lbl{font-size:12px;color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;border-bottom:1px solid #E5E7EB}
+.pin{width:96px;height:36px;border:1px solid #9CA3AF;border-radius:6px;padding:0 8px;font:inherit;text-align:right;box-sizing:border-box;font-variant-numeric:tabular-nums}
+.pin.empty{border-style:dashed;background:#F9FAFB}
+.f{display:flex;flex-direction:column;gap:4px}
+.in{height:44px;border:1px solid #9CA3AF;border-radius:6px;padding:0 10px;font:inherit;box-sizing:border-box;width:100%;background:#fff;color:#111827}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;flex:none}
+.seg button{flex:1;text-align:center;padding:10px 0;font:inherit;font-size:13px;color:#111827;border:0;background:#fff;cursor:pointer}
+.seg .on{background:#111827;color:#FFFFFF}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="s" style="height: 1020px">
+<header class="bar">
+<a class="ib" href="PlanDetail.dc.html" aria-label="戻る"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1>率・FIRE（プランB）</h1>
+</header>
+<main class="body">
+<section>
+<h2 class="h2">想定利回り（年%）</h2>
+<label class="row"><span>現金<br><span class="lbl">口座</span></span><input class="pin" value="0.0"/></label>
+<label class="row"><span>メイン銀行<br><span class="lbl">口座</span></span><input class="pin" value="0.0"/></label>
+<label class="row"><span>銘柄A<br><span class="lbl">資産（投資信託）</span></span><input class="pin" value="0.0"/></label>
+<label class="row"><span>自宅<br><span class="lbl">資産（不動産）</span></span><input class="pin" value="0.0"/></label>
+</section>
+<section>
+<h2 class="h2">上昇率（年%）</h2>
+<label class="row"><span><strong>既定値</strong><br><span class="lbl">カテゴリ別の設定が無いときに使う</span></span><input class="pin" value="0.0"/></label>
+<label class="row"><span>給与<br><span class="lbl">昇給率として使う</span></span><input class="pin" value="0.0"/></label>
+<label class="row"><span>食費</span><input class="pin" value="0.0"/></label>
+<label class="row"><span>教育費</span><input class="pin" value="0.0"/></label>
+<label class="row"><span>住宅費</span><input class="pin empty" placeholder="既定値"/></label>
+<div class="lbl" style="margin-top: 4px">グループを計画に適用するときだけ使います。作成済みの計画行は変わりません。</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 class="h2">FIRE</h2>
+<div class="seg"><button class="{{noneCls}}" onClick="{{setNone}}">使わない</button><button class="{{manualCls}}" onClick="{{setManual}}">手入力</button><button class="{{autoCls}}" onClick="{{setAuto}}">自動計算</button></div>
+<sc-if value="{{isManual}}" hint-placeholder-val="{{false}}">
+<label class="f"><span class="lbl">目標額（円）</span><input class="in" value="00,000,000" style="text-align: right"/></label>
+</sc-if>
+<sc-if value="{{isAuto}}" hint-placeholder-val="{{true}}">
+<label class="f"><span class="lbl">取崩し率（年%）</span><input class="in" value="0.0" style="text-align: right"/></label>
+<div class="lbl">目標額＝その年の計画支出（所得税・住民税・社会保険料・証券税を除く）÷ 取崩し率</div>
+</sc-if>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1020}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mode: 'auto' };
+  }
+  renderVals() {
+    const m = this.state.mode;
+    return {
+      noneCls: m === 'none' ? 'on' : '',
+      manualCls: m === 'manual' ? 'on' : '',
+      autoCls: m === 'auto' ? 'on' : '',
+      isManual: m === 'manual',
+      isAuto: m === 'auto',
+      setNone: () => this.setState({ mode: 'none' }),
+      setManual: () => this.setState({ mode: 'manual' }),
+      setAuto: () => this.setState({ mode: 'auto' })
+    };
+  }
+}
+</script>
+</body>
+</html>
