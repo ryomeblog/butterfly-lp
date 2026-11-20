@@ -2,8 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/device_repository.dart';
+import '../data/repositories/master_repository.dart';
 import '../data/repositories/plan_repository.dart';
 import '../data/repositories/stamp.dart';
+import '../data/repositories/template_repository.dart';
 
 /// アプリ起動時（main）に開いた DB で上書きする。
 final databaseProvider = Provider<AppDatabase>(
@@ -55,3 +57,40 @@ final selectedPlanProvider = Provider<AsyncValue<PlanRow?>>((ref) {
 final membersProvider = StreamProvider.family<List<FamilyMemberRow>, String>(
   (ref, planId) => ref.watch(planRepositoryProvider).watchMembers(planId),
 );
+
+final masterRepositoryProvider = Provider<MasterRepository>(
+  (ref) =>
+      MasterRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+final templateRepositoryProvider = Provider<TemplateRepository>(
+  (ref) =>
+      TemplateRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+final categoriesProvider = StreamProvider<List<CategoryRow>>(
+  (ref) => ref.watch(masterRepositoryProvider).watchCategories(),
+);
+
+final accountsProvider = StreamProvider<List<AccountRow>>(
+  (ref) => ref.watch(masterRepositoryProvider).watchAccounts(),
+);
+
+final templatesProvider = StreamProvider<List<TemplateRow>>(
+  (ref) => ref.watch(templateRepositoryProvider).watchTemplates(),
+);
+
+final templateGroupCountsProvider = StreamProvider<Map<String, int>>(
+  (ref) => ref.watch(templateRepositoryProvider).watchTemplateGroupCounts(),
+);
+
+final groupSummariesProvider = StreamProvider<List<GroupSummary>>(
+  (ref) => ref.watch(templateRepositoryProvider).watchGroupSummaries(),
+);
+
+final groupsUsingTemplateProvider =
+    StreamProvider.family<List<TemplateGroupRow>, String>(
+      (ref, templateId) => ref
+          .watch(templateRepositoryProvider)
+          .watchGroupsUsingTemplate(templateId),
+    );

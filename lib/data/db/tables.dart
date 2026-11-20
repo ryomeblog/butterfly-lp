@@ -124,7 +124,9 @@ class Templates extends Table with SyncColumns {
   IntColumn get amount => integer().nullable()();
   IntColumn get quantityX1e4 => integer().named('quantity_x1e4').nullable()();
   TextColumn get categoryId => text().named('category_id').nullable()();
-  TextColumn get accountId => text().named('account_id')();
+
+  /// 口座を「履歴ごと削除」したときだけ空になる（設計書 3.7）
+  TextColumn get accountId => text().named('account_id').nullable()();
   TextColumn get toAccountId => text().named('to_account_id').nullable()();
   TextColumn get assetId => text().named('asset_id').nullable()();
   TextColumn get assetAction => text().named('asset_action').nullable()();

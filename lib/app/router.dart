@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/models/enums.dart';
+import '../features/groups/group_edit_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/masters/account_edit_screen.dart';
+import '../features/masters/category_edit_screen.dart';
+import '../features/masters/masters_screen.dart';
+import '../features/templates/template_edit_screen.dart';
 import '../features/plan/plan_create_screen.dart';
 import '../features/plan/plan_detail_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -64,6 +70,19 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) =>
                         PlanDetailScreen(planId: state.pathParameters['id']!),
                   ),
+                  ..._categoryRoutes(),
+                  GoRoute(
+                    path: 'template/:id',
+                    builder: (context, state) => TemplateEditScreen(
+                      templateId: _idOrNull(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'group/:id',
+                    builder: (context, state) => GroupEditScreen(
+                      groupId: _idOrNull(state.pathParameters['id']),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -100,6 +119,21 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/settings',
                 builder: (context, state) => const SettingsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'masters',
+                    builder: (context, state) => const MastersScreen(),
+                    routes: [
+                      ..._categoryRoutes(),
+                      GoRoute(
+                        path: 'account/:id',
+                        builder: (context, state) => AccountEditScreen(
+                          accountId: _idOrNull(state.pathParameters['id']),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -110,6 +144,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+/// `new` は新規作成。
+String? _idOrNull(String? id) => id == 'new' ? null : id;
+
+/// カテゴリの追加・編集。ホームのカテゴリタブと設定の両方から開く。
+List<GoRoute> _categoryRoutes() => [
+  GoRoute(
+    path: 'category/:id',
+    builder: (context, state) {
+      final kind = state.uri.queryParameters['kind'];
+      return CategoryEditScreen(
+        categoryId: _idOrNull(state.pathParameters['id']),
+        initialKind: kind == null ? null : CategoryKind.of(kind),
+      );
+    },
+  ),
+];
 
 class _TabShell extends StatelessWidget {
   const _TabShell({required this.shell});

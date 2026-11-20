@@ -4259,9 +4259,9 @@ class $TemplatesTable extends Templates
   late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
     'account_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _toAccountIdMeta = const VerificationMeta(
     'toAccountId',
@@ -4436,8 +4436,6 @@ class $TemplatesTable extends Templates
         _accountIdMeta,
         accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_accountIdMeta);
     }
     if (data.containsKey('to_account_id')) {
       context.handle(
@@ -4535,7 +4533,7 @@ class $TemplatesTable extends Templates
       accountId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}account_id'],
-      )!,
+      ),
       toAccountId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}to_account_id'],
@@ -4580,7 +4578,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
   final int? amount;
   final int? quantityX1e4;
   final String? categoryId;
-  final String accountId;
+
+  /// 口座を「履歴ごと削除」したときだけ空になる（設計書 3.7）
+  final String? accountId;
   final String? toAccountId;
   final String? assetId;
   final String? assetAction;
@@ -4600,7 +4600,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     this.amount,
     this.quantityX1e4,
     this.categoryId,
-    required this.accountId,
+    this.accountId,
     this.toAccountId,
     this.assetId,
     this.assetAction,
@@ -4629,7 +4629,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<String>(categoryId);
     }
-    map['account_id'] = Variable<String>(accountId);
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
     if (!nullToAbsent || toAccountId != null) {
       map['to_account_id'] = Variable<String>(toAccountId);
     }
@@ -4669,7 +4671,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
-      accountId: Value(accountId),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
       toAccountId: toAccountId == null && nullToAbsent
           ? const Value.absent()
           : Value(toAccountId),
@@ -4703,7 +4707,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       amount: serializer.fromJson<int?>(json['amount']),
       quantityX1e4: serializer.fromJson<int?>(json['quantityX1e4']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
-      accountId: serializer.fromJson<String>(json['accountId']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
       toAccountId: serializer.fromJson<String?>(json['toAccountId']),
       assetId: serializer.fromJson<String?>(json['assetId']),
       assetAction: serializer.fromJson<String?>(json['assetAction']),
@@ -4726,7 +4730,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       'amount': serializer.toJson<int?>(amount),
       'quantityX1e4': serializer.toJson<int?>(quantityX1e4),
       'categoryId': serializer.toJson<String?>(categoryId),
-      'accountId': serializer.toJson<String>(accountId),
+      'accountId': serializer.toJson<String?>(accountId),
       'toAccountId': serializer.toJson<String?>(toAccountId),
       'assetId': serializer.toJson<String?>(assetId),
       'assetAction': serializer.toJson<String?>(assetAction),
@@ -4747,7 +4751,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     Value<int?> amount = const Value.absent(),
     Value<int?> quantityX1e4 = const Value.absent(),
     Value<String?> categoryId = const Value.absent(),
-    String? accountId,
+    Value<String?> accountId = const Value.absent(),
     Value<String?> toAccountId = const Value.absent(),
     Value<String?> assetId = const Value.absent(),
     Value<String?> assetAction = const Value.absent(),
@@ -4765,7 +4769,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     amount: amount.present ? amount.value : this.amount,
     quantityX1e4: quantityX1e4.present ? quantityX1e4.value : this.quantityX1e4,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
-    accountId: accountId ?? this.accountId,
+    accountId: accountId.present ? accountId.value : this.accountId,
     toAccountId: toAccountId.present ? toAccountId.value : this.toAccountId,
     assetId: assetId.present ? assetId.value : this.assetId,
     assetAction: assetAction.present ? assetAction.value : this.assetAction,
@@ -4885,7 +4889,7 @@ class TemplatesCompanion extends UpdateCompanion<TemplateRow> {
   final Value<int?> amount;
   final Value<int?> quantityX1e4;
   final Value<String?> categoryId;
-  final Value<String> accountId;
+  final Value<String?> accountId;
   final Value<String?> toAccountId;
   final Value<String?> assetId;
   final Value<String?> assetAction;
@@ -4924,7 +4928,7 @@ class TemplatesCompanion extends UpdateCompanion<TemplateRow> {
     this.amount = const Value.absent(),
     this.quantityX1e4 = const Value.absent(),
     this.categoryId = const Value.absent(),
-    required String accountId,
+    this.accountId = const Value.absent(),
     this.toAccountId = const Value.absent(),
     this.assetId = const Value.absent(),
     this.assetAction = const Value.absent(),
@@ -4938,7 +4942,6 @@ class TemplatesCompanion extends UpdateCompanion<TemplateRow> {
        updatedBy = Value(updatedBy),
        name = Value(name),
        kind = Value(kind),
-       accountId = Value(accountId),
        growthMode = Value(growthMode);
   static Insertable<TemplateRow> custom({
     Expression<String>? id,
@@ -4993,7 +4996,7 @@ class TemplatesCompanion extends UpdateCompanion<TemplateRow> {
     Value<int?>? amount,
     Value<int?>? quantityX1e4,
     Value<String?>? categoryId,
-    Value<String>? accountId,
+    Value<String?>? accountId,
     Value<String?>? toAccountId,
     Value<String?>? assetId,
     Value<String?>? assetAction,
@@ -14141,7 +14144,7 @@ typedef $$TemplatesTableCreateCompanionBuilder = TemplatesCompanion Function({
   Value<int?> amount,
   Value<int?> quantityX1e4,
   Value<String?> categoryId,
-  required String accountId,
+  Value<String?> accountId,
   Value<String?> toAccountId,
   Value<String?> assetId,
   Value<String?> assetAction,
@@ -14161,7 +14164,7 @@ typedef $$TemplatesTableUpdateCompanionBuilder = TemplatesCompanion Function({
   Value<int?> amount,
   Value<int?> quantityX1e4,
   Value<String?> categoryId,
-  Value<String> accountId,
+  Value<String?> accountId,
   Value<String?> toAccountId,
   Value<String?> assetId,
   Value<String?> assetAction,
@@ -14475,7 +14478,7 @@ class $$TemplatesTableTableManager
                 Value<int?> amount = const Value.absent(),
                 Value<int?> quantityX1e4 = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
-                Value<String> accountId = const Value.absent(),
+                Value<String?> accountId = const Value.absent(),
                 Value<String?> toAccountId = const Value.absent(),
                 Value<String?> assetId = const Value.absent(),
                 Value<String?> assetAction = const Value.absent(),
@@ -14515,7 +14518,7 @@ class $$TemplatesTableTableManager
                 Value<int?> amount = const Value.absent(),
                 Value<int?> quantityX1e4 = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
-                required String accountId,
+                Value<String?> accountId = const Value.absent(),
                 Value<String?> toAccountId = const Value.absent(),
                 Value<String?> assetId = const Value.absent(),
                 Value<String?> assetAction = const Value.absent(),

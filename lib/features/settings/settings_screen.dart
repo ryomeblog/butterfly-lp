@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 
@@ -21,7 +22,7 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             title: const Text('カテゴリ・口座'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => notYet('カテゴリ・口座', 'M2'),
+            onTap: () => context.push('/settings/masters'),
           ),
           const _Header('データ'),
           ListTile(

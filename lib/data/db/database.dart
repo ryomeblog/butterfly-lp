@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
       AppDatabase(driftDatabase(name: 'butterfly_lp'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -74,6 +74,12 @@ class AppDatabase extends _$AppDatabase {
       await customStatement(
         'CREATE INDEX idx_asset_value_asset ON asset_value (asset_id)',
       );
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // v2: template.account_id を空にできるようにした（設計書 3.7）
+        await m.alterTable(TableMigration(templates));
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = OFF');

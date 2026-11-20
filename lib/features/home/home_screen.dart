@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../data/db/database.dart';
-import '../shared/placeholder.dart';
+import '../groups/group_list.dart';
+import '../masters/category_list.dart';
+import '../templates/template_list.dart';
 import '../shared/plan_period.dart';
 
 /// ホーム。上部のタブで「ライフプラン／グループ／テンプレート／カテゴリ」を切り替える（設計書 7）。
@@ -32,14 +34,24 @@ class HomeScreen extends StatelessWidget {
         body: const TabBarView(
           children: [
             _PlanListTab(),
-            NotYetImplemented(feature: 'グループ', milestone: 'M2'),
-            NotYetImplemented(feature: 'テンプレート', milestone: 'M2'),
-            NotYetImplemented(feature: 'カテゴリ', milestone: 'M2'),
+            GroupListTab(),
+            TemplateListTab(),
+            _CategoryTab(),
           ],
         ),
       ),
     );
   }
+}
+
+class _CategoryTab extends StatelessWidget {
+  const _CategoryTab();
+
+  @override
+  Widget build(BuildContext context) => CategoryList(
+    onOpen: (id) => context.push('/home/category/$id'),
+    onAdd: (kind) => context.push('/home/category/new?kind=${kind.code}'),
+  );
 }
 
 class _PlanListTab extends ConsumerWidget {
