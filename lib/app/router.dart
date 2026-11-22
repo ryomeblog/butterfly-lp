@@ -30,7 +30,7 @@ import '../features/plan/plan_groups_screen.dart';
 import '../features/plan/plan_year_screen.dart';
 import '../features/plan/rates_screen.dart';
 import '../features/settings/settings_screen.dart';
-import '../features/shared/placeholder.dart';
+import '../features/settings/sync_screen.dart';
 import 'providers.dart';
 
 /// 画面の移動。下部5タブ（ホーム／家計簿／資産／イベント／設定）ごとに履歴を持つ（設計書 7・11）。
@@ -61,10 +61,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'sync',
-            builder: (context, state) => Scaffold(
-              appBar: AppBar(title: const Text('同期')),
-              body: const NotYetImplemented(feature: '同期', milestone: 'M9'),
-            ),
+            builder: (context, state) => const SyncScreen(),
           ),
         ],
       ),
@@ -276,6 +273,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/settings',
                 builder: (context, state) => const SettingsScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'sync',
+                    builder: (context, state) => const SyncScreen(),
+                  ),
                   GoRoute(
                     path: 'masters',
                     builder: (context, state) => const MastersScreen(),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import 'sync_screen.dart';
 
 /// 設定（ワイヤーフレーム Settings）。
 class SettingsScreen extends ConsumerWidget {
@@ -27,9 +28,11 @@ class SettingsScreen extends ConsumerWidget {
           const _Header('データ'),
           ListTile(
             title: const Text('同期'),
-            subtitle: const Text('最終同期 —'),
+            subtitle: Text(
+              '最終同期 ${formatSyncTime(ref.watch(deviceSettingProvider).value?.lastSyncAt)}',
+            ),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => notYet('同期', 'M9'),
+            onTap: () => context.push('/settings/sync'),
           ),
           ListTile(
             title: const Text('データ管理'),

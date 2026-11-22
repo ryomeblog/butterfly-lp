@@ -6,6 +6,8 @@ import 'app/app.dart';
 import 'app/providers.dart';
 import 'data/db/database.dart';
 import 'data/repositories/device_repository.dart';
+import 'data/sync/sync_service.dart';
+import 'features/settings/sync_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +19,7 @@ Future<void> main() async {
       overrides: [
         databaseProvider.overrideWithValue(db),
         deviceIdProvider.overrideWithValue(device.deviceId),
+        secretStoreProvider.overrideWithValue(const SecureSecretStore()),
       ],
       child: const ButterflyApp(),
     ),

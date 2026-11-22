@@ -35,3 +35,4 @@
 - 同期対象の行への書き込みは必ずリポジトリを通し、`Stamp` で updated_at / updated_by を付ける。削除は `softDeleteRows`（墓石）
 - テーブルを変えたら `dart run build_runner build` を実行し、`AppDatabase.schemaVersion` を上げて `onUpgrade` に移行を書き、`test/data/migration_test.dart` に移行のテストを足す
 - 画面テストでは `pumpAndSettle` を使わず、`test/widget_helpers.dart` の `settle` / `startApp` / `stopApp` を使う（drift のストリームと読み込み中のスピナーで終わらなくなるため）
+- 同期のテストは `test/data/fake_redis.dart`（テスト用の Redis 互換サーバー）で動く。実際の Redis で確かめるときは `test/data/sync_redis_test.dart` の先頭のコメントの手順（Docker）で環境変数を渡す

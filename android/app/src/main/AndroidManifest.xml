@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 自宅Redisとの同期（設計書 5） -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 合言葉のQRコードの読み取り -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:label="バタフライLP"
         android:name="${applicationName}"
