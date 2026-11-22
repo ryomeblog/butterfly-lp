@@ -8,9 +8,9 @@ import '../../core/time.dart';
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/calc/ledger.dart';
 import '../../domain/models/enums.dart';
-import '../shared/placeholder.dart';
 import '../shared/plan_switch_sheet.dart';
 import '../shared/widgets.dart';
+import '../compare/ledger_compare_view.dart';
 import 'ledger_filter_sheet.dart';
 import 'ledger_plan_views.dart';
 import 'ledger_state.dart';
@@ -19,7 +19,7 @@ import 'ledger_widgets.dart';
 /// 家計簿（ワイヤーフレーム Ledger / LedgerMonth / LedgerList / LedgerCalendar）。
 ///
 /// 上部で「実績／予定／比較」、その下で「内訳／リスト／カレンダー」と「年／月」を切り替える（設計書 3.1）。
-/// M3 は実績。予定は M4、比較は M8。
+/// 比較は ledger_compare_views.dart。
 class LedgerScreen extends ConsumerWidget {
   const LedgerScreen({super.key});
 
@@ -74,8 +74,51 @@ class LedgerScreen extends ConsumerWidget {
           if (plan == null)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (s.mode == LedgerMode.compare)
-            const Expanded(
-              child: NotYetImplemented(feature: '家計簿（比較）', milestone: 'M8'),
+            Expanded(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: SegmentedButton<LedgerUnit>(
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(
+                            value: LedgerUnit.year,
+                            label: Text('年'),
+                          ),
+                          ButtonSegment(
+                            value: LedgerUnit.month,
+                            label: Text('月'),
+                          ),
+                        ],
+                        selected: {s.unit},
+                        onSelectionChanged: (v) =>
+                            c.set(s.copyWith(unit: v.first)),
+                      ),
+                    ),
+                  ),
+                  PeriodNav(
+                    label: s.unit == LedgerUnit.year
+                        ? '${s.ym.year}年'
+                        : '${s.ym.year}年${s.ym.month}月',
+                    onPrev: () => c.set(
+                      s.copyWith(
+                        ym: s.ym.addMonths(
+                          s.unit == LedgerUnit.year ? -12 : -1,
+                        ),
+                      ),
+                    ),
+                    onNext: () => c.set(
+                      s.copyWith(
+                        ym: s.ym.addMonths(s.unit == LedgerUnit.year ? 12 : 1),
+                      ),
+                    ),
+                  ),
+                  Expanded(child: LedgerCompareView(planId: plan.id)),
+                ],
+              ),
             )
           else ...[
             Padding(
@@ -157,24 +200,32 @@ void _notYet(BuildContext context, String what, String m) =>
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('「$what」は $m で実装します。')));
 
-/// 予定から実績入力・グループから入力への入口（M8）。
-class _EntryButtons extends StatelessWidget {
+/// 予定から実績入力・グループから入力への入口（設計書 3.8）。
+class _EntryButtons extends ConsumerWidget {
   const _EntryButtons();
 
   @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 8,
-    children: [
-      OutlinedButton(
-        onPressed: () => _notYet(context, '予定から実績を入力', 'M8'),
-        child: const Text('予定から実績を入力'),
-      ),
-      OutlinedButton(
-        onPressed: () => _notYet(context, 'グループから入力', 'M8'),
-        child: const Text('グループから入力'),
-      ),
-    ],
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(ledgerProvider);
+    final month = s.unit == LedgerUnit.month || s.view != LedgerView.breakdown
+        ? '&month=${s.ym.month}'
+        : '';
+    return Wrap(
+      spacing: 8,
+      children: [
+        OutlinedButton(
+          key: const Key('to-planned-entry'),
+          onPressed: () =>
+              context.push('/entry/planned?year=${s.ym.year}$month'),
+          child: const Text('予定から実績を入力'),
+        ),
+        OutlinedButton(
+          onPressed: () => context.push('/entry/group?ym=${s.ym}'),
+          child: const Text('グループから入力'),
+        ),
+      ],
+    );
+  }
 }
 
 Lookup _lookup(WidgetRef ref) => Lookup(

@@ -22,6 +22,8 @@ class TxnInput {
     this.assetAction,
     this.quantityX1e4,
     this.eventId,
+    this.groupId,
+    this.groupItemId,
   });
 
   final String planId;
@@ -40,8 +42,12 @@ class TxnInput {
   /// 数量×単価の資産の購入・売却の数量×10,000
   final int? quantityX1e4;
 
-  /// 関連するイベント（M6）
+  /// 関連するイベント
   final String? eventId;
+
+  /// 予定から単発で入力した実績にも、元がグループ由来なら入れる（設計書 6.8）。作成時だけ使う
+  final String? groupId;
+  final String? groupItemId;
 }
 
 LedgerTxn ledgerTxnOf(TxnRow r) => LedgerTxn(
@@ -116,6 +122,8 @@ class TxnRepository {
             assetAction: Value(input.assetAction?.code),
             quantityX1e4: Value(input.quantityX1e4),
             eventId: Value(input.eventId),
+            groupId: Value(input.groupId),
+            groupItemId: Value(input.groupItemId),
           ),
         );
     return id;

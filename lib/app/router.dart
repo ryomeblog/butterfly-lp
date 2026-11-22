@@ -10,10 +10,13 @@ import '../features/assets/asset_flow_screen.dart';
 import '../features/assets/assets_screen.dart';
 import '../features/ledger/ledger_screen.dart';
 import '../features/ledger/txn_edit_screen.dart';
+import '../features/compare/compare_screens.dart';
+import '../features/compare/planned_entry_screen.dart';
 import '../features/events/event_actual_screen.dart';
 import '../features/events/event_edit_screen.dart';
 import '../features/events/events_screen.dart';
 import '../features/groups/group_edit_screen.dart';
+import '../features/groups/group_entry_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/masters/account_edit_screen.dart';
 import '../features/masters/category_edit_screen.dart';
@@ -71,6 +74,36 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => TxnEditScreen(
           txnId: _idOrNull(state.pathParameters['id']),
           initialDate: state.uri.queryParameters['date'],
+          fromLineId: state.uri.queryParameters['fromLine'],
+        ),
+      ),
+      // 年別・年間・資産の予実（表示プランについて。家計簿の比較とプラン詳細から開く）
+      GoRoute(
+        path: '/compare/years',
+        builder: (context, state) => const YearsCompareScreen(),
+      ),
+      GoRoute(
+        path: '/compare/year/:year',
+        builder: (context, state) =>
+            YearlyCompareScreen(year: int.parse(state.pathParameters['year']!)),
+      ),
+      GoRoute(
+        path: '/compare/assets',
+        builder: (context, state) => const AssetCompareScreen(),
+      ),
+      // 予定から実績入力・グループから実績入力（家計簿・ホームから開く）
+      GoRoute(
+        path: '/entry/planned',
+        builder: (context, state) => PlannedEntryScreen(
+          year: int.tryParse(state.uri.queryParameters['year'] ?? ''),
+          month: int.tryParse(state.uri.queryParameters['month'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: '/entry/group',
+        builder: (context, state) => GroupEntryScreen(
+          groupId: state.uri.queryParameters['group'],
+          ym: state.uri.queryParameters['ym'],
         ),
       ),
       // 資産の購入・売却・収益と費用。

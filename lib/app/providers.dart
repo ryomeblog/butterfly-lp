@@ -5,6 +5,7 @@ import '../data/db/database.dart';
 import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
 import '../data/repositories/event_repository.dart';
+import '../data/repositories/group_entry_repository.dart';
 import '../data/repositories/master_repository.dart';
 import '../data/repositories/plan_admin_repository.dart';
 import '../data/repositories/plan_line_repository.dart';
@@ -198,6 +199,13 @@ final eventTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
 
 final planAdminRepositoryProvider = Provider<PlanAdminRepository>(
   (ref) => PlanAdminRepository(
+    ref.watch(databaseProvider),
+    ref.watch(stampProvider),
+  ),
+);
+
+final groupEntryRepositoryProvider = Provider<GroupEntryRepository>(
+  (ref) => GroupEntryRepository(
     ref.watch(databaseProvider),
     ref.watch(stampProvider),
   ),

@@ -147,3 +147,78 @@ final simulationProvider = Provider.family<SimResult?, String>((ref, planId) {
     ],
   );
 });
+
+/// 実績線（設計書 6.5）：そのプランの実績と価値から求めた、ある日（含む）時点の総資産。利回りは入れない。
+class ActualLine {
+  ActualLine({
+    required this.accounts,
+    required this.txns,
+    required this.assets,
+    required this.values,
+  });
+
+  final List<AccountRow> accounts;
+  final List<TxnRow> txns;
+  final List<AssetRow> assets;
+  final List<AssetValueRow> values;
+
+  late final _balanceTxns = [for (final t in txns) balanceTxnOf(t)];
+
+  int totalAt(String date) {
+    var total = 0;
+    for (final a in accounts) {
+      total += accountBalanceAt(
+        BalanceAccount(
+          id: a.id,
+          initialBalance: a.initialBalance,
+          initialDate: a.initialDate,
+        ),
+        _balanceTxns,
+        date,
+      );
+    }
+    for (final a in assets) {
+      total += assetStateAt(
+        valuation: Valuation.of(a.valuation),
+        moves: [
+          for (final t in txns)
+            if (t.assetId == a.id && t.assetAction != null)
+              AssetRepository.moveOf(t),
+        ],
+        values: [
+          for (final v in values)
+            if (v.assetId == a.id) AssetRepository.pointOf(v),
+        ],
+        date: date,
+      ).valuation;
+    }
+    return total;
+  }
+
+  /// 実績のある最初の年（口座の基準日・実績・価値のいちばん早い年）
+  int? get firstYear {
+    final dates = [
+      for (final a in accounts) a.initialDate,
+      for (final t in txns) t.date,
+    ]..sort();
+    return dates.isEmpty ? null : int.parse(dates.first.substring(0, 4));
+  }
+}
+
+final actualLineProvider = Provider.family<ActualLine?, String>((ref, planId) {
+  final accounts = ref.watch(accountsProvider).value;
+  final txns = ref
+      .watch(txnsProvider((planId: planId, from: null, to: null)))
+      .value;
+  final assets = ref.watch(assetsProvider(planId)).value;
+  final values = ref.watch(planAssetValuesProvider(planId)).value;
+  if (accounts == null || txns == null || assets == null || values == null) {
+    return null;
+  }
+  return ActualLine(
+    accounts: accounts,
+    txns: txns,
+    assets: assets,
+    values: values,
+  );
+});

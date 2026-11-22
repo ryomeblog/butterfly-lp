@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/ids.dart';
 import '../../core/money.dart';
 import '../../data/db/database.dart';
+import '../../domain/calc/group_entry.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/group_item.dart';
 import '../shared/widgets.dart';
@@ -30,6 +32,12 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
   bool _loaded = false;
   bool _dirty = false;
 
+  /// 割合の提案（項目ID→直近12か月の一括入力の（合計, 件数））。設計書 6.6
+  Map<String, (int, int)> _recent = const {};
+
+  /// 「提案を使う」で割合の入力欄を作り直すための版
+  final Map<String, int> _percentVersion = {};
+
   bool get _isNew => widget.groupId == null;
 
   @override
@@ -45,6 +53,12 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
       final g = await repo.getGroup(id);
       _name.text = g?.name ?? '';
       _items = await repo.getGroupItems(id);
+      final plan = ref.read(selectedPlanProvider).value;
+      if (plan != null) {
+        _recent = await ref
+            .read(groupEntryRepositoryProvider)
+            .recentItemTotals(plan.id, id);
+      }
     }
     setState(() => _loaded = true);
   }
@@ -291,6 +305,15 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
                       cats: cats,
                       accounts: accounts,
                       missing: missing,
+                      recent: _recent,
+                      percentVersion: _percentVersion[item.id] ?? 0,
+                      onUseSuggestion: (p) {
+                        _replaceItem(item.copyWith(percent: () => p));
+                        setState(
+                          () => _percentVersion[item.id] =
+                              (_percentVersion[item.id] ?? 0) + 1,
+                        );
+                      },
                       expanded: _expanded == item.id,
                       onToggle: () => setState(
                         () => _expanded = _expanded == item.id ? null : item.id,
@@ -321,7 +344,11 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton(
-                    onPressed: () => _snack('「このグループで実績を入力」は M8 で実装します。'),
+                    onPressed: _isNew
+                        ? () => _snack('先にグループを保存してください')
+                        : () => context.push(
+                            '/entry/group?group=${widget.groupId}',
+                          ),
                     child: const Text('このグループで実績を入力'),
                   ),
                 ],
@@ -355,6 +382,9 @@ class _ItemCard extends StatelessWidget {
     required this.cats,
     required this.accounts,
     required this.missing,
+    required this.recent,
+    required this.percentVersion,
+    required this.onUseSuggestion,
     required this.expanded,
     required this.onToggle,
     required this.onChanged,
@@ -368,6 +398,9 @@ class _ItemCard extends StatelessWidget {
   final Map<String, CategoryRow> cats;
   final Map<String, AccountRow> accounts;
   final Set<String> missing;
+  final Map<String, (int, int)> recent;
+  final int percentVersion;
+  final ValueChanged<double> onUseSuggestion;
   final bool expanded;
   final VoidCallback onToggle;
   final ValueChanged<GroupItemDraft> onChanged;
@@ -492,7 +525,7 @@ class _ItemCard extends StatelessWidget {
             SizedBox(
               width: 110,
               child: TextFormField(
-                key: Key('percent-${item.id}'),
+                key: Key('percent-${item.id}-$percentVersion'),
                 initialValue: item.percent?.toString() ?? '',
                 decoration: const InputDecoration(
                   labelText: '割合',
@@ -512,9 +545,37 @@ class _ItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '基準の項目が発生する月に、その金額×%（円未満切り上げ）で発生します。昇給で基準が増えれば一緒に増えます。'
-          '実績からの割合の提案は M8 で加えます。',
+          '基準の項目が発生する月に、その金額×%（円未満切り上げ）で発生します。昇給で基準が増えれば一緒に増えます。',
           style: Theme.of(context).textTheme.bodySmall,
+        ),
+        Builder(
+          builder: (context) {
+            final mine = recent[item.id];
+            final base = recent[item.baseItemId];
+            final p = mine == null || base == null
+                ? null
+                : suggestPercent(mine.$1, base.$1);
+            if (p == null) {
+              return Text(
+                '実績からの提案：直近12か月の一括入力がないため、まだ出せません。',
+                style: Theme.of(context).textTheme.bodySmall,
+              );
+            }
+            return Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '実績からの提案：$p%（直近12か月の一括入力 ${mine!.$2}回分）',
+                    key: Key('suggest-${item.id}'),
+                  ),
+                ),
+                OutlinedButton(
+                  onPressed: () => onUseSuggestion(p),
+                  child: const Text('提案を使う'),
+                ),
+              ],
+            );
+          },
         ),
       ] else
         ..._frequencyEditor(context),

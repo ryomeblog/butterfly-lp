@@ -21,9 +21,7 @@ class GroupListTab extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
-          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('「グループから実績を入力」は M8 で実装します。')),
-          ),
+          onPressed: () => context.push('/entry/group'),
           icon: const Icon(Icons.playlist_add),
           label: const Text('グループから実績を入力'),
         ),

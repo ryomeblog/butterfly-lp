@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/money.dart';
@@ -26,6 +27,7 @@ class TxnEditScreen extends ConsumerStatefulWidget {
     this.initialDate,
     this.initialYm,
     this.startAsPlan = false,
+    this.fromLineId,
   });
 
   final String? txnId;
@@ -33,6 +35,9 @@ class TxnEditScreen extends ConsumerStatefulWidget {
   final String? initialDate;
   final String? initialYm;
   final bool startAsPlan;
+
+  /// 予定から実績入力：この計画行の種類・金額・カテゴリ・口座などを入れた実績入力として開く（設計書 3.8）
+  final String? fromLineId;
 
   @override
   ConsumerState<TxnEditScreen> createState() => _TxnEditScreenState();
@@ -59,6 +64,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
   AssetAction? _assetAction;
   final _quantity = TextEditingController();
   String? _eventId;
+
+  /// 予定から単発で入力するとき、元がグループ由来なら入れる（設計書 6.8）
+  String? _groupId;
+  String? _groupItemId;
   TxnRow? _originalTxn;
   PlanLineRow? _originalLine;
   bool _loaded = false;
@@ -113,6 +122,39 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
             ? ''
             : formatQuantity(l.quantityX1e4!);
         _eventId = l.eventId;
+      }
+    } else if (widget.fromLineId != null) {
+      final l = await ref
+          .read(planLineRepositoryProvider)
+          .getLine(widget.fromLineId!);
+      if (l != null) {
+        _isPlan = false;
+        _kind = TxnKind.of(l.kind);
+        _amount.text = '${l.amount}';
+        _memo.text = l.memo ?? '';
+        _categoryId = l.categoryId;
+        _accountId = l.accountId;
+        _toAccountId = l.toAccountId;
+        _assetId = l.assetId;
+        _assetAction = l.assetAction == null
+            ? null
+            : AssetAction.of(l.assetAction!);
+        _quantity.text = l.quantityX1e4 == null
+            ? ''
+            : formatQuantity(l.quantityX1e4!);
+        _eventId = l.eventId;
+        _groupItemId = l.groupItemId;
+        if (l.source == PlanLineSource.group.code && l.sourceId != null) {
+          final regs = await ref.read(registrationsProvider(l.planId).future);
+          _groupId = regs
+              .where((r) => r.registration.id == l.sourceId)
+              .firstOrNull
+              ?.registration
+              .groupId;
+        }
+        // 今月の予定なら今日、それ以外はその月の1日
+        final ym = YearMonth(l.year, l.month);
+        _date = ym == YearMonth.ofDate(clock.now()) ? clock.now() : ym.firstDay;
       }
     } else {
       final accounts = await ref.read(accountsProvider.future);
@@ -246,6 +288,8 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         assetAction: _linkedAsset == null ? null : _effectiveAction,
         quantityX1e4: _linkedQuantity,
         eventId: _eventId,
+        groupId: _groupId,
+        groupItemId: _groupItemId,
       );
       final repo = ref.read(txnRepositoryProvider);
       if (_originalTxn == null) {
@@ -365,7 +409,9 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                         ),
                         if (!_isPlan)
                           OutlinedButton.icon(
-                            onPressed: () => _snack('グループで一括入力は M8 で実装します。'),
+                            onPressed: () => context.pushReplacement(
+                              '/entry/group?ym=${YearMonth.ofDate(_date)}',
+                            ),
                             icon: const Icon(Icons.playlist_add),
                             label: const Text('グループで一括入力'),
                           ),
