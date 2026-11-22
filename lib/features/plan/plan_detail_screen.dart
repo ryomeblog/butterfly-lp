@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/time.dart';
@@ -34,15 +35,23 @@ class PlanDetailScreen extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final label in [
-                '計画（年別）',
-                '家族',
-                'イベント',
-                '登録グループ',
-                '率',
-                '年別の予実',
+              for (final (label, path, m) in const [
+                ('計画（年別）', 'year', null),
+                ('家族', 'family', null),
+                ('イベント', null, 'M6'),
+                ('登録グループ', 'groups', null),
+                ('率', 'rates', null),
+                ('年別の予実', null, 'M8'),
               ])
-                Chip(label: Text(label)),
+                ActionChip(
+                  key: Key('plan-chip-$label'),
+                  label: Text(label),
+                  onPressed: () => path != null
+                      ? context.push('/home/plan/$planId/$path')
+                      : ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('「$label」は $m で実装します。')),
+                        ),
+                ),
             ],
           ),
           const SizedBox(height: 16),

@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/time.dart';
 import '../data/db/database.dart';
 import '../data/repositories/device_repository.dart';
 import '../data/repositories/master_repository.dart';
+import '../data/repositories/plan_line_repository.dart';
 import '../data/repositories/plan_repository.dart';
+import '../data/repositories/rate_family_repository.dart';
 import '../data/repositories/stamp.dart';
 import '../data/repositories/template_repository.dart';
 import '../data/repositories/txn_repository.dart';
@@ -107,4 +110,35 @@ final txnsProvider = StreamProvider.family<List<TxnRow>, TxnQuery>(
   (ref, q) => ref
       .watch(txnRepositoryProvider)
       .watchTxns(q.planId, from: q.from, to: q.to),
+);
+
+final planLineRepositoryProvider = Provider<PlanLineRepository>(
+  (ref) =>
+      PlanLineRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+final rateFamilyRepositoryProvider = Provider<RateFamilyRepository>(
+  (ref) => RateFamilyRepository(
+    ref.watch(databaseProvider),
+    ref.watch(stampProvider),
+  ),
+);
+
+/// 年月の範囲を指定したプランの計画行。
+typedef LineQuery = ({String planId, YearMonth? from, YearMonth? to});
+
+final planLinesProvider = StreamProvider.family<List<PlanLineRow>, LineQuery>(
+  (ref, q) => ref
+      .watch(planLineRepositoryProvider)
+      .watchLines(q.planId, from: q.from, to: q.to),
+);
+
+final registrationsProvider =
+    StreamProvider.family<List<RegistrationSummary>, String>(
+      (ref, planId) =>
+          ref.watch(planLineRepositoryProvider).watchRegistrations(planId),
+    );
+
+final ratesProvider = StreamProvider.family<List<PlanRateRow>, String>(
+  (ref, planId) => ref.watch(rateFamilyRepositoryProvider).watchRates(planId),
 );

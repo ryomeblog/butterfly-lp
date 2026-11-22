@@ -34,3 +34,13 @@ class PlanPeriodText extends ConsumerWidget {
     );
   }
 }
+
+/// プラン期間：開始年の1月〜主人公の寿命の年の12月（設計書 3.4）。主人公がいなければ null。
+({YearMonth start, YearMonth end})? planPeriod(
+  PlanRow plan,
+  List<FamilyMemberRow> members,
+) {
+  final end = planEndYear(plan, members);
+  if (end == null) return null;
+  return (start: YearMonth(plan.startYear, 1), end: YearMonth(end, 12));
+}

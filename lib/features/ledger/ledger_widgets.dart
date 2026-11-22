@@ -80,7 +80,14 @@ class TotalsRow extends StatelessWidget {
 
 /// カテゴリ別の円グラフ。
 class CategoryPie extends StatelessWidget {
-  const CategoryPie({super.key, required this.totals, required this.lookup});
+  const CategoryPie({
+    super.key,
+    required this.totals,
+    required this.lookup,
+    this.emptyText = 'この期間の実績はありません',
+  });
+
+  final String emptyText;
 
   final List<CategoryTotal> totals;
   final Lookup lookup;
@@ -88,10 +95,7 @@ class CategoryPie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (totals.isEmpty) {
-      return const SizedBox(
-        height: 120,
-        child: Center(child: Text('この期間の実績はありません')),
-      );
+      return SizedBox(height: 120, child: Center(child: Text(emptyText)));
     }
     return SizedBox(
       height: 200,
@@ -201,4 +205,71 @@ class PeriodNav extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// 計画行を集計用の形に（予定は月単位なので、日付はその月の1日とみなす）。
+LedgerTxn ledgerTxnOfLine(PlanLineRow l) => LedgerTxn(
+  id: l.id,
+  date:
+      '${l.year.toString().padLeft(4, '0')}-${l.month.toString().padLeft(2, '0')}-01',
+  kind: TxnKind.of(l.kind),
+  amount: l.amount,
+  accountId: l.accountId,
+  categoryId: l.categoryId,
+  toAccountId: l.toAccountId,
+  memo: l.memo,
+);
+
+/// 予定（計画行）1件の行。押すと編集。
+class PlanLineTile extends StatelessWidget {
+  const PlanLineTile({
+    super.key,
+    required this.line,
+    required this.lookup,
+    this.showMonth = false,
+  });
+
+  final PlanLineRow line;
+  final Lookup lookup;
+  final bool showMonth;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final kind = TxnKind.of(line.kind);
+    final isTransfer = kind == TxnKind.transfer;
+    final title = isTransfer
+        ? '振替　${line.memo ?? ''}'
+        : '${lookup.categoryName(line.categoryId)}　${line.memo ?? ''}';
+    final sub = [
+      if (showMonth) '${line.month}月',
+      PlanLineSource.of(line.source).label,
+      isTransfer
+          ? '${lookup.accountName(line.accountId)} → ${lookup.accountName(line.toAccountId)}'
+          : lookup.accountName(line.accountId),
+    ].join('・');
+    return ListTile(
+      dense: true,
+      leading: isTransfer
+          ? const Icon(Icons.swap_horiz)
+          : ColorDot(lookup.categoryColor(line.categoryId)),
+      title: Text(title.trim()),
+      subtitle: Text(sub),
+      trailing: Text(
+        switch (kind) {
+          TxnKind.income => formatYenSigned(line.amount),
+          TxnKind.expense => formatYenSigned(-line.amount),
+          TxnKind.transfer => formatYen(line.amount),
+        },
+        style: TextStyle(
+          color: switch (kind) {
+            TxnKind.income => scheme.incomeColor,
+            TxnKind.expense => scheme.expenseColor,
+            TxnKind.transfer => null,
+          },
+        ),
+      ),
+      onTap: () => context.push('/entry/plan-line/${line.id}'),
+    );
+  }
 }

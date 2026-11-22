@@ -14,7 +14,12 @@ import '../features/masters/category_edit_screen.dart';
 import '../features/masters/masters_screen.dart';
 import '../features/templates/template_edit_screen.dart';
 import '../features/plan/plan_create_screen.dart';
+import '../features/plan/family_screen.dart';
+import '../features/plan/group_register_screen.dart';
 import '../features/plan/plan_detail_screen.dart';
+import '../features/plan/plan_groups_screen.dart';
+import '../features/plan/plan_year_screen.dart';
+import '../features/plan/rates_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shared/placeholder.dart';
 import '../features/shared/plan_tab_placeholder.dart';
@@ -55,6 +60,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // 予定の入力・編集。ホーム（計画）からも家計簿からも開くので、タブの外に置く。
+      GoRoute(
+        path: '/entry/plan-line/:id',
+        builder: (context, state) {
+          final id = _idOrNull(state.pathParameters['id']);
+          return TxnEditScreen(
+            planLineId: id,
+            initialYm: state.uri.queryParameters['ym'],
+            startAsPlan: true,
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => _TabShell(shell: shell),
         branches: [
@@ -73,6 +90,36 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'plan/:id',
                     builder: (context, state) =>
                         PlanDetailScreen(planId: state.pathParameters['id']!),
+                    routes: [
+                      GoRoute(
+                        path: 'year',
+                        builder: (context, state) =>
+                            PlanYearScreen(planId: state.pathParameters['id']!),
+                      ),
+                      GoRoute(
+                        path: 'family',
+                        builder: (context, state) =>
+                            FamilyScreen(planId: state.pathParameters['id']!),
+                      ),
+                      GoRoute(
+                        path: 'rates',
+                        builder: (context, state) =>
+                            RatesScreen(planId: state.pathParameters['id']!),
+                      ),
+                      GoRoute(
+                        path: 'groups',
+                        builder: (context, state) => PlanGroupsScreen(
+                          planId: state.pathParameters['id']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'register',
+                        builder: (context, state) => GroupRegisterScreen(
+                          planId: state.pathParameters['id']!,
+                          groupId: state.uri.queryParameters['group'],
+                        ),
+                      ),
+                    ],
                   ),
                   ..._categoryRoutes(),
                   GoRoute(

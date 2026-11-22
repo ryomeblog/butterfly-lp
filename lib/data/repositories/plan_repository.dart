@@ -170,6 +170,7 @@ class PlanRepository {
               targetType: TargetType.account,
               targetId: a.id,
               balance: Value(balance),
+              deletedAt: const Value(null),
             ),
           );
     }

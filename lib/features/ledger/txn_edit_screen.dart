@@ -6,18 +6,32 @@ import '../../app/providers.dart';
 import '../../core/money.dart';
 import '../../core/time.dart';
 import '../../data/db/database.dart';
+import '../../data/repositories/plan_line_repository.dart';
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/models/enums.dart';
 import '../shared/widgets.dart';
+import '../shared/ym_picker.dart';
 
 /// 予定・実績の入力・編集（ワイヤーフレーム TxnEdit）。
 ///
-/// M3 では実績だけを扱う。予定（計画行の手入力）は M4、資産の紐づけは M5、イベントは M6 で加える。
+/// 「実績／予定」を切り替えて入力する（予定の表示から開くと予定が選ばれた状態）。
+/// 予定は表示プランの手入力の計画行（source=manual）として保存する（設計書 3.1）。
+/// 資産の紐づけは M5、イベントの指定は M6 で加える。
 class TxnEditScreen extends ConsumerStatefulWidget {
-  const TxnEditScreen({super.key, this.txnId, this.initialDate});
+  const TxnEditScreen({
+    super.key,
+    this.txnId,
+    this.planLineId,
+    this.initialDate,
+    this.initialYm,
+    this.startAsPlan = false,
+  });
 
   final String? txnId;
+  final String? planLineId;
   final String? initialDate;
+  final String? initialYm;
+  final bool startAsPlan;
 
   @override
   ConsumerState<TxnEditScreen> createState() => _TxnEditScreenState();
@@ -27,17 +41,22 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
   final _form = GlobalKey<FormState>();
   final _amount = TextEditingController();
   final _memo = TextEditingController();
+  late bool _isPlan = widget.planLineId != null || widget.startAsPlan;
   TxnKind _kind = TxnKind.expense;
   late DateTime _date = widget.initialDate == null
       ? clock.now()
       : parseDate(widget.initialDate!);
+  late YearMonth _ym = widget.initialYm != null
+      ? YearMonth.parse(widget.initialYm!)
+      : YearMonth.ofDate(_date);
   String? _categoryId;
   String? _accountId;
   String? _toAccountId;
-  TxnRow? _original;
+  TxnRow? _originalTxn;
+  PlanLineRow? _originalLine;
   bool _loaded = false;
 
-  bool get _isNew => widget.txnId == null;
+  bool get _isNew => widget.txnId == null && widget.planLineId == null;
 
   @override
   void initState() {
@@ -46,11 +65,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
   }
 
   Future<void> _load() async {
-    final id = widget.txnId;
-    if (id != null) {
-      final t = await ref.read(txnRepositoryProvider).getTxn(id);
+    if (widget.txnId != null) {
+      final t = await ref.read(txnRepositoryProvider).getTxn(widget.txnId!);
       if (t != null) {
-        _original = t;
+        _originalTxn = t;
         _kind = TxnKind.of(t.kind);
         _date = parseDate(t.date);
         _amount.text = '${t.amount}';
@@ -58,6 +76,20 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _categoryId = t.categoryId;
         _accountId = t.accountId;
         _toAccountId = t.toAccountId;
+      }
+    } else if (widget.planLineId != null) {
+      final l = await ref
+          .read(planLineRepositoryProvider)
+          .getLine(widget.planLineId!);
+      if (l != null) {
+        _originalLine = l;
+        _kind = TxnKind.of(l.kind);
+        _ym = YearMonth(l.year, l.month);
+        _amount.text = '${l.amount}';
+        _memo.text = l.memo ?? '';
+        _categoryId = l.categoryId;
+        _accountId = l.accountId;
+        _toAccountId = l.toAccountId;
       }
     } else {
       final accounts = await ref.read(accountsProvider.future);
@@ -115,25 +147,47 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
     });
   }
 
+  String? get _memoValue =>
+      _memo.text.trim().isEmpty ? null : _memo.text.trim();
+
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
     final plan = ref.read(selectedPlanProvider).value;
     if (plan == null) return;
-    final input = TxnInput(
-      planId: _original?.planId ?? plan.id,
-      date: dateString(_date),
-      kind: _kind,
-      amount: int.parse(_amount.text),
-      accountId: _accountId!,
-      categoryId: _categoryId,
-      toAccountId: _toAccountId,
-      memo: _memo.text.trim().isEmpty ? null : _memo.text.trim(),
-    );
-    final repo = ref.read(txnRepositoryProvider);
-    if (_isNew) {
-      await repo.createTxn(input);
+    if (_isPlan) {
+      final input = PlanLineInput(
+        planId: _originalLine?.planId ?? plan.id,
+        ym: _ym,
+        kind: _kind,
+        amount: int.parse(_amount.text),
+        accountId: _accountId!,
+        categoryId: _categoryId,
+        toAccountId: _toAccountId,
+        memo: _memoValue,
+      );
+      final repo = ref.read(planLineRepositoryProvider);
+      if (_originalLine == null) {
+        await repo.createManual(input);
+      } else {
+        await repo.updateLine(_originalLine!.id, input);
+      }
     } else {
-      await repo.updateTxn(widget.txnId!, input);
+      final input = TxnInput(
+        planId: _originalTxn?.planId ?? plan.id,
+        date: dateString(_date),
+        kind: _kind,
+        amount: int.parse(_amount.text),
+        accountId: _accountId!,
+        categoryId: _categoryId,
+        toAccountId: _toAccountId,
+        memo: _memoValue,
+      );
+      final repo = ref.read(txnRepositoryProvider);
+      if (_originalTxn == null) {
+        await repo.createTxn(input);
+      } else {
+        await repo.updateTxn(_originalTxn!.id, input);
+      }
     }
     if (mounted) Navigator.of(context).pop();
   }
@@ -142,7 +196,7 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        content: const Text('この実績を削除しますか？'),
+        content: Text(_isPlan ? 'この予定を削除しますか？' : 'この実績を削除しますか？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
@@ -157,7 +211,11 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
       ),
     );
     if (ok != true) return;
-    await ref.read(txnRepositoryProvider).deleteTxn(widget.txnId!);
+    if (_originalLine != null) {
+      await ref.read(planLineRepositoryProvider).deleteLine(_originalLine!.id);
+    } else {
+      await ref.read(txnRepositoryProvider).deleteTxn(_originalTxn!.id);
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -184,11 +242,18 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _kind != TxnKind.transfer &&
         _categoryId != null &&
         !cats.any((c) => c.id == _categoryId);
-    final hasAsset = _original?.assetId != null;
+    final hasAsset =
+        _originalTxn?.assetId != null || _originalLine?.assetId != null;
+    final source = _originalLine == null
+        ? null
+        : PlanLineSource.of(_originalLine!.source);
+    final title = _isNew
+        ? (_isPlan ? '予定を入力' : '実績を入力')
+        : (_isPlan ? '予定を編集' : '実績を編集');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isNew ? '実績を入力' : '実績を編集'),
+        title: Text(title),
         actions: [
           IconButton(
             tooltip: 'この収支をJSONで書き出す',
@@ -213,12 +278,14 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                 children: [
                   if (_isNew) ...[
                     SegmentedButton<bool>(
+                      key: const Key('txn-mode'),
                       segments: const [
-                        ButtonSegment(value: true, label: Text('実績')),
-                        ButtonSegment(value: false, label: Text('予定')),
+                        ButtonSegment(value: false, label: Text('実績')),
+                        ButtonSegment(value: true, label: Text('予定')),
                       ],
-                      selected: const {true},
-                      onSelectionChanged: (_) => _snack('予定の入力は M4 で実装します。'),
+                      selected: {_isPlan},
+                      onSelectionChanged: (s) =>
+                          setState(() => _isPlan = s.first),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -229,19 +296,32 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                           icon: const Icon(Icons.content_paste),
                           label: const Text('テンプレートから入力'),
                         ),
-                        OutlinedButton.icon(
-                          onPressed: () => _snack('グループで一括入力は M8 で実装します。'),
-                          icon: const Icon(Icons.playlist_add),
-                          label: const Text('グループで一括入力'),
-                        ),
+                        if (!_isPlan)
+                          OutlinedButton.icon(
+                            onPressed: () => _snack('グループで一括入力は M8 で実装します。'),
+                            icon: const Icon(Icons.playlist_add),
+                            label: const Text('グループで一括入力'),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 12),
                   ],
                   if (plan != null)
                     Text(
-                      '表示中のプラン「${plan.name}」の家計簿に記録します。',
+                      _isPlan
+                          ? '予定は、表示中のプラン「${plan.name}」の計画行（手入力）として保存します。'
+                                'プランを変えるときはホームで切り替えます。'
+                          : '表示中のプラン「${plan.name}」の家計簿に記録します。',
                       style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (source != null && source != PlanLineSource.manual)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        '${source.label}由来の予定です。編集しても由来は保ちます'
+                        '（作り直しをすると置き換わります）。',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   const SizedBox(height: 12),
                   SegmentedButton<TxnKind>(
@@ -264,16 +344,28 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                           }),
                   ),
                   const SizedBox(height: 16),
-                  InkWell(
-                    key: const Key('txn-date'),
-                    onTap: _pickDate,
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: '日付（未来日付も可）',
+                  if (_isPlan)
+                    YmPicker(
+                      key: const ValueKey('txn-ym'),
+                      label: '年月（予定は月単位）',
+                      value: _ym,
+                      min: YearMonth(1900, 1),
+                      max: YearMonth(2200, 12),
+                      onChanged: (v) => setState(() => _ym = v),
+                    )
+                  else
+                    InkWell(
+                      key: const Key('txn-date'),
+                      onTap: _pickDate,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: '日付（未来日付も可）',
+                        ),
+                        child: Text(
+                          '${_date.year}/${_date.month}/${_date.day}',
+                        ),
                       ),
-                      child: Text('${_date.year}/${_date.month}/${_date.day}'),
                     ),
-                  ),
                   const SizedBox(height: 16),
                   YenField(key: const Key('txn-amount'), controller: _amount),
                   const SizedBox(height: 16),
@@ -327,7 +419,9 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '給与明細のように複数の収入・支出をまとめて入れるときは「グループで一括入力」を使います。',
+                    _isPlan
+                        ? 'イベントの指定は M6 で加えます。'
+                        : '給与明細のように複数の収入・支出をまとめて入れるときは「グループで一括入力」を使います。',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

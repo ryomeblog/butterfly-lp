@@ -12,6 +12,7 @@ import '../shared/placeholder.dart';
 import '../shared/plan_switch_sheet.dart';
 import '../shared/widgets.dart';
 import 'ledger_filter_sheet.dart';
+import 'ledger_plan_views.dart';
 import 'ledger_state.dart';
 import 'ledger_widgets.dart';
 
@@ -36,8 +37,12 @@ class LedgerScreen extends ConsumerWidget {
           final today = todayString();
           final inPeriod =
               today.compareTo(s.from) >= 0 && today.compareTo(s.to) <= 0;
+          final date = inPeriod ? today : s.ym.firstDayString;
+          // 予定の表示から開くと「予定」が選ばれた状態（設計書 3.1）
           context.push(
-            '/ledger/txn/new?date=${inPeriod ? today : s.ym.firstDayString}',
+            s.mode == LedgerMode.plan
+                ? '/entry/plan-line/new?ym=${YearMonth.ofDateString(date)}'
+                : '/ledger/txn/new?date=$date',
           );
         },
         child: const Icon(Icons.add),
@@ -53,15 +58,21 @@ class LedgerScreen extends ConsumerWidget {
                 ButtonSegment(value: LedgerMode.compare, label: Text('比較')),
               ],
               selected: {s.mode},
-              onSelectionChanged: (v) => c.set(s.copyWith(mode: v.first)),
+              onSelectionChanged: (v) => c.set(
+                s.copyWith(
+                  mode: v.first,
+                  filter: () => null,
+                  view:
+                      v.first == LedgerMode.plan &&
+                          s.view == LedgerView.calendar
+                      ? LedgerView.breakdown
+                      : null,
+                ),
+              ),
             ),
           ),
           if (plan == null)
             const Expanded(child: Center(child: CircularProgressIndicator()))
-          else if (s.mode == LedgerMode.plan)
-            const Expanded(
-              child: NotYetImplemented(feature: '家計簿（予定）', milestone: 'M4'),
-            )
           else if (s.mode == LedgerMode.compare)
             const Expanded(
               child: NotYetImplemented(feature: '家計簿（比較）', milestone: 'M8'),
@@ -74,19 +85,21 @@ class LedgerScreen extends ConsumerWidget {
                   Expanded(
                     child: SegmentedButton<LedgerView>(
                       showSelectedIcon: false,
-                      segments: const [
-                        ButtonSegment(
+                      segments: [
+                        const ButtonSegment(
                           value: LedgerView.breakdown,
                           label: Text('内訳'),
                         ),
-                        ButtonSegment(
+                        const ButtonSegment(
                           value: LedgerView.list,
                           label: Text('リスト'),
                         ),
-                        ButtonSegment(
-                          value: LedgerView.calendar,
-                          label: Text('カレンダー'),
-                        ),
+                        // 予定は月単位なのでカレンダーはない
+                        if (s.mode == LedgerMode.actual)
+                          const ButtonSegment(
+                            value: LedgerView.calendar,
+                            label: Text('カレンダー'),
+                          ),
                       ],
                       selected: {s.view},
                       onSelectionChanged: (v) =>
@@ -122,11 +135,16 @@ class LedgerScreen extends ConsumerWidget {
                 onNext: () => c.shift(1),
               ),
             Expanded(
-              child: switch (s.view) {
-                LedgerView.breakdown => _Breakdown(planId: plan.id),
-                LedgerView.list => _ListView(planId: plan.id),
-                LedgerView.calendar => _CalendarView(planId: plan.id),
-              },
+              child: s.mode == LedgerMode.plan
+                  ? switch (s.view) {
+                      LedgerView.list => PlanList(planId: plan.id),
+                      _ => PlanBreakdown(planId: plan.id),
+                    }
+                  : switch (s.view) {
+                      LedgerView.breakdown => _Breakdown(planId: plan.id),
+                      LedgerView.list => _ListView(planId: plan.id),
+                      LedgerView.calendar => _CalendarView(planId: plan.id),
+                    },
             ),
           ],
         ],
