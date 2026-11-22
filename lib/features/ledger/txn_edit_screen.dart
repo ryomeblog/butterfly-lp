@@ -10,6 +10,7 @@ import '../../data/repositories/plan_line_repository.dart';
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/models/enums.dart';
 import '../assets/asset_common.dart';
+import '../events/event_picker.dart';
 import '../shared/widgets.dart';
 import '../shared/ym_picker.dart';
 
@@ -17,7 +18,6 @@ import '../shared/ym_picker.dart';
 ///
 /// 「実績／予定」を切り替えて入力する（予定の表示から開くと予定が選ばれた状態）。
 /// 予定は表示プランの手入力の計画行（source=manual）として保存する（設計書 3.1）。
-/// 資産の紐づけは M5、イベントの指定は M6 で加える。
 class TxnEditScreen extends ConsumerStatefulWidget {
   const TxnEditScreen({
     super.key,
@@ -480,6 +480,11 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                   ],
                   if (_kind != TxnKind.transfer) ..._assetFields(assets),
                   const SizedBox(height: 16),
+                  EventPicker(
+                    value: _eventId,
+                    onChanged: (v) => setState(() => _eventId = v),
+                  ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     key: const Key('txn-memo'),
                     controller: _memo,
@@ -488,7 +493,7 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                   const SizedBox(height: 16),
                   Text(
                     _isPlan
-                        ? 'イベントの指定は M6 で加えます。'
+                        ? 'イベントを指定した予定は、そのイベントの予定として予実を比べます。'
                         : '給与明細のように複数の収入・支出をまとめて入れるときは「グループで一括入力」を使います。',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),

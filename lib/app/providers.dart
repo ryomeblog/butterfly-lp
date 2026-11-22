@@ -4,6 +4,7 @@ import '../core/time.dart';
 import '../data/db/database.dart';
 import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
+import '../data/repositories/event_repository.dart';
 import '../data/repositories/master_repository.dart';
 import '../data/repositories/plan_line_repository.dart';
 import '../data/repositories/plan_repository.dart';
@@ -175,4 +176,21 @@ final planAssetTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
 final assetPlanLinesProvider = StreamProvider.family<List<PlanLineRow>, String>(
   (ref, assetId) =>
       ref.watch(assetRepositoryProvider).watchAssetPlanLines(assetId),
+);
+
+final eventRepositoryProvider = Provider<EventRepository>(
+  (ref) =>
+      EventRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+final eventsProvider = StreamProvider.family<List<PlanEventRow>, String>(
+  (ref, planId) => ref.watch(eventRepositoryProvider).watchEvents(planId),
+);
+
+final eventLinesProvider = StreamProvider.family<List<PlanLineRow>, String>(
+  (ref, planId) => ref.watch(eventRepositoryProvider).watchEventLines(planId),
+);
+
+final eventTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
+  (ref, planId) => ref.watch(eventRepositoryProvider).watchEventTxns(planId),
 );

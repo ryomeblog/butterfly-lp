@@ -10,6 +10,9 @@ import '../features/assets/asset_flow_screen.dart';
 import '../features/assets/assets_screen.dart';
 import '../features/ledger/ledger_screen.dart';
 import '../features/ledger/txn_edit_screen.dart';
+import '../features/events/event_actual_screen.dart';
+import '../features/events/event_edit_screen.dart';
+import '../features/events/events_screen.dart';
 import '../features/groups/group_edit_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/masters/account_edit_screen.dart';
@@ -25,7 +28,6 @@ import '../features/plan/plan_year_screen.dart';
 import '../features/plan/rates_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shared/placeholder.dart';
-import '../features/shared/plan_tab_placeholder.dart';
 import 'providers.dart';
 
 /// 画面の移動。下部5タブ（ホーム／家計簿／資産／イベント／設定）ごとに履歴を持つ（設計書 7・11）。
@@ -213,8 +215,25 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/events',
-                builder: (context, state) =>
-                    const PlanTabPlaceholder(title: 'イベント', milestone: 'M6'),
+                builder: (context, state) => const EventsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:id',
+                    builder: (context, state) =>
+                        EventDetailScreen(eventId: state.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'edit/:id',
+                    builder: (context, state) => EventEditScreen(
+                      eventId: _idOrNull(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'actual/:id',
+                    builder: (context, state) =>
+                        EventActualScreen(eventId: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),

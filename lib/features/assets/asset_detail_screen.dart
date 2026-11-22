@@ -50,6 +50,8 @@ class AssetDetailScreen extends ConsumerWidget {
         const <PlanLineRow>[];
     final categories =
         ref.watch(categoriesProvider).value ?? const <CategoryRow>[];
+    final events =
+        ref.watch(eventsProvider(plan!.id)).value ?? const <PlanEventRow>[];
     final lookup = Lookup(
       categories,
       ref.watch(accountsProvider).value ?? const [],
@@ -75,6 +77,13 @@ class AssetDetailScreen extends ConsumerWidget {
       from: from < now.addMonths(-119) ? now.addMonths(-119) : from,
       to: now,
     );
+    // この資産の実績・予定が指すイベント
+    final related = [
+      for (final e in events)
+        if (txns.any((t) => t.eventId == e.id) ||
+            lines.any((l) => l.eventId == e.id))
+          e,
+    ];
     final cat = categories.where((c) => c.id == asset.categoryId).firstOrNull;
 
     return Scaffold(
@@ -99,7 +108,7 @@ class AssetDetailScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            '${cat?.name ?? '削除済みカテゴリ'}・${valuation.label}で評価　${plan!.name}の資産',
+            '${cat?.name ?? '削除済みカテゴリ'}・${valuation.label}で評価　${plan.name}の資産',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SectionTitle('評価額の推移（実績線）'),
@@ -248,10 +257,17 @@ class AssetDetailScreen extends ConsumerWidget {
               showYear: true,
             ),
           const SectionTitle('関連するイベント'),
-          Text(
-            'イベントは M6 で実装します。',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          for (final e in related)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(e.title),
+              subtitle: Text(
+                '${e.year}年${e.month}月・${EventStatus.of(e.status).label}',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/events/detail/${e.id}'),
+            ),
+          if (related.isEmpty) const Text('関連するイベントはありません'),
           const SizedBox(height: 24),
           OutlinedButton(
             key: const Key('asset-delete'),

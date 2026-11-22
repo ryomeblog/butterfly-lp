@@ -10,6 +10,7 @@ import '../../data/db/database.dart';
 import '../../data/repositories/asset_repository.dart';
 import '../../domain/calc/asset_valuation.dart';
 import '../../domain/models/enums.dart';
+import '../events/event_picker.dart';
 import '../shared/widgets.dart';
 import '../shared/ym_picker.dart';
 import 'asset_common.dart';
@@ -53,6 +54,7 @@ class _AssetFlowScreenState extends ConsumerState<AssetFlowScreen> {
   YearMonth _ym = YearMonth.ofDate(clock.now());
   String? _accountId;
   String? _categoryId;
+  String? _eventId;
 
   /// 購入：金額で指定（true）か数量で指定（false）
   bool _byAmount = true;
@@ -312,6 +314,11 @@ class _AssetFlowScreenState extends ConsumerState<AssetFlowScreen> {
               onChanged: (v) => setState(() => _categoryId = v),
             ),
             const SizedBox(height: 16),
+            EventPicker(
+              value: _eventId,
+              onChanged: (v) => setState(() => _eventId = v),
+            ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _memo,
               decoration: const InputDecoration(labelText: 'メモ'),
@@ -556,6 +563,7 @@ class _AssetFlowScreenState extends ConsumerState<AssetFlowScreen> {
             ym: _isPlan ? _ym : null,
             quantityX1e4: needsQty ? qty : null,
             memo: _memo.text.trim().isEmpty ? null : _memo.text.trim(),
+            eventId: _eventId,
             costs: [
               for (final c in _costs)
                 if ((int.tryParse(c.amount.text) ?? 0) > 0)
