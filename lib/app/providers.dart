@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/time.dart';
 import '../data/db/database.dart';
+import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
 import '../data/repositories/master_repository.dart';
 import '../data/repositories/plan_line_repository.dart';
@@ -141,4 +142,37 @@ final registrationsProvider =
 
 final ratesProvider = StreamProvider.family<List<PlanRateRow>, String>(
   (ref, planId) => ref.watch(rateFamilyRepositoryProvider).watchRates(planId),
+);
+
+final assetRepositoryProvider = Provider<AssetRepository>(
+  (ref) =>
+      AssetRepository(ref.watch(databaseProvider), ref.watch(stampProvider)),
+);
+
+final assetsProvider = StreamProvider.family<List<AssetRow>, String>(
+  (ref, planId) => ref.watch(assetRepositoryProvider).watchAssets(planId),
+);
+
+final assetValuesProvider = StreamProvider.family<List<AssetValueRow>, String>(
+  (ref, assetId) => ref.watch(assetRepositoryProvider).watchValues(assetId),
+);
+
+final planAssetValuesProvider =
+    StreamProvider.family<List<AssetValueRow>, String>(
+      (ref, planId) =>
+          ref.watch(assetRepositoryProvider).watchPlanValues(planId),
+    );
+
+final assetTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
+  (ref, assetId) => ref.watch(assetRepositoryProvider).watchAssetTxns(assetId),
+);
+
+final planAssetTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
+  (ref, planId) =>
+      ref.watch(assetRepositoryProvider).watchPlanAssetTxns(planId),
+);
+
+final assetPlanLinesProvider = StreamProvider.family<List<PlanLineRow>, String>(
+  (ref, assetId) =>
+      ref.watch(assetRepositoryProvider).watchAssetPlanLines(assetId),
 );

@@ -24,6 +24,8 @@ class RatesScreen extends ConsumerWidget {
     final rates = ref.watch(ratesProvider(planId));
     final accounts = ref.watch(accountsProvider).value ?? const [];
     final categories = ref.watch(categoriesProvider).value ?? const [];
+    final assets =
+        ref.watch(assetsProvider(planId)).value ?? const <AssetRow>[];
     if (plan == null || !rates.hasValue) {
       return Scaffold(
         appBar: AppBar(),
@@ -69,10 +71,14 @@ class RatesScreen extends ConsumerWidget {
               a.id,
               '0',
             ),
-          Text(
-            '資産の想定利回りは、資産を登録すると（M5）ここに出ます。',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          for (final a in assets)
+            rateRow(
+              a.name,
+              '資産・${Valuation.of(a.valuation).label}（見込みの価値がない月に使う）',
+              TargetType.asset,
+              a.id,
+              '0',
+            ),
           const SectionTitle('上昇率（年%）'),
           _RateField(
             key: const Key('rate-default'),

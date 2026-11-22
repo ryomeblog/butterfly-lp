@@ -8,6 +8,7 @@ import '../../data/db/database.dart';
 import '../../data/repositories/template_repository.dart';
 import '../../domain/calc/growth.dart';
 import '../../domain/models/enums.dart';
+import '../assets/asset_common.dart';
 import '../shared/widgets.dart';
 
 /// テンプレートの追加・編集（ワイヤーフレーム TemplateEdit）。
@@ -34,7 +35,14 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
   String? _toAccountId;
   GrowthMode _growth = GrowthMode.category;
   bool _loaded = false;
-  TemplateRow? _original;
+
+  /// 資産の参照（任意）
+  String? _assetId;
+  AssetAction? _assetAction;
+
+  /// 数量×単価の資産の購入・売却：金額で指定（true）か数量で指定（false）
+  bool _byAmount = true;
+  final _quantity = TextEditingController();
 
   bool get _isNew => widget.templateId == null;
 
@@ -51,7 +59,14 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
     if (id != null) {
       final t = await ref.read(templateRepositoryProvider).getTemplate(id);
       if (t != null) {
-        _original = t;
+        _assetId = t.assetId;
+        _assetAction = t.assetAction == null
+            ? null
+            : AssetAction.of(t.assetAction!);
+        _byAmount = t.quantityX1e4 == null;
+        _quantity.text = t.quantityX1e4 == null
+            ? ''
+            : formatQuantity(t.quantityX1e4!);
         _name.text = t.name;
         _amount.text = t.amount?.toString() ?? '';
         _memo.text = t.memo ?? '';
@@ -72,20 +87,38 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
     _amount.dispose();
     _memo.dispose();
     _rate.dispose();
+    _quantity.dispose();
     super.dispose();
   }
 
-  bool get _hasGrowth =>
+  /// 種類に合った資産の動き（支出は購入／費用、収入は売却／収益）。
+  AssetAction get _effectiveAction {
+    final actions = _kind == TxnKind.expense
+        ? const [AssetAction.buy, AssetAction.cost]
+        : const [AssetAction.sell, AssetAction.income];
+    return actions.contains(_assetAction) ? _assetAction! : actions.last;
+  }
+
+  bool get _isBuySell =>
+      _assetId != null &&
       _kind != TxnKind.transfer &&
-      _original?.assetAction != 'buy' &&
-      _original?.assetAction != 'sell';
+      (_effectiveAction == AssetAction.buy ||
+          _effectiveAction == AssetAction.sell);
+
+  /// 振替と資産の購入・売却は金額を増やさない（設計書 6.3）
+  bool get _hasGrowth => _kind != TxnKind.transfer && !_isBuySell;
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
+    final linked = _kind == TxnKind.transfer ? null : _assetId;
+    final byQty = linked != null && _isBuySell && !_byAmount;
     final input = TemplateInput(
       name: _name.text.trim(),
       kind: _kind,
-      amount: _amount.text.isEmpty ? null : int.parse(_amount.text),
+      amount: byQty || _amount.text.isEmpty ? null : int.parse(_amount.text),
+      assetId: linked,
+      assetAction: linked == null ? null : _effectiveAction,
+      quantityX1e4: byQty ? parseQuantity(_quantity.text) : null,
       categoryId: _categoryId,
       accountId: _accountId,
       toAccountId: _toAccountId,
@@ -167,7 +200,25 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
                     }),
                   ),
                   const SizedBox(height: 16),
-                  YenField(controller: _amount, label: '金額（円）'),
+                  if (_kind != TxnKind.transfer) ..._assetFields(),
+                  if (_isBuySell && _isQuantityAsset && !_byAmount)
+                    TextFormField(
+                      key: const Key('template-quantity'),
+                      controller: _quantity,
+                      decoration: const InputDecoration(
+                        labelText: '数量',
+                        helperText: 'プランに登録すると、その月の見込み単価×数量の金額になります',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      validator: (v) {
+                        final q = parseQuantity(v ?? '');
+                        return (q == null || q <= 0) ? '数量を入れてください' : null;
+                      },
+                    )
+                  else
+                    YenField(controller: _amount, label: '金額（円）'),
                   const SizedBox(height: 16),
                   if (_kind != TxnKind.transfer)
                     DropdownButtonFormField<String>(
@@ -240,6 +291,72 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
         saveKey: const Key('template-save'),
       ),
     );
+  }
+
+  bool get _isQuantityAsset {
+    final plan = ref.read(selectedPlanProvider).value;
+    final assets = plan == null
+        ? const <AssetRow>[]
+        : (ref.read(assetsProvider(plan.id)).value ?? const <AssetRow>[]);
+    final a = assets.where((x) => x.id == _assetId).firstOrNull;
+    return a != null && Valuation.of(a.valuation) == Valuation.quantity;
+  }
+
+  /// 資産（任意）と資産の動き。資産を参照するテンプレートは、その資産のプランでだけ使える（設計書 3.2）。
+  List<Widget> _assetFields() {
+    final plan = ref.watch(selectedPlanProvider).value;
+    final assets = plan == null
+        ? const <AssetRow>[]
+        : (ref.watch(assetsProvider(plan.id)).value ?? const <AssetRow>[]);
+    final inPlan = _assetId == null || assets.any((a) => a.id == _assetId);
+    final actions = _kind == TxnKind.expense
+        ? const [AssetAction.buy, AssetAction.cost]
+        : const [AssetAction.sell, AssetAction.income];
+    return [
+      if (!inPlan)
+        const Padding(
+          padding: EdgeInsets.only(bottom: 8),
+          child: Text('別のプランの資産を参照しています（そのプランでだけ使えます）。表示プランを切り替えると変更できます。'),
+        )
+      else ...[
+        DropdownButtonFormField<String?>(
+          key: const Key('template-asset'),
+          initialValue: _assetId,
+          decoration: const InputDecoration(labelText: '資産（任意・表示中のプランの資産）'),
+          items: [
+            const DropdownMenuItem(value: null, child: Text('なし')),
+            for (final a in assets)
+              DropdownMenuItem(value: a.id, child: Text(a.name)),
+          ],
+          onChanged: (v) => setState(() => _assetId = v),
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (_assetId != null) ...[
+        SegmentedButton<AssetAction>(
+          segments: [
+            for (final a in actions)
+              ButtonSegment(value: a, label: Text(a.label)),
+          ],
+          selected: {_effectiveAction},
+          onSelectionChanged: inPlan
+              ? (v) => setState(() => _assetAction = v.first)
+              : null,
+        ),
+        const SizedBox(height: 12),
+        if (_isBuySell && _isQuantityAsset) ...[
+          SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment(value: true, label: Text('金額で指定')),
+              ButtonSegment(value: false, label: Text('数量で指定')),
+            ],
+            selected: {_byAmount},
+            onSelectionChanged: (v) => setState(() => _byAmount = v.first),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ],
+    ];
   }
 
   Widget _growthCard(BuildContext context) {

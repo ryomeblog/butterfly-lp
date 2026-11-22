@@ -17,6 +17,9 @@ class TemplateInput {
     this.memo,
     this.growthMode = GrowthMode.category,
     this.growthRate,
+    this.assetId,
+    this.assetAction,
+    this.quantityX1e4,
   });
 
   final String name;
@@ -28,6 +31,13 @@ class TemplateInput {
   final String? memo;
   final GrowthMode growthMode;
   final double? growthRate;
+
+  /// 参照する資産（その資産のプランでだけ使える。設計書 3.2）
+  final String? assetId;
+  final AssetAction? assetAction;
+
+  /// 数量指定の購入・売却のときの数量×10,000（金額は空）
+  final int? quantityX1e4;
 }
 
 /// グループ一覧に出す情報。
@@ -92,12 +102,19 @@ class TemplateRepository {
             growthRate: Value(
               input.growthMode == GrowthMode.template ? input.growthRate : null,
             ),
+            assetId: Value(input.assetId),
+            assetAction: Value(
+              input.assetId == null ? null : input.assetAction?.code,
+            ),
+            quantityX1e4: Value(
+              input.assetId == null ? null : input.quantityX1e4,
+            ),
           ),
         );
     return id;
   }
 
-  /// 更新。資産の参照（asset_id など）は資産の画面で扱うので、ここでは変えない。
+  /// 更新。
   Future<void> updateTemplate(String id, TemplateInput input) async {
     await (db.update(db.templates)..where((t) => t.id.equals(id))).write(
       TemplatesCompanion(
@@ -116,6 +133,11 @@ class TemplateRepository {
         growthRate: Value(
           input.growthMode == GrowthMode.template ? input.growthRate : null,
         ),
+        assetId: Value(input.assetId),
+        assetAction: Value(
+          input.assetId == null ? null : input.assetAction?.code,
+        ),
+        quantityX1e4: Value(input.assetId == null ? null : input.quantityX1e4),
         updatedAt: Value(stamp.now()),
         updatedBy: Value(stamp.deviceId),
       ),

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/ids.dart';
 import '../../core/time.dart';
+import '../../domain/calc/asset_valuation.dart';
 import '../../domain/calc/group_registration.dart';
 import '../../domain/models/enums.dart';
 import '../db/database.dart';
@@ -19,6 +20,10 @@ class PlanLineInput {
     this.categoryId,
     this.toAccountId,
     this.memo,
+    this.assetId,
+    this.assetAction,
+    this.quantityX1e4,
+    this.eventId,
   });
 
   final String planId;
@@ -29,6 +34,16 @@ class PlanLineInput {
   final String? categoryId;
   final String? toAccountId;
   final String? memo;
+
+  /// 資産の紐づけ（設計書 3.1：収入・支出に資産を紐づけられる）
+  final String? assetId;
+  final AssetAction? assetAction;
+
+  /// 数量×単価の資産の購入・売却の数量×10,000
+  final int? quantityX1e4;
+
+  /// 関連するイベント（M6）
+  final String? eventId;
 }
 
 /// 登録済みグループの一覧に出す情報。
@@ -119,6 +134,10 @@ class PlanLineRepository {
               input.kind == TxnKind.transfer ? input.toAccountId : null,
             ),
             memo: Value(input.memo),
+            assetId: Value(input.assetId),
+            assetAction: Value(input.assetAction?.code),
+            quantityX1e4: Value(input.quantityX1e4),
+            eventId: Value(input.eventId),
             source: PlanLineSource.manual.code,
           ),
         );
@@ -141,6 +160,10 @@ class PlanLineRepository {
           input.kind == TxnKind.transfer ? input.toAccountId : null,
         ),
         memo: Value(input.memo),
+        assetId: Value(input.assetId),
+        assetAction: Value(input.assetAction?.code),
+        quantityX1e4: Value(input.quantityX1e4),
+        eventId: Value(input.eventId),
         updatedAt: Value(stamp.now()),
         updatedBy: Value(stamp.deviceId),
       ),
@@ -200,6 +223,10 @@ class PlanLineRepository {
             ))
             .get();
     final rateByCategory = {for (final r in rates) r.targetId: r.annualRate};
+    final assets = await (db.select(
+      db.assets,
+    )..where((a) => a.planId.equals(planId) & a.deletedAt.isNull())).get();
+    final priceAt = await _quantityAssetPricer(plan, assets);
     return generateGroupLines(
       items: items,
       templates: {for (final t in templates) t.id: regTemplateOf(t)},
@@ -208,7 +235,95 @@ class PlanLineRepository {
       from: from,
       categoryRate: (c) => c == null ? null : rateByCategory[c],
       defaultRate: plan.defaultInflationRate,
+      allowedAssetIds: {for (final a in assets) a.id},
+      quantityAssetPrice: priceAt,
     );
+  }
+
+  /// 数量×単価の資産の「その月の見込み単価」を返す関数を作る（設計書 6.3 補足）。
+  ///
+  /// 起点の単価は plan_baseline、なければ起点日時点の価値、なければ起点日時点の取得価額÷保有数。
+  /// どれもなければ、その月末までに指定した価値の最新（なければ null）。
+  Future<int? Function(String, YearMonth)> _quantityAssetPricer(
+    PlanRow plan,
+    List<AssetRow> assets,
+  ) async {
+    final qty = {
+      for (final a in assets)
+        if (a.valuation == Valuation.quantity.code) a.id,
+    };
+    if (qty.isEmpty) return (_, _) => null;
+    final values = await (db.select(
+      db.assetValues,
+    )..where((v) => v.assetId.isIn(qty) & v.deletedAt.isNull())).get();
+    final baselines =
+        await (db.select(db.planBaselines)..where(
+              (b) =>
+                  b.planId.equals(plan.id) &
+                  b.targetType.equals(TargetType.asset) &
+                  b.deletedAt.isNull(),
+            ))
+            .get();
+    final rates =
+        await (db.select(db.planRates)..where(
+              (r) =>
+                  r.planId.equals(plan.id) &
+                  r.targetType.equals(TargetType.asset) &
+                  r.deletedAt.isNull(),
+            ))
+            .get();
+    final txns = await (db.select(
+      db.txns,
+    )..where((t) => t.assetId.isIn(qty) & t.deletedAt.isNull())).get();
+    final points = <String, List<ValuePoint>>{};
+    for (final v in values) {
+      (points[v.assetId] ??= []).add(
+        ValuePoint(unit: v.unit, date: v.valueDate, valueX100: v.valueX100),
+      );
+    }
+    final basePrice = <String, int?>{};
+    for (final id in qty) {
+      final b = baselines.where((x) => x.targetId == id).firstOrNull;
+      var price =
+          b?.priceX100 ?? valueAt(points[id] ?? const [], plan.baselineDate);
+      if (price == null) {
+        final st = assetStateAt(
+          valuation: Valuation.quantity,
+          moves: [
+            for (final t in txns)
+              if (t.assetId == id && t.assetAction != null)
+                AssetMove(
+                  id: t.id,
+                  date: t.date,
+                  action: AssetAction.of(t.assetAction!),
+                  amount: t.amount,
+                  quantityX1e4: t.quantityX1e4,
+                  parentId: t.parentTxnId,
+                ),
+          ],
+          values: const [],
+          date: plan.baselineDate,
+        );
+        if (st.quantityX1e4 > 0) {
+          price = st.acquisitionCost * 1000000 ~/ st.quantityX1e4;
+        }
+      }
+      basePrice[id] = price;
+    }
+    final rateOf = {for (final r in rates) r.targetId: r.annualRate};
+    return (assetId, ym) {
+      if (!qty.contains(assetId)) return null;
+      final pts = points[assetId] ?? const <ValuePoint>[];
+      final base = basePrice[assetId];
+      if (base == null) return valueAt(pts, ym.lastDayString);
+      return projectedPriceX100(
+        values: pts,
+        ym: ym,
+        baselineDate: plan.baselineDate,
+        baselinePriceX100: base,
+        annualRatePercent: rateOf[assetId] ?? 0,
+      );
+    };
   }
 
   static RegTemplate regTemplateOf(TemplateRow t) => RegTemplate(
@@ -373,6 +488,7 @@ class PlanLineRepository {
             source: PlanLineSource.group.code,
             sourceId: Value(registrationId),
             groupItemId: Value(l.itemId),
+            quantityX1e4: Value(l.quantityX1e4),
           ),
         );
       }

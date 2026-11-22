@@ -1,6 +1,7 @@
 import '../../core/time.dart';
 import '../models/enums.dart';
 import '../models/group_item.dart';
+import 'asset_valuation.dart';
 import 'growth.dart';
 import 'rounding.dart';
 
@@ -45,12 +46,16 @@ class GeneratedLine {
     required this.itemId,
     required this.template,
     required this.amount,
+    this.quantityX1e4,
   });
 
   final YearMonth ym;
   final String itemId;
   final RegTemplate template;
   final int amount;
+
+  /// 数量×単価の資産の購入・売却の数量（計画線で保有数を増減させる）
+  final int? quantityX1e4;
 }
 
 /// 登録で使えない項目と、その理由（確認画面に出す。設計書 3.2）。
@@ -115,6 +120,8 @@ RegistrationResult generateGroupLines({
   YearMonth? from,
   required double? Function(String? categoryId) categoryRate,
   required double defaultRate,
+  Set<String>? allowedAssetIds,
+  int? Function(String assetId, YearMonth ym)? quantityAssetPrice,
 }) {
   final skipped = <SkippedItem>[];
   final usable = <String, RegTemplate>{};
@@ -127,6 +134,18 @@ RegistrationResult generateGroupLines({
     if (t.accountId == null ||
         (t.kind == TxnKind.transfer && t.toAccountId == null)) {
       skipped.add(SkippedItem(item.id, '口座が空です', templateName: t.name));
+      continue;
+    }
+    if (t.assetId != null &&
+        allowedAssetIds != null &&
+        !allowedAssetIds.contains(t.assetId)) {
+      skipped.add(
+        SkippedItem(
+          item.id,
+          '別のプランの資産（または削除された資産）を参照しています',
+          templateName: t.name,
+        ),
+      );
       continue;
     }
     if (t.kind != TxnKind.transfer && t.categoryId == null) {
@@ -173,12 +192,30 @@ RegistrationResult generateGroupLines({
       if (t == null || item.amountMode != AmountMode.fixed) continue;
       final n = occurrences(item, ym, start);
       if (n == 0) continue;
-      final base = t.amount ?? 0;
-      final amount = grownAmount(base, rateOf(t), ym.year - start.year) * n;
+      // 数量×単価の資産の購入・売却：その月の見込み単価で金額（または数量）を決める（設計書 6.3）
+      final price = t.isBuyOrSell && t.assetId != null
+          ? quantityAssetPrice?.call(t.assetId!, ym)
+          : null;
+      int amount;
+      int? quantity;
+      if (t.isBuyOrSell && t.quantityX1e4 != null) {
+        quantity = t.quantityX1e4! * n;
+        amount = price == null ? 0 : amountForQuantity(quantity, price);
+      } else {
+        amount =
+            grownAmount(t.amount ?? 0, rateOf(t), ym.year - start.year) * n;
+        quantity = price == null ? null : quantityForAmount(amount, price);
+      }
       fixedAmounts[item.id] = amount;
       if (amount > 0) {
         lines.add(
-          GeneratedLine(ym: ym, itemId: item.id, template: t, amount: amount),
+          GeneratedLine(
+            ym: ym,
+            itemId: item.id,
+            template: t,
+            amount: amount,
+            quantityX1e4: quantity,
+          ),
         );
       }
     }

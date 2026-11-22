@@ -60,6 +60,7 @@ RegistrationResult gen(
 );
 
 void main() {
+  group('資産を参照する項目', assetTests);
   group('occurrences（6.3 手順1）', () {
     final start = YearMonth(2026, 4);
     test('毎年（月指定）', () {
@@ -302,5 +303,75 @@ void main() {
       final r = gen([const GroupItemDraft(id: 'z', templateId: 't-tax')]);
       expect(r.lines, isEmpty);
     });
+  });
+}
+
+void assetTests() {
+  const buyQty = RegTemplate(
+    id: 't-buy-q',
+    name: '銘柄A（10口）',
+    kind: TxnKind.expense,
+    categoryId: 'c',
+    accountId: 'sec',
+    assetId: 'a1',
+    assetAction: AssetAction.buy,
+    quantityX1e4: 100000,
+  );
+  const buyAmt = RegTemplate(
+    id: 't-buy-a',
+    name: '銘柄A積立',
+    kind: TxnKind.expense,
+    amount: 30000,
+    categoryId: 'c',
+    accountId: 'sec',
+    assetId: 'a1',
+    assetAction: AssetAction.buy,
+  );
+  const other = RegTemplate(
+    id: 't-other',
+    name: '別プランの資産',
+    kind: TxnKind.income,
+    amount: 100,
+    categoryId: 'c',
+    accountId: 'sec',
+    assetId: 'zz',
+    assetAction: AssetAction.income,
+  );
+  final tm = {
+    for (final t in [buyQty, buyAmt, other]) t.id: t,
+  };
+
+  RegistrationResult run(List<GroupItemDraft> items) => generateGroupLines(
+    items: items,
+    templates: tm,
+    start: YearMonth(2027, 1),
+    end: YearMonth(2027, 2),
+    categoryRate: (_) => 10,
+    defaultRate: 10,
+    allowedAssetIds: {'a1'},
+    // 見込み単価：1月 1,000円、2月 1,500円
+    quantityAssetPrice: (id, ym) => ym.month == 1 ? 100000 : 150000,
+  );
+
+  test('数量指定：その月の見込み単価×数量（上昇率は掛けない）', () {
+    final r = run([const GroupItemDraft(id: 'q', templateId: 't-buy-q')]);
+    expect(r.lines.map((l) => (l.amount, l.quantityX1e4)), [
+      (10000, 100000),
+      (15000, 100000),
+    ]);
+  });
+
+  test('金額指定：数量＝金額÷見込み単価（小数第4位で切り捨て）', () {
+    final r = run([const GroupItemDraft(id: 'a', templateId: 't-buy-a')]);
+    expect(r.lines.map((l) => (l.amount, l.quantityX1e4)), [
+      (30000, 300000),
+      (30000, 200000),
+    ]);
+  });
+
+  test('別のプランの資産を参照する項目は作らない', () {
+    final r = run([const GroupItemDraft(id: 'o', templateId: 't-other')]);
+    expect(r.lines, isEmpty);
+    expect(r.skipped.single.reason, contains('別のプラン'));
   });
 }

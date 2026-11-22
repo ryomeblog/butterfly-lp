@@ -4,9 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/models/enums.dart';
 import '../features/assets/account_detail_screen.dart';
+import '../features/assets/asset_detail_screen.dart';
+import '../features/assets/asset_edit_screen.dart';
+import '../features/assets/asset_flow_screen.dart';
+import '../features/assets/assets_screen.dart';
 import '../features/ledger/ledger_screen.dart';
 import '../features/ledger/txn_edit_screen.dart';
-import '../features/shared/plan_switch_sheet.dart';
 import '../features/groups/group_edit_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/masters/account_edit_screen.dart';
@@ -59,6 +62,23 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
         ],
+      ),
+      // 実績の入力・編集。家計簿・資産・口座詳細から開くので、タブの外に置く。
+      GoRoute(
+        path: '/entry/txn/:id',
+        builder: (context, state) => TxnEditScreen(
+          txnId: _idOrNull(state.pathParameters['id']),
+          initialDate: state.uri.queryParameters['date'],
+        ),
+      ),
+      // 資産の購入・売却・収益と費用。
+      GoRoute(
+        path: '/entry/asset/:kind',
+        builder: (context, state) => AssetFlowScreen(
+          kind: AssetFlowKind.values.byName(state.pathParameters['kind']!),
+          assetId: state.uri.queryParameters['asset'],
+          startAsPlan: state.uri.queryParameters['plan'] == '1',
+        ),
       ),
       // 予定の入力・編集。ホーム（計画）からも家計簿からも開くので、タブの外に置く。
       GoRoute(
@@ -159,12 +179,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/assets',
-                builder: (context, state) => Scaffold(
-                  appBar: AppBar(title: const PlanSwitchTitle(title: '資産')),
-                  body: AssetsTabM3(
-                    onOpenAccount: (id) => context.push('/assets/account/$id'),
-                  ),
-                ),
+                builder: (context, state) => const AssetsScreen(),
                 routes: [
                   GoRoute(
                     path: 'account/:id',
@@ -172,6 +187,24 @@ final routerProvider = Provider<GoRouter>((ref) {
                       accountId: state.pathParameters['id']!,
                     ),
                   ),
+                  GoRoute(
+                    path: 'account-edit/:id',
+                    builder: (context, state) => AccountEditScreen(
+                      accountId: _idOrNull(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'asset-edit/:id',
+                    builder: (context, state) => AssetEditScreen(
+                      assetId: _idOrNull(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'detail/:id',
+                    builder: (context, state) =>
+                        AssetDetailScreen(assetId: state.pathParameters['id']!),
+                  ),
+                  ..._categoryRoutes(),
                 ],
               ),
             ],

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/ids.dart';
 import '../../core/time.dart';
+import '../../domain/calc/asset_valuation.dart';
 import '../../domain/calc/balance.dart';
 import '../../domain/models/enums.dart';
 import '../db/database.dart';
@@ -120,6 +121,7 @@ class PlanRepository {
             ),
           );
       await writeAccountBaselines(planId, today);
+      await writeAssetBaselines(planId, today);
       return planId;
     });
   }
@@ -170,6 +172,72 @@ class PlanRepository {
               targetType: TargetType.account,
               targetId: a.id,
               balance: Value(balance),
+              deletedAt: const Value(null),
+            ),
+          );
+    }
+  }
+
+  /// 起点日時点の資産の状態を、そのプランの実績と価値から計算して plan_baseline に保存する（設計書 4.5）。
+  /// 数量×単価の資産は保有数と単価（価値がなければ取得価額÷保有数）、評価額の資産は評価額。
+  Future<void> writeAssetBaselines(String planId, String baselineDate) async {
+    final now = stamp.now();
+    final assets = await (db.select(
+      db.assets,
+    )..where((a) => a.planId.equals(planId) & a.deletedAt.isNull())).get();
+    for (final a in assets) {
+      final moves = [
+        for (final t
+            in await (db.select(db.txns)..where(
+                  (t) =>
+                      t.assetId.equals(a.id) &
+                      t.deletedAt.isNull() &
+                      t.assetAction.isNotNull(),
+                ))
+                .get())
+          AssetMove(
+            id: t.id,
+            date: t.date,
+            action: AssetAction.of(t.assetAction!),
+            amount: t.amount,
+            quantityX1e4: t.quantityX1e4,
+            parentId: t.parentTxnId,
+          ),
+      ];
+      final points = [
+        for (final v in await (db.select(
+          db.assetValues,
+        )..where((v) => v.assetId.equals(a.id) & v.deletedAt.isNull())).get())
+          ValuePoint(unit: v.unit, date: v.valueDate, valueX100: v.valueX100),
+      ];
+      final valuation = Valuation.of(a.valuation);
+      final st = assetStateAt(
+        valuation: valuation,
+        moves: moves,
+        values: points,
+        date: baselineDate,
+      );
+      final isQty = valuation == Valuation.quantity;
+      final price = isQty
+          ? (valueAt(points, baselineDate) ??
+                (st.quantityX1e4 > 0
+                    ? st.acquisitionCost * 1000000 ~/ st.quantityX1e4
+                    : null))
+          : null;
+      await db
+          .into(db.planBaselines)
+          .insertOnConflictUpdate(
+            PlanBaselinesCompanion.insert(
+              id: planTargetId(planId, TargetType.asset, a.id),
+              createdAt: now,
+              updatedAt: now,
+              updatedBy: stamp.deviceId,
+              planId: planId,
+              targetType: TargetType.asset,
+              targetId: a.id,
+              balance: Value(isQty ? null : st.valuation),
+              quantityX1e4: Value(isQty ? st.quantityX1e4 : null),
+              priceX100: Value(price),
               deletedAt: const Value(null),
             ),
           );

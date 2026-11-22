@@ -9,6 +9,7 @@ import '../../data/db/database.dart';
 import '../../data/repositories/plan_line_repository.dart';
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/models/enums.dart';
+import '../assets/asset_common.dart';
 import '../shared/widgets.dart';
 import '../shared/ym_picker.dart';
 
@@ -52,6 +53,12 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
   String? _categoryId;
   String? _accountId;
   String? _toAccountId;
+
+  /// 資産の紐づけ（設計書 3.1）
+  String? _assetId;
+  AssetAction? _assetAction;
+  final _quantity = TextEditingController();
+  String? _eventId;
   TxnRow? _originalTxn;
   PlanLineRow? _originalLine;
   bool _loaded = false;
@@ -76,6 +83,14 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _categoryId = t.categoryId;
         _accountId = t.accountId;
         _toAccountId = t.toAccountId;
+        _assetId = t.assetId;
+        _assetAction = t.assetAction == null
+            ? null
+            : AssetAction.of(t.assetAction!);
+        _quantity.text = t.quantityX1e4 == null
+            ? ''
+            : formatQuantity(t.quantityX1e4!);
+        _eventId = t.eventId;
       }
     } else if (widget.planLineId != null) {
       final l = await ref
@@ -90,6 +105,14 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _categoryId = l.categoryId;
         _accountId = l.accountId;
         _toAccountId = l.toAccountId;
+        _assetId = l.assetId;
+        _assetAction = l.assetAction == null
+            ? null
+            : AssetAction.of(l.assetAction!);
+        _quantity.text = l.quantityX1e4 == null
+            ? ''
+            : formatQuantity(l.quantityX1e4!);
+        _eventId = l.eventId;
       }
     } else {
       final accounts = await ref.read(accountsProvider.future);
@@ -102,13 +125,22 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
   void dispose() {
     _amount.dispose();
     _memo.dispose();
+    _quantity.dispose();
     super.dispose();
   }
 
   /// 単体テンプレートを選ぶと中身が入る（設計書 3.1）。日付はそのまま。
   Future<void> _fromTemplate() async {
+    // 資産を参照するテンプレートは、その資産のプランでだけ使える（設計書 3.2）
+    final plan = ref.read(selectedPlanProvider).value;
+    final planAssets = plan == null
+        ? const <String>{}
+        : {
+            for (final a in await ref.read(assetsProvider(plan.id).future))
+              a.id,
+          };
     final templates = (await ref.read(templatesProvider.future))
-        .where((t) => t.assetId == null)
+        .where((t) => t.assetId == null || planAssets.contains(t.assetId))
         .toList();
     if (!mounted) return;
     final picked = await showModalBottomSheet<TemplateRow>(
@@ -144,8 +176,33 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
       _accountId = picked.accountId ?? _accountId;
       _toAccountId = picked.toAccountId;
       _memo.text = picked.memo ?? '';
+      _assetId = picked.assetId;
+      _assetAction = picked.assetAction == null
+          ? null
+          : AssetAction.of(picked.assetAction!);
+      _quantity.text = picked.quantityX1e4 == null
+          ? ''
+          : formatQuantity(picked.quantityX1e4!);
     });
   }
+
+  /// 種類に合った資産の動き（支出は購入／費用、収入は売却／収益。合わなければ費用・収益）。
+  AssetAction get _effectiveAction {
+    final actions = _kind == TxnKind.expense
+        ? const [AssetAction.buy, AssetAction.cost]
+        : const [AssetAction.sell, AssetAction.income];
+    return actions.contains(_assetAction) ? _assetAction! : actions.last;
+  }
+
+  /// 振替には資産を紐づけない。
+  String? get _linkedAsset => _kind == TxnKind.transfer ? null : _assetId;
+
+  int? get _linkedQuantity =>
+      _linkedAsset == null ||
+          !(_effectiveAction == AssetAction.buy ||
+              _effectiveAction == AssetAction.sell)
+      ? null
+      : parseQuantity(_quantity.text);
 
   String? get _memoValue =>
       _memo.text.trim().isEmpty ? null : _memo.text.trim();
@@ -164,6 +221,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         categoryId: _categoryId,
         toAccountId: _toAccountId,
         memo: _memoValue,
+        assetId: _linkedAsset,
+        assetAction: _linkedAsset == null ? null : _effectiveAction,
+        quantityX1e4: _linkedQuantity,
+        eventId: _eventId,
       );
       final repo = ref.read(planLineRepositoryProvider);
       if (_originalLine == null) {
@@ -181,6 +242,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         categoryId: _categoryId,
         toAccountId: _toAccountId,
         memo: _memoValue,
+        assetId: _linkedAsset,
+        assetAction: _linkedAsset == null ? null : _effectiveAction,
+        quantityX1e4: _linkedQuantity,
+        eventId: _eventId,
       );
       final repo = ref.read(txnRepositoryProvider);
       if (_originalTxn == null) {
@@ -242,8 +307,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _kind != TxnKind.transfer &&
         _categoryId != null &&
         !cats.any((c) => c.id == _categoryId);
-    final hasAsset =
-        _originalTxn?.assetId != null || _originalLine?.assetId != null;
+    final hasAsset = _assetId != null;
+    final assets = plan == null
+        ? const <AssetRow>[]
+        : (ref.watch(assetsProvider(plan.id)).value ?? const <AssetRow>[]);
     final source = _originalLine == null
         ? null
         : PlanLineSource.of(_originalLine!.source);
@@ -411,6 +478,7 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
                       onChanged: (v) => setState(() => _toAccountId = v),
                     ),
                   ],
+                  if (_kind != TxnKind.transfer) ..._assetFields(assets),
                   const SizedBox(height: 16),
                   TextFormField(
                     key: const Key('txn-memo'),
@@ -432,6 +500,73 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         saveKey: const Key('txn-save'),
       ),
     );
+  }
+
+  /// 資産（任意）と資産の動き（支出は購入／費用、収入は売却／収益）、購入・売却の数量（設計書 3.1）。
+  List<Widget> _assetFields(List<AssetRow> assets) {
+    final asset = assets.where((a) => a.id == _assetId).firstOrNull;
+    final actions = _kind == TxnKind.expense
+        ? const [AssetAction.buy, AssetAction.cost]
+        : const [AssetAction.sell, AssetAction.income];
+    final action = actions.contains(_assetAction)
+        ? _assetAction!
+        : actions.last;
+    final needsQty =
+        asset != null &&
+        Valuation.of(asset.valuation) == Valuation.quantity &&
+        (action == AssetAction.buy || action == AssetAction.sell);
+    return [
+      const SizedBox(height: 16),
+      DropdownButtonFormField<String?>(
+        key: const Key('txn-asset'),
+        initialValue: asset?.id,
+        decoration: const InputDecoration(labelText: '資産（任意）'),
+        items: [
+          const DropdownMenuItem(value: null, child: Text('なし')),
+          for (final a in assets)
+            DropdownMenuItem(value: a.id, child: Text(a.name)),
+        ],
+        onChanged: (v) => setState(() {
+          _assetId = v;
+          _assetAction = v == null ? null : action;
+        }),
+      ),
+      if (asset != null) ...[
+        const SizedBox(height: 12),
+        SegmentedButton<AssetAction>(
+          key: const Key('txn-asset-action'),
+          segments: [
+            for (final a in actions)
+              ButtonSegment(value: a, label: Text(a.label)),
+          ],
+          selected: {action},
+          onSelectionChanged: (v) => setState(() => _assetAction = v.first),
+        ),
+        if (needsQty) ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            key: const Key('txn-quantity'),
+            controller: _quantity,
+            decoration: const InputDecoration(
+              labelText: '数量',
+              helperText: '小数第4位まで',
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            validator: (v) {
+              final q = parseQuantity(v ?? '');
+              return (q == null || q <= 0) ? '数量を入れてください' : null;
+            },
+          ),
+        ],
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            '手数料・税金を一緒に入れる、単価から数量を計算するときは、資産タブの購入・売却の画面を使います。',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ],
+    ];
   }
 
   Widget _accountField({

@@ -18,6 +18,10 @@ class TxnInput {
     this.categoryId,
     this.toAccountId,
     this.memo,
+    this.assetId,
+    this.assetAction,
+    this.quantityX1e4,
+    this.eventId,
   });
 
   final String planId;
@@ -28,6 +32,16 @@ class TxnInput {
   final String? categoryId;
   final String? toAccountId;
   final String? memo;
+
+  /// 資産の紐づけ（設計書 3.1：収入・支出に資産を紐づけられる）
+  final String? assetId;
+  final AssetAction? assetAction;
+
+  /// 数量×単価の資産の購入・売却の数量×10,000
+  final int? quantityX1e4;
+
+  /// 関連するイベント（M6）
+  final String? eventId;
 }
 
 LedgerTxn ledgerTxnOf(TxnRow r) => LedgerTxn(
@@ -98,12 +112,16 @@ class TxnRepository {
               input.kind == TxnKind.transfer ? input.toAccountId : null,
             ),
             memo: Value(input.memo),
+            assetId: Value(input.assetId),
+            assetAction: Value(input.assetAction?.code),
+            quantityX1e4: Value(input.quantityX1e4),
+            eventId: Value(input.eventId),
           ),
         );
     return id;
   }
 
-  /// 更新。資産・イベント・グループの記録（asset_id・event_id・group_item_id など）は変えない。
+  /// 更新。グループからの一括入力の記録（group_id・group_item_id・entry_id）と親の実績は変えない。
   Future<void> updateTxn(String id, TxnInput input) async {
     await (db.update(db.txns)..where((t) => t.id.equals(id))).write(
       TxnsCompanion(
@@ -118,6 +136,10 @@ class TxnRepository {
           input.kind == TxnKind.transfer ? input.toAccountId : null,
         ),
         memo: Value(input.memo),
+        assetId: Value(input.assetId),
+        assetAction: Value(input.assetAction?.code),
+        quantityX1e4: Value(input.quantityX1e4),
+        eventId: Value(input.eventId),
         updatedAt: Value(stamp.now()),
         updatedBy: Value(stamp.deviceId),
       ),

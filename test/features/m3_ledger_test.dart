@@ -152,8 +152,12 @@ void main() {
     final db = await startApp(tester, prepare: _prepare);
     await tester.tap(find.text('資産'));
     await settle(tester);
-    expect(find.text('¥295,000'), findsOneWidget);
-    await tester.tap(find.text('現金'));
+    // 総資産（資産なし）＝口座「現金」の残高
+    expect(
+      tester.widget<Text>(find.byKey(const Key('assets-total'))).data,
+      '¥295,000',
+    );
+    await tester.tap(find.widgetWithText(ListTile, '現金').first);
     await settle(tester);
     expect(find.text('¥295,000'), findsOneWidget);
     expect(find.textContaining('スーパー3000'), findsOneWidget);

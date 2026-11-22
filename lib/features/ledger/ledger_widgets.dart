@@ -130,11 +130,15 @@ class TxnTile extends StatelessWidget {
     required this.txn,
     required this.lookup,
     this.showDate = true,
+    this.prefix,
   });
 
   final LedgerTxn txn;
   final Lookup lookup;
   final bool showDate;
+
+  /// 見出しの前に付ける語（資産詳細の「購入」「売却」など）
+  final String? prefix;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +148,8 @@ class TxnTile extends StatelessWidget {
         ? '振替　${lookup.accountName(txn.accountId)} → ${lookup.accountName(txn.toAccountId)}'
         : lookup.categoryName(txn.categoryId);
     final sub = [
-      if (showDate) '${txn.month}/${txn.day}',
+      if (showDate && prefix != null) txn.date.replaceAll('-', '/'),
+      if (showDate && prefix == null) '${txn.month}/${txn.day}',
       if (!isTransfer) lookup.accountName(txn.accountId),
       if (txn.memo != null) txn.memo!,
     ].join('・');
@@ -158,7 +163,7 @@ class TxnTile extends StatelessWidget {
       leading: isTransfer
           ? const Icon(Icons.swap_horiz)
           : ColorDot(lookup.categoryColor(txn.categoryId)),
-      title: Text(title),
+      title: Text(prefix == null ? title : '$prefix　$title'),
       subtitle: sub.isEmpty ? null : Text(sub),
       trailing: Text(
         amount,
@@ -170,7 +175,7 @@ class TxnTile extends StatelessWidget {
           },
         ),
       ),
-      onTap: () => context.push('/ledger/txn/${txn.id}'),
+      onTap: () => context.push('/entry/txn/${txn.id}'),
     );
   }
 }
@@ -227,11 +232,13 @@ class PlanLineTile extends StatelessWidget {
     required this.line,
     required this.lookup,
     this.showMonth = false,
+    this.showYear = false,
   });
 
   final PlanLineRow line;
   final Lookup lookup;
   final bool showMonth;
+  final bool showYear;
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +249,9 @@ class PlanLineTile extends StatelessWidget {
         ? '振替　${line.memo ?? ''}'
         : '${lookup.categoryName(line.categoryId)}　${line.memo ?? ''}';
     final sub = [
-      if (showMonth) '${line.month}月',
+      if (showMonth)
+        showYear ? '${line.year}年${line.month}月' : '${line.month}月',
+      if (line.assetAction != null) AssetAction.of(line.assetAction!).label,
       PlanLineSource.of(line.source).label,
       isTransfer
           ? '${lookup.accountName(line.accountId)} → ${lookup.accountName(line.toAccountId)}'

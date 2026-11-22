@@ -42,7 +42,7 @@ class LedgerScreen extends ConsumerWidget {
           context.push(
             s.mode == LedgerMode.plan
                 ? '/entry/plan-line/new?ym=${YearMonth.ofDateString(date)}'
-                : '/ledger/txn/new?date=$date',
+                : '/entry/txn/new?date=$date',
           );
         },
         child: const Icon(Icons.add),
