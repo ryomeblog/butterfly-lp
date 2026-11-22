@@ -14,6 +14,7 @@ import '../../domain/models/enums.dart';
 import '../shared/plan_switch_sheet.dart';
 import '../shared/widgets.dart';
 import 'asset_common.dart';
+import '../data/file_io.dart';
 
 /// 資産一覧（ワイヤーフレーム Assets）。
 ///
@@ -203,15 +204,17 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
             spacing: 8,
             children: [
               TextButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('資産リストの書き出しは M10 で実装します。')),
+                onPressed: () => exportJson(
+                  context,
+                  ref,
+                  'assets',
+                  (e) =>
+                      e.exportAssets(plan.id, [for (final a in assets) a.id]),
                 ),
                 child: const Text('資産リストを書き出す'),
               ),
               TextButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('資産の取り込みは M10 で実装します。')),
-                ),
+                onPressed: () => pickAndImportJson(context),
                 child: const Text('資産を取り込む'),
               ),
             ],

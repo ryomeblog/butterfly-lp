@@ -17,6 +17,7 @@ import '../shared/charts.dart';
 import '../shared/widgets.dart';
 import 'asset_common.dart';
 import 'asset_edit_screen.dart';
+import '../data/file_io.dart';
 
 /// 資産詳細（ワイヤーフレーム AssetDetail）。
 ///
@@ -116,8 +117,11 @@ class AssetDetailScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'この資産をJSONで書き出す',
             icon: const Icon(Icons.ios_share),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('JSONの書き出しは M10 で実装します。')),
+            onPressed: () => exportJson(
+              context,
+              ref,
+              'asset',
+              (e) => e.exportAssets(plan.id, [assetId]),
             ),
           ),
           IconButton(

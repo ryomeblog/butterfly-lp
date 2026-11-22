@@ -12,9 +12,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final deviceId = ref.watch(deviceIdProvider);
-    void notYet(String what, String m) =>
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('「$what」は $m で実装します。')));
     return Scaffold(
       appBar: AppBar(title: const Text('設定')),
       body: ListView(
@@ -38,7 +35,7 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('データ管理'),
             subtitle: const Text('書き出し・復元・CSV・移行'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => notYet('データ管理', 'M10'),
+            onTap: () => context.push('/settings/data'),
           ),
           const Divider(),
           ListTile(

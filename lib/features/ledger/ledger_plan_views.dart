@@ -12,6 +12,7 @@ import '../shared/widgets.dart';
 import 'ledger_filter_sheet.dart';
 import 'ledger_state.dart';
 import 'ledger_widgets.dart';
+import '../data/file_io.dart';
 
 Lookup _lookup(WidgetRef ref) => Lookup(
   ref.watch(categoriesProvider).value ?? const [],
@@ -209,15 +210,16 @@ class _PlanListState extends ConsumerState<PlanList> {
           spacing: 8,
           children: [
             TextButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('JSONの書き出しは M10 で実装します。')),
+              onPressed: () => exportJson(
+                context,
+                ref,
+                'plan-list',
+                (e) => e.exportRows(planId: widget.planId, lines: shown),
               ),
               child: const Text('絞り込み結果をJSONで書き出す'),
             ),
             TextButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('収支の取り込みは M10 で実装します。')),
-              ),
+              onPressed: () => pickAndImportJson(context),
               child: const Text('収支を取り込む'),
             ),
           ],

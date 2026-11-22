@@ -9,6 +9,7 @@ import '../../domain/models/enums.dart';
 import '../events/event_common.dart';
 import '../shared/charts.dart';
 import '../shared/plan_period.dart';
+import '../data/file_io.dart';
 
 /// ホームのプランのカードの中身（設計書 7：生涯の収支グラフ（年ごとの収入と支出の2本線＋イベント）、
 /// 寿命時の総資産（計画線）・資金不足）。
@@ -151,8 +152,11 @@ class PlanMenuButton extends ConsumerWidget {
             if (name != null) await admin.duplicate(plan.id, name);
           case 'json':
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('JSONの書き出しは M10 で実装します。')),
+              await exportJson(
+                context,
+                ref,
+                'plan',
+                (e) => e.exportPlan(plan.id),
               );
             }
           case 'delete':

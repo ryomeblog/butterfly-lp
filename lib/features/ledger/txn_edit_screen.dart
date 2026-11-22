@@ -14,6 +14,7 @@ import '../assets/asset_common.dart';
 import '../events/event_picker.dart';
 import '../shared/widgets.dart';
 import '../shared/ym_picker.dart';
+import '../data/file_io.dart';
 
 /// 予定・実績の入力・編集（ワイヤーフレーム TxnEdit）。
 ///
@@ -369,7 +370,18 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
           IconButton(
             tooltip: 'この収支をJSONで書き出す',
             icon: const Icon(Icons.ios_share),
-            onPressed: () => _snack('JSONの書き出しは M10 で実装します。'),
+            onPressed: _isNew
+                ? () => _snack('保存した収支を書き出せます')
+                : () => exportJson(
+                    context,
+                    ref,
+                    'one',
+                    (e) => e.exportRows(
+                      planId: (_originalTxn?.planId ?? _originalLine?.planId)!,
+                      txns: [?_originalTxn],
+                      lines: [?_originalLine],
+                    ),
+                  ),
           ),
           if (!_isNew)
             IconButton(

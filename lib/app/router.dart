@@ -12,6 +12,8 @@ import '../features/ledger/ledger_screen.dart';
 import '../features/ledger/txn_edit_screen.dart';
 import '../features/compare/compare_screens.dart';
 import '../features/compare/planned_entry_screen.dart';
+import '../features/data/data_mgmt_screen.dart';
+import '../features/data/json_import_screen.dart';
 import '../features/events/event_actual_screen.dart';
 import '../features/events/event_edit_screen.dart';
 import '../features/events/events_screen.dart';
@@ -87,6 +89,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/compare/assets',
         builder: (context, state) => const AssetCompareScreen(),
+      ),
+      // JSONの取り込みの確認（データ管理・家計簿のリスト・資産一覧から開く）
+      GoRoute(
+        path: '/entry/json-import',
+        builder: (context, state) {
+          final x = state.extra! as ({String name, Map<String, dynamic> json});
+          return JsonImportScreen(fileName: x.name, json: x.json);
+        },
       ),
       // 予定から実績入力・グループから実績入力（家計簿・ホームから開く）
       GoRoute(
@@ -276,6 +286,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'sync',
                     builder: (context, state) => const SyncScreen(),
+                  ),
+                  GoRoute(
+                    path: 'data',
+                    builder: (context, state) => const DataMgmtScreen(),
                   ),
                   GoRoute(
                     path: 'masters',

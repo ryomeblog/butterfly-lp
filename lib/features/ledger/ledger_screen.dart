@@ -15,6 +15,8 @@ import 'ledger_filter_sheet.dart';
 import 'ledger_plan_views.dart';
 import 'ledger_state.dart';
 import 'ledger_widgets.dart';
+import '../data/file_io.dart';
+import '../../data/db/database.dart';
 
 /// 家計簿（ワイヤーフレーム Ledger / LedgerMonth / LedgerList / LedgerCalendar）。
 ///
@@ -195,10 +197,6 @@ class LedgerScreen extends ConsumerWidget {
     );
   }
 }
-
-void _notYet(BuildContext context, String what, String m) =>
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('「$what」は $m で実装します。')));
 
 /// 予定から実績入力・グループから入力への入口（設計書 3.8）。
 class _EntryButtons extends ConsumerWidget {
@@ -429,11 +427,25 @@ class _ListView extends ConsumerWidget {
           spacing: 8,
           children: [
             TextButton(
-              onPressed: () => _notYet(context, '絞り込み結果をJSONで書き出す', 'M10'),
+              onPressed: () {
+                final ids = {for (final t in txns) t.id};
+                exportJson(
+                  context,
+                  ref,
+                  'list',
+                  (e) => e.exportRows(
+                    planId: planId,
+                    txns: [
+                      for (final r in rows.value ?? const <TxnRow>[])
+                        if (ids.contains(r.id)) r,
+                    ],
+                  ),
+                );
+              },
               child: const Text('絞り込み結果をJSONで書き出す'),
             ),
             TextButton(
-              onPressed: () => _notYet(context, '収支を取り込む', 'M10'),
+              onPressed: () => pickAndImportJson(context),
               child: const Text('収支を取り込む'),
             ),
           ],
