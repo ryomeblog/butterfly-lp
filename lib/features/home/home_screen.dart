@@ -8,6 +8,7 @@ import '../groups/group_list.dart';
 import '../masters/category_list.dart';
 import '../templates/template_list.dart';
 import '../shared/plan_period.dart';
+import 'plan_card.dart';
 
 /// ホーム。上部のタブで「ライフプラン／グループ／テンプレート／カテゴリ」を切り替える（設計書 7）。
 class HomeScreen extends StatelessWidget {
@@ -183,6 +184,8 @@ class _PlanCard extends ConsumerWidget {
                       backgroundColor: scheme.primaryContainer,
                     ),
                   ],
+                  const Spacer(),
+                  PlanMenuButton(plan: plan),
                 ],
               ),
               const SizedBox(height: 4),
@@ -191,10 +194,7 @@ class _PlanCard extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
-              Text(
-                '生涯の収支グラフ・寿命時の総資産・資金不足は M7 で表示します。',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              PlanCardSummary(plan: plan),
             ],
           ),
         ),

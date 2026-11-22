@@ -28,6 +28,9 @@ class _PlanCreateScreenState extends ConsumerState<PlanCreateScreen> {
   DateTime? _birthDate;
   bool _saving = false;
 
+  /// 実績と資産を引き継ぐプラン（null なら空の家計簿から始める）
+  String? _inheritFrom;
+
   @override
   void dispose() {
     _name.dispose();
@@ -58,16 +61,20 @@ class _PlanCreateScreenState extends ConsumerState<PlanCreateScreen> {
     }
     setState(() => _saving = true);
     final repo = ref.read(planRepositoryProvider);
-    final planId = await repo.createPlan(
-      NewPlanInput(
-        name: _name.text.trim(),
-        startYear: int.parse(_startYear.text),
-        protagonistName: _protagonist.text.trim(),
-        protagonistBirthDate: dateString(_birthDate!),
-        protagonistLifeExpectancy: int.parse(_life.text),
-        createCashAccount: widget.isFirst,
-      ),
+    final input = NewPlanInput(
+      name: _name.text.trim(),
+      startYear: int.parse(_startYear.text),
+      protagonistName: _protagonist.text.trim(),
+      protagonistBirthDate: dateString(_birthDate!),
+      protagonistLifeExpectancy: int.parse(_life.text),
+      createCashAccount: widget.isFirst,
     );
+    final from = _inheritFrom;
+    final planId = from == null
+        ? await repo.createPlan(input)
+        : await ref
+              .read(planAdminRepositoryProvider)
+              .createInheriting(input, from);
     await ref.read(deviceRepositoryProvider).setSelectedPlan(planId);
     if (!mounted) return;
     if (widget.isFirst) {
@@ -157,6 +164,29 @@ class _PlanCreateScreenState extends ConsumerState<PlanCreateScreen> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (v) => _intRange(v, 1, 130),
             ),
+            if (!widget.isFirst) ...[
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String?>(
+                key: const Key('plan-inherit'),
+                initialValue: _inheritFrom,
+                decoration: const InputDecoration(labelText: '家計簿（実績）と資産'),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('空から始める')),
+                  for (final p in ref.watch(plansProvider).value ?? const [])
+                    DropdownMenuItem(
+                      value: p.id,
+                      child: Text('「${p.name}」から引き継ぐ'),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _inheritFrom = v),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '引き継ぐと、そのプランの実績と資産（価値を含む）を写します。家族・計画・イベントは引き継ぎません。'
+                'すべてを写すときは、ホームのプランのメニューの「複製」を使います。',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             if (widget.isFirst) ...[
               const SizedBox(height: 16),
               Text(

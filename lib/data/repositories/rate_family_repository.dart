@@ -46,6 +46,11 @@ class RateFamilyRepository {
 
   // ---- 率 ----
 
+  /// 計画線の起点（plan_baseline）。
+  Stream<List<PlanBaselineRow>> watchBaselines(String planId) => (db.select(
+    db.planBaselines,
+  )..where((b) => b.planId.equals(planId) & b.deletedAt.isNull())).watch();
+
   Stream<List<PlanRateRow>> watchRates(String planId) => (db.select(
     db.planRates,
   )..where((r) => r.planId.equals(planId) & r.deletedAt.isNull())).watch();

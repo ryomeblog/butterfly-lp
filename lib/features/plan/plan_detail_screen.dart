@@ -11,8 +11,12 @@ import '../../domain/calc/event_matching.dart';
 import '../events/event_common.dart';
 import '../shared/widgets.dart';
 import '../shared/plan_period.dart';
+import 'plan_asset_chart.dart';
 
-/// プラン詳細（ワイヤーフレーム PlanDetail）。M1 では基本情報だけを出す。
+/// プラン詳細（ワイヤーフレーム PlanDetail）。
+///
+/// 資産推移グラフは計画線だけで、年単位（生涯の年末ごと）と月単位（選んだ年の1月〜12月）を切り替える。
+/// 寿命時・最大の総資産、資金不足の警告、ライフイベント（設計書 3.6・7）。
 class PlanDetailScreen extends ConsumerWidget {
   const PlanDetailScreen({super.key, required this.planId});
 
@@ -74,11 +78,8 @@ class PlanDetailScreen extends ConsumerWidget {
             ),
           PlanPeriodText(plan: plan),
           Text('起点日：${baseline.year}/${baseline.month}/${baseline.day}（変更不可）'),
-          const SizedBox(height: 24),
-          Text(
-            '資産推移グラフ・寿命時と最大の総資産・資金不足の警告は M7 で、年別の予実は M8 で実装します。',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          const SizedBox(height: 16),
+          PlanAssetChart(planId: planId),
           const SectionTitle('ライフイベント'),
           if (events.isEmpty) const Text('イベントはありません'),
           for (final e in events)

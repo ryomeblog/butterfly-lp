@@ -1,5 +1,4 @@
 import 'package:clock/clock.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +11,9 @@ import '../../data/repositories/asset_repository.dart';
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/calc/asset_valuation.dart';
 import '../../domain/models/enums.dart';
+import '../../app/simulation.dart';
 import '../ledger/ledger_widgets.dart';
+import '../shared/charts.dart';
 import '../shared/widgets.dart';
 import 'asset_common.dart';
 import 'asset_edit_screen.dart';
@@ -70,13 +71,35 @@ class AssetDetailScreen extends ConsumerWidget {
       for (final p in points) YearMonth.ofDateString(p.effectiveFrom),
     ]..sort();
     final from = starts.isEmpty ? now : starts.first;
-    final series = monthEndValuations(
-      valuation: valuation,
-      moves: moves,
-      values: points,
-      from: from < now.addMonths(-119) ? now.addMonths(-119) : from,
-      to: now,
-    );
+    // 年末ごとの実績線（今年は今月末）と計画線（6.5 の資産ごとの評価額）
+    final sim = ref.watch(simulationProvider(plan.id));
+    final lastYear = sim == null || sim.months.isEmpty
+        ? now.year
+        : sim.months.last.ym.year;
+    final years = [for (var y = from.year; y <= lastYear; y++) y];
+    final actualLine = [
+      for (final y in years)
+        y > now.year
+            ? null
+            : assetStateAt(
+                valuation: valuation,
+                moves: moves,
+                values: points,
+                date: y == now.year ? now.lastDayString : '$y-12-31',
+              ).valuation,
+    ];
+    final planLine = [
+      for (final y in years) sim?.yearEnd(y)?.assetValues[assetId],
+    ];
+    final markers = <int, String>{};
+    for (final e in events) {
+      final i = years.indexOf(e.year);
+      if (i < 0) continue;
+      if (txns.any((t) => t.eventId == e.id) ||
+          lines.any((l) => l.eventId == e.id)) {
+        markers[i] = e.title;
+      }
+    }
     // この資産の実績・予定が指すイベント
     final related = [
       for (final e in events)
@@ -111,62 +134,39 @@ class AssetDetailScreen extends ConsumerWidget {
             '${cat?.name ?? '削除済みカテゴリ'}・${valuation.label}で評価　${plan.name}の資産',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SectionTitle('評価額の推移（実績線）'),
-          if (series.length >= 2)
-            SizedBox(
-              height: 180,
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(drawVerticalLine: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(),
-                    rightTitles: const AxisTitles(),
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 64,
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 1,
-                        getTitlesWidget: (v, meta) {
-                          final i = v.toInt();
-                          final step = (series.length / 4).ceil().clamp(
-                            1,
-                            1000,
-                          );
-                          if (i < 0 || i >= series.length || i % step != 0) {
-                            return const SizedBox.shrink();
-                          }
-                          final ym = series[i].$1;
-                          return Text(
-                            '${ym.year}/${ym.month}',
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [
-                        for (final (i, e) in series.indexed)
-                          FlSpot(i.toDouble(), e.$2.toDouble()),
-                      ],
-                      color: Theme.of(context).colorScheme.primary,
-                      dotData: const FlDotData(show: false),
-                    ),
-                  ],
+          const SectionTitle('評価額の推移'),
+          Builder(
+            builder: (context) {
+              final scheme = Theme.of(context).colorScheme;
+              final chartSeries = [
+                ChartSeries(
+                  label: '実績線',
+                  values: actualLine,
+                  color: scheme.onSurface,
                 ),
-              ),
-            )
-          else
-            const Text('グラフは2か月分以上の記録から表示します。'),
+                ChartSeries(
+                  label: '計画線',
+                  values: planLine,
+                  color: scheme.primary,
+                  dashed: true,
+                ),
+              ];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ChartLegend(series: chartSeries, withEvents: true),
+                  SeriesChart(
+                    xLabels: [for (final y in years) '$y'],
+                    series: chartSeries,
+                    markers: markers,
+                    height: 180,
+                  ),
+                ],
+              );
+            },
+          ),
           Text(
-            '計画線（見込みの価値・想定利回り）は M7 で重ねます。',
+            '年末の評価額。実績線＝価値の記録、計画線＝見込みの価値・想定利回り（表示中のプランの計画）。',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 12),

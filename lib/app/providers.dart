@@ -6,6 +6,7 @@ import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
 import '../data/repositories/event_repository.dart';
 import '../data/repositories/master_repository.dart';
+import '../data/repositories/plan_admin_repository.dart';
 import '../data/repositories/plan_line_repository.dart';
 import '../data/repositories/plan_repository.dart';
 import '../data/repositories/rate_family_repository.dart';
@@ -193,4 +194,11 @@ final eventLinesProvider = StreamProvider.family<List<PlanLineRow>, String>(
 
 final eventTxnsProvider = StreamProvider.family<List<TxnRow>, String>(
   (ref, planId) => ref.watch(eventRepositoryProvider).watchEventTxns(planId),
+);
+
+final planAdminRepositoryProvider = Provider<PlanAdminRepository>(
+  (ref) => PlanAdminRepository(
+    ref.watch(databaseProvider),
+    ref.watch(stampProvider),
+  ),
 );
