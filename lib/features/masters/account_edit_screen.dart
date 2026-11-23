@@ -77,7 +77,7 @@ class _AccountEditScreenState extends ConsumerState<AccountEditScreen> {
     final id = widget.accountId!;
     final repo = ref.read(masterRepositoryProvider);
     final usage = await repo.accountUsage(id);
-    final accounts = await ref.read(accountsProvider.future);
+    final accounts = await ref.readOnce(accountsProvider.future);
     if (!mounted) return;
     final choice = await showMasterDeleteDialog(
       context,

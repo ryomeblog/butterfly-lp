@@ -146,7 +146,9 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _eventId = l.eventId;
         _groupItemId = l.groupItemId;
         if (l.source == PlanLineSource.group.code && l.sourceId != null) {
-          final regs = await ref.read(registrationsProvider(l.planId).future);
+          final regs = await ref.readOnce(
+            registrationsProvider(l.planId).future,
+          );
           _groupId = regs
               .where((r) => r.registration.id == l.sourceId)
               .firstOrNull
@@ -158,7 +160,7 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
         _date = ym == YearMonth.ofDate(clock.now()) ? clock.now() : ym.firstDay;
       }
     } else {
-      final accounts = await ref.read(accountsProvider.future);
+      final accounts = await ref.readOnce(accountsProvider.future);
       if (accounts.isNotEmpty) _accountId = accounts.first.id;
     }
     setState(() => _loaded = true);
@@ -179,10 +181,10 @@ class _TxnEditScreenState extends ConsumerState<TxnEditScreen> {
     final planAssets = plan == null
         ? const <String>{}
         : {
-            for (final a in await ref.read(assetsProvider(plan.id).future))
+            for (final a in await ref.readOnce(assetsProvider(plan.id).future))
               a.id,
           };
-    final templates = (await ref.read(templatesProvider.future))
+    final templates = (await ref.readOnce(templatesProvider.future))
         .where((t) => t.assetId == null || planAssets.contains(t.assetId))
         .toList();
     if (!mounted) return;

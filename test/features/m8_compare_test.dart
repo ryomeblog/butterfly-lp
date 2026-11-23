@@ -162,6 +162,95 @@ void main() {
     await stopApp(tester, db);
   }, timeout: const Timeout(Duration(seconds: 60)));
 
+  testWidgets('グループから実績入力：臨時の項目を今回だけ足せる（グループ・テンプレートは変わらない）', (tester) async {
+    final db = await startApp(tester, prepare: _prepare);
+    await _toCompareMonth(tester);
+    await tester.tap(find.text('予定から入力'));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('group-entry-A社の給与明細')));
+    await settle(tester);
+
+    // 直接入力：支出・税金
+    await tester.tap(find.byKey(const Key('entry-add-extra')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('extra-direct')));
+    await settle(tester);
+    await tester.enterText(find.byKey(const Key('extra-name')), '年末調整の追加徴収');
+    await tester.tap(find.byKey(const ValueKey('extra-category-expense')));
+    await settle(tester);
+    await tester.tap(find.text('税金').last);
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('extra-ok')));
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const Key('extra-amount-年末調整の追加徴収')),
+      '3000',
+    );
+    await settle(tester);
+
+    // テンプレートから選ぶ（グループの項目と同じテンプレートでもよい）
+    await tester.tap(find.byKey(const Key('entry-add-extra')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('extra-from-template')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('extra-template-所得税')));
+    await settle(tester);
+    await tester.enterText(find.byKey(const Key('extra-amount-所得税')), '1000');
+    await settle(tester);
+
+    expect(find.text('差引（収入−支出−振替） +¥281,000'), findsOneWidget);
+    expect(find.text('4件の実績を保存'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('entry-update')));
+    await tester.tap(find.byKey(const Key('entry-update')));
+    await tester.tap(find.byKey(const Key('entry-save')));
+    await settle(tester);
+
+    final txns = await tester.runAsync(
+      () =>
+          (db.select(db.txns)..where((t) => t.groupId.equals(_groupId))).get(),
+    );
+    expect(txns, hasLength(4));
+    expect(txns!.map((t) => t.entryId).toSet(), hasLength(1));
+    final extras = txns.where((t) => t.groupItemId == null).toList();
+    expect(extras.map((t) => t.amount).toSet(), {3000, 1000});
+    final direct = extras.singleWhere((t) => t.amount == 3000);
+    expect(direct.memo, '年末調整の追加徴収');
+    expect(direct.kind, 'expense');
+    expect(direct.accountId, _cash);
+
+    // グループの項目は増えず、テンプレート「所得税」の金額も変わらない
+    final items = await tester.runAsync(
+      () => (db.select(
+        db.templateGroupItems,
+      )..where((i) => i.groupId.equals(_groupId))).get(),
+    );
+    expect(items, hasLength(2));
+    final tax = await tester.runAsync(
+      () => (db.select(
+        db.templates,
+      )..where((t) => t.name.equals('所得税'))).getSingle(),
+    );
+    expect(tax!.amount, isNull);
+
+    await stopApp(tester, db);
+  }, timeout: const Timeout(Duration(seconds: 60)));
+
+  testWidgets('ホームのグループタブから開いても読み込みが終わる（ほかの画面が予定を見ていなくても）', (tester) async {
+    final db = await startApp(tester, prepare: _prepare);
+    await tester.tap(find.text('グループ').first);
+    await settle(tester);
+    await tester.tap(find.text('グループから実績を入力'));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('entry-group')));
+    await settle(tester);
+    await tester.tap(find.text('A社の給与明細').last);
+    await settle(tester);
+    expect(find.byKey(const Key('entry-所得税')), findsOneWidget);
+    expect(find.byKey(const Key('entry-add-extra')), findsOneWidget);
+
+    await stopApp(tester, db);
+  }, timeout: const Timeout(Duration(seconds: 60)));
+
   testWidgets('手入力の予定は「入力」で予定の内容が入った実績入力が開く', (tester) async {
     final db = await startApp(
       tester,

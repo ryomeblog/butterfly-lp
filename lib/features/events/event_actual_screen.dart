@@ -61,11 +61,11 @@ class _EventActualScreenState extends ConsumerState<EventActualScreen> {
     final e = await repo.getEvent(widget.eventId);
     if (e == null) return;
     final lines = [
-      for (final l in await ref.read(eventLinesProvider(e.planId).future))
+      for (final l in await ref.readOnce(eventLinesProvider(e.planId).future))
         if (l.eventId == e.id) l,
     ];
     final txns = [
-      for (final t in await ref.read(eventTxnsProvider(e.planId).future))
+      for (final t in await ref.readOnce(eventTxnsProvider(e.planId).future))
         if (t.eventId == e.id) t,
     ];
     final entered = eventLineActuals(

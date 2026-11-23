@@ -63,7 +63,7 @@ class TemplateListTab extends ConsumerWidget {
                     PopupMenuButton<String>(
                       onSelected: (v) async {
                         if (v != 'delete') return;
-                        final groups = await ref.read(
+                        final groups = await ref.readOnce(
                           groupsUsingTemplateProvider(t.id).future,
                         );
                         if (!context.mounted) return;

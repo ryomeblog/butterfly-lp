@@ -136,7 +136,7 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
   }
 
   Future<void> _delete() async {
-    final groups = await ref.read(
+    final groups = await ref.readOnce(
       groupsUsingTemplateProvider(widget.templateId!).future,
     );
     if (!mounted) return;

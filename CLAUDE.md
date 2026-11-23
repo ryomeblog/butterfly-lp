@@ -27,6 +27,7 @@
 - 設計書の「9. 未決事項」「10. ワイヤーフレームで仮置きした点」は 2026-11-20 にすべて決定済み。新たに未確定の点が出たら、実装前に質問して決め、design.md と CLAUDE.md に反映する
 - 設計書とワイヤーフレームが食い違うときは設計書に従う（例：家族画面の「続柄を税計算に使う」「参照されている人は削除不可」、予実比較画面は廃止して家計簿（比較・月）へ統合、FIREは扱わない）
 - 端数：上昇率・利回り・割合の項目はすべて円未満切り上げ
+- グループからの実績入力では、グループにない臨時の項目をその回だけ足せる（グループ・テンプレートには反映しない）。支出が安くなった分（補助など）は収入の項目で足し、金額はマイナスにしない（設計書 6.6）
 - 削除：カテゴリ・口座の「履歴ごと削除」でもテンプレートは残し、その欄を空にする。資産のカテゴリは「付け替え」か「資産ごと削除」（設計書 3.7）
 
 ## 実装メモ
@@ -34,5 +35,6 @@
 - 構成：`lib/core`（部品）/ `lib/domain`（計算・型。DBに依存しない）/ `lib/data`（drift・リポジトリ・同期・入出力）/ `lib/features`（画面）
 - 同期対象の行への書き込みは必ずリポジトリを通し、`Stamp` で updated_at / updated_by を付ける。削除は `softDeleteRows`（墓石）
 - テーブルを変えたら `dart run build_runner build` を実行し、`AppDatabase.schemaVersion` を上げて `onUpgrade` に移行を書き、`test/data/migration_test.dart` に移行のテストを足す
+- 画面からプロバイダの値を1回だけ読むときは `ref.read(xxxProvider.future)` ではなく `ref.readOnce(xxxProvider.future)`（`lib/app/providers.dart`）を使う。Riverpod 3 では誰も聞いていないプロバイダが止まり、`.future` が終わらないことがある
 - 画面テストでは `pumpAndSettle` を使わず、`test/widget_helpers.dart` の `settle` / `startApp` / `stopApp` を使う（drift のストリームと読み込み中のスピナーで終わらなくなるため）
 - 同期のテストは `test/data/fake_redis.dart`（テスト用の Redis 互換サーバー）で動く。実際の Redis で確かめるときは `test/data/sync_redis_test.dart` の先頭のコメントの手順（Docker）で環境変数を渡す

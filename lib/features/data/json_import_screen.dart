@@ -43,7 +43,7 @@ class _JsonImportScreenState extends ConsumerState<JsonImportScreen> {
   Future<void> _preview() async {
     setState(() => _busy = true);
     try {
-      final plans = await ref.read(plansProvider.future);
+      final plans = await ref.readOnce(plansProvider.future);
       // 取り込み先の既定値：ファイル内と同じUUIDのプラン、なければ表示プラン
       if (_target == null) {
         final first = await _importer.preview(

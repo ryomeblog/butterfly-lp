@@ -63,7 +63,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
           _date = DateTime(e.year, e.month, e.day!);
         }
         _ym = YearMonth(e.year, e.month);
-        final lines = await ref.read(eventLinesProvider(e.planId).future);
+        final lines = await ref.readOnce(eventLinesProvider(e.planId).future);
         _lines = [
           for (final l in lines)
             if (l.source == PlanLineSource.event.code && l.sourceId == e.id)

@@ -10,16 +10,50 @@ import '../db/database.dart';
 import 'stamp.dart';
 
 /// 一括入力の1項目。
+///
+/// グループの項目は [itemId] を持つ。その回だけ足した臨時の項目（設計書 6.6）は [itemId] が null で、
+/// グループ・テンプレートには反映しない。
 class GroupEntryLine {
   const GroupEntryLine({
     required this.itemId,
-    required this.template,
+    required this.kind,
     required this.amount,
+    required this.accountId,
+    this.categoryId,
+    this.toAccountId,
+    this.assetId,
+    this.assetAction,
+    this.memo,
   });
 
-  final String itemId;
-  final TemplateRow template;
+  /// テンプレートの中身で作る。
+  factory GroupEntryLine.fromTemplate({
+    required String? itemId,
+    required TemplateRow template,
+    required int amount,
+  }) => GroupEntryLine(
+    itemId: itemId,
+    kind: TxnKind.of(template.kind),
+    amount: amount,
+    accountId: template.accountId!,
+    categoryId: template.categoryId,
+    toAccountId: template.toAccountId,
+    assetId: template.assetId,
+    assetAction: template.assetAction == null
+        ? null
+        : AssetAction.of(template.assetAction!),
+    memo: template.memo,
+  );
+
+  final String? itemId;
+  final TxnKind kind;
   final int amount;
+  final String accountId;
+  final String? categoryId;
+  final String? toAccountId;
+  final String? assetId;
+  final AssetAction? assetAction;
+  final String? memo;
 }
 
 /// グループからの実績入力（設計書 6.6）。
@@ -29,8 +63,8 @@ class GroupEntryRepository {
   final AppDatabase db;
   final Stamp stamp;
 
-  /// 入力した項目ごとに実績を作る。全行に同じ entry_id と、group_id・group_item_id を入れる。
-  /// 口座・カテゴリはテンプレートのもの（[accountOverride] があれば振替以外の口座をそれにする）。
+  /// 入力した項目ごとに実績を作る。全行に同じ entry_id と group_id を入れ、グループの項目には
+  /// group_item_id も入れる（臨時の項目は空）。口座・カテゴリは各行のもの（[accountOverride] があれば振替以外の口座をそれにする）。
   Future<String> saveEntry({
     required String planId,
     required String groupId,
@@ -42,15 +76,12 @@ class GroupEntryRepository {
       final now = stamp.now();
       final entryId = newId();
       for (final l in lines) {
-        final t = l.template;
-        final kind = TxnKind.of(t.kind);
-        final action = t.assetAction == null
-            ? null
-            : AssetAction.of(t.assetAction!);
+        final kind = l.kind;
+        final action = l.assetAction;
         int? quantity;
-        if (t.assetId != null &&
+        if (l.assetId != null &&
             (action == AssetAction.buy || action == AssetAction.sell)) {
-          quantity = await _quantityAt(t.assetId!, date, l.amount);
+          quantity = await _quantityAt(l.assetId!, date, l.amount);
         }
         await db
             .into(db.txns)
@@ -62,21 +93,21 @@ class GroupEntryRepository {
                 updatedBy: stamp.deviceId,
                 planId: planId,
                 date: date,
-                kind: t.kind,
+                kind: kind.code,
                 amount: l.amount,
                 categoryId: Value(
-                  kind == TxnKind.transfer ? null : t.categoryId,
+                  kind == TxnKind.transfer ? null : l.categoryId,
                 ),
                 accountId:
                     (kind == TxnKind.transfer ? null : accountOverride) ??
-                    t.accountId!,
+                    l.accountId,
                 toAccountId: Value(
-                  kind == TxnKind.transfer ? t.toAccountId : null,
+                  kind == TxnKind.transfer ? l.toAccountId : null,
                 ),
-                assetId: Value(t.assetId),
-                assetAction: Value(t.assetAction),
+                assetId: Value(l.assetId),
+                assetAction: Value(action?.code),
                 quantityX1e4: Value(quantity),
-                memo: Value(t.memo),
+                memo: Value(l.memo),
                 groupId: Value(groupId),
                 groupItemId: Value(l.itemId),
                 entryId: Value(entryId),

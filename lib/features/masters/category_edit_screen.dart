@@ -42,7 +42,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
     final id = widget.categoryId;
     if (id == null) {
       // 新規は、同じ種類のカテゴリの数で次の色を選ぶ。
-      final cats = await ref.read(categoriesProvider.future);
+      final cats = await ref.readOnce(categoriesProvider.future);
       final n = cats.where((c) => c.kind == _kind.code).length;
       setState(() {
         _color = categoryPalette[n % categoryPalette.length];
@@ -95,7 +95,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
     final id = widget.categoryId!;
     final repo = ref.read(masterRepositoryProvider);
     final usage = await repo.categoryUsage(id);
-    final cats = await ref.read(categoriesProvider.future);
+    final cats = await ref.readOnce(categoriesProvider.future);
     if (!mounted) return;
     final isAsset = _kind == CategoryKind.asset;
     final choice = await showMasterDeleteDialog(

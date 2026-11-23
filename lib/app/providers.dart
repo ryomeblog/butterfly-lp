@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../core/time.dart';
 import '../data/db/database.dart';
@@ -210,3 +211,19 @@ final groupEntryRepositoryProvider = Provider<GroupEntryRepository>(
     ref.watch(stampProvider),
   ),
 );
+
+/// 画面から値を1回だけ読む。
+///
+/// Riverpod 3 では、聞いている人がいないプロバイダは止められる（ストリームも止まる）ため、
+/// `ref.read(xxxProvider.future)` は、ほかの画面がそのプロバイダを見ていないと終わらないことがある。
+/// 読むあいだだけ購読して、値が出たら購読をやめる。
+extension ReadOnce on WidgetRef {
+  Future<T> readOnce<T>(ProviderListenable<Future<T>> provider) async {
+    final sub = listenManual(provider, (_, _) {});
+    try {
+      return await sub.read();
+    } finally {
+      sub.close();
+    }
+  }
+}
