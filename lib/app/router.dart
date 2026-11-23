@@ -23,6 +23,7 @@ import '../features/home/home_screen.dart';
 import '../features/masters/account_edit_screen.dart';
 import '../features/masters/category_edit_screen.dart';
 import '../features/masters/masters_screen.dart';
+import '../features/templates/register_from_txns_screen.dart';
 import '../features/templates/template_edit_screen.dart';
 import '../features/plan/plan_create_screen.dart';
 import '../features/plan/family_screen.dart';
@@ -96,6 +97,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final x = state.extra! as ({String name, Map<String, dynamic> json});
           return JsonImportScreen(fileName: x.name, json: x.json);
+        },
+      ),
+      // 家計簿のリストで選んだ実績からテンプレート・グループを作る
+      GoRoute(
+        path: '/entry/register-from-txns',
+        builder: (context, state) {
+          final x = state.extra! as ({List<String> txnIds, bool asGroup});
+          return RegisterFromTxnsScreen(txnIds: x.txnIds, asGroup: x.asGroup);
         },
       ),
       // 予定から実績入力・グループから実績入力（家計簿・ホームから開く）

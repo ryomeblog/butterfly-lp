@@ -30,25 +30,31 @@ class LedgerScreen extends ConsumerWidget {
     final s = ref.watch(ledgerProvider);
     final c = ref.read(ledgerProvider.notifier);
     final plan = ref.watch(selectedPlanProvider).value;
+    final selecting =
+        s.mode == LedgerMode.actual &&
+        s.view == LedgerView.list &&
+        ref.watch(txnSelectionProvider).isNotEmpty;
     return Scaffold(
       appBar: AppBar(title: const PlanSwitchTitle(title: '家計簿')),
-      floatingActionButton: FloatingActionButton(
-        key: const Key('txn-add'),
-        tooltip: '入力',
-        onPressed: () {
-          final today = todayString();
-          final inPeriod =
-              today.compareTo(s.from) >= 0 && today.compareTo(s.to) <= 0;
-          final date = inPeriod ? today : s.ym.firstDayString;
-          // 予定の表示から開くと「予定」が選ばれた状態（設計書 3.1）
-          context.push(
-            s.mode == LedgerMode.plan
-                ? '/entry/plan-line/new?ym=${YearMonth.ofDateString(date)}'
-                : '/entry/txn/new?date=$date',
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: selecting
+          ? null
+          : FloatingActionButton(
+              key: const Key('txn-add'),
+              tooltip: '入力',
+              onPressed: () {
+                final today = todayString();
+                final inPeriod =
+                    today.compareTo(s.from) >= 0 && today.compareTo(s.to) <= 0;
+                final date = inPeriod ? today : s.ym.firstDayString;
+                // 予定の表示から開くと「予定」が選ばれた状態（設計書 3.1）
+                context.push(
+                  s.mode == LedgerMode.plan
+                      ? '/entry/plan-line/new?ym=${YearMonth.ofDateString(date)}'
+                      : '/entry/txn/new?date=$date',
+                );
+              },
+              child: const Icon(Icons.add),
+            ),
       body: Column(
         children: [
           Padding(
@@ -369,14 +375,50 @@ class _Breakdown extends ConsumerWidget {
 
 // ---- リスト ----
 
-class _ListView extends ConsumerWidget {
+/// リスト。行を長押しすると選択モードになり、選んだ実績からテンプレート・グループを作れる（設計書 3.2）。
+class _ListView extends ConsumerStatefulWidget {
   const _ListView({required this.planId});
 
   final String planId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ListView> createState() => _ListViewState();
+}
+
+class _ListViewState extends ConsumerState<_ListView> {
+  late final TxnSelection _sel = ref.read(txnSelectionProvider.notifier);
+
+  @override
+  void initState() {
+    super.initState();
+    _sel; // dispose で使うため先に取っておく
+  }
+
+  @override
+  void dispose() {
+    // リストを離れたら選択をやめる。ウィジェットの組み立て中にプロバイダを変えられないので、あとで行う
+    final sel = _sel;
+    Future.microtask(sel.clear);
+    super.dispose();
+  }
+
+  Future<void> _register(Set<String> selected, {required bool asGroup}) async {
+    final done = await context.push<bool>(
+      '/entry/register-from-txns',
+      extra: (txnIds: selected.toList(), asGroup: asGroup),
+    );
+    if (done == true && mounted) _sel.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final planId = widget.planId;
     final s = ref.watch(ledgerProvider);
+    // 期間・絞り込みを変えたら選択をやめる
+    ref.listen(ledgerProvider.select((s) => (s.ym, s.filter)), (_, _) {
+      _sel.clear();
+    });
+    final selected = ref.watch(txnSelectionProvider);
     final c = ref.read(ledgerProvider.notifier);
     final f = s.listFilter;
     final rows = ref.watch(
@@ -394,8 +436,10 @@ class _ListView extends ConsumerWidget {
     final from = parseDate(f.from);
     final to = parseDate(f.to);
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+    final selecting = selected.isNotEmpty;
+
+    final list = ListView(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, selecting ? 16 : 96),
       children: [
         Wrap(
           spacing: 8,
@@ -450,17 +494,87 @@ class _ListView extends ConsumerWidget {
             ),
           ],
         ),
-        Text('絞り込み結果 ${txns.length}件'),
+        Text(
+          selecting
+              ? '絞り込み結果 ${txns.length}件（タップで選ぶ）'
+              : '絞り込み結果 ${txns.length}件（長押しで選んでテンプレート・グループに登録）',
+        ),
         for (final e in byDate.entries) ...[
           _DayHeader(date: e.key, totals: totalsOf(e.value)),
           for (final t in e.value)
-            TxnTile(txn: t, lookup: lookup, showDate: false),
+            TxnTile(
+              txn: t,
+              lookup: lookup,
+              showDate: false,
+              selected: selecting ? selected.contains(t.id) : null,
+              onTap: selecting ? () => _sel.toggle(t.id) : null,
+              onLongPress: () => _sel.toggle(t.id),
+            ),
         ],
         if (txns.isEmpty)
           const Padding(
             padding: EdgeInsets.all(24),
             child: Center(child: Text('該当する実績はありません')),
           ),
+      ],
+    );
+    if (!selecting) return list;
+    return Column(
+      children: [
+        Expanded(child: list),
+        Material(
+          elevation: 8,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      key: const Key('select-clear'),
+                      tooltip: '選択をやめる',
+                      icon: const Icon(Icons.close),
+                      onPressed: _sel.clear,
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${selected.length}件を選択中',
+                        key: const Key('select-count'),
+                      ),
+                    ),
+                    TextButton(
+                      key: const Key('select-all'),
+                      onPressed: () =>
+                          _sel.addAll([for (final t in txns) t.id]),
+                      child: const Text('すべて選ぶ'),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        key: const Key('select-to-templates'),
+                        onPressed: () => _register(selected, asGroup: false),
+                        child: const Text('テンプレートに登録'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton(
+                        key: const Key('select-to-group'),
+                        onPressed: () => _register(selected, asGroup: true),
+                        child: const Text('グループに登録'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -101,3 +101,24 @@ class LedgerController extends Notifier<LedgerState> {
 final ledgerProvider = NotifierProvider<LedgerController, LedgerState>(
   LedgerController.new,
 );
+
+/// 家計簿のリストで選んだ実績のID（空なら選択モードではない）。
+/// 選択中は右下の入力ボタンを隠し、画面下に登録の帯を出す。
+class TxnSelection extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => const {};
+
+  void toggle(String id) =>
+      state = state.contains(id) ? ({...state}..remove(id)) : {...state, id};
+
+  void addAll(Iterable<String> ids) => state = {...state, ...ids};
+
+  void clear() {
+    // 画面を閉じたあと（あとで呼ばれる）にアプリごと破棄されていることがある
+    if (ref.mounted) state = const {};
+  }
+}
+
+final txnSelectionProvider = NotifierProvider<TxnSelection, Set<String>>(
+  TxnSelection.new,
+);

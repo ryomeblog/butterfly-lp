@@ -187,6 +187,46 @@ class TemplateRepository {
     );
   }
 
+  /// 実績から作るテンプレートの中身（設計書 3.2「実績からテンプレート・グループを作る」）。
+  /// 種類・金額・カテゴリ・口座・資産・メモを写す。イベントは写さない。金額の上昇は「カテゴリの率」。
+  static TemplateInput inputFromTxn(TxnRow t, {required String name}) {
+    final kind = TxnKind.of(t.kind);
+    return TemplateInput(
+      name: name,
+      kind: kind,
+      amount: t.amount,
+      categoryId: kind == TxnKind.transfer ? null : t.categoryId,
+      accountId: t.accountId,
+      toAccountId: kind == TxnKind.transfer ? t.toAccountId : null,
+      memo: t.memo,
+      assetId: t.assetId,
+      assetAction: t.assetAction == null
+          ? null
+          : AssetAction.of(t.assetAction!),
+    );
+  }
+
+  /// テンプレートをまとめて作る。[groupName] があれば、それらを項目（毎月・固定額）にした新しいグループも作る。
+  /// 既存のテンプレートは使わず、常に新しく作る。戻り値：作ったテンプレートのID と グループのID。
+  Future<({List<String> templateIds, String? groupId})> createFromTxns({
+    required List<TemplateInput> inputs,
+    String? groupName,
+  }) {
+    return db.transaction(() async {
+      final ids = [for (final i in inputs) await createTemplate(i)];
+      String? groupId;
+      if (groupName != null) {
+        groupId = await saveGroup(
+          name: groupName,
+          items: [
+            for (final id in ids) GroupItemDraft(id: newId(), templateId: id),
+          ],
+        );
+      }
+      return (templateIds: ids, groupId: groupId);
+    });
+  }
+
   // ---- グループ ----
 
   Stream<List<GroupSummary>> watchGroupSummaries() {

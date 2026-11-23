@@ -131,6 +131,9 @@ class TxnTile extends StatelessWidget {
     required this.lookup,
     this.showDate = true,
     this.prefix,
+    this.selected,
+    this.onTap,
+    this.onLongPress,
   });
 
   final LedgerTxn txn;
@@ -139,6 +142,13 @@ class TxnTile extends StatelessWidget {
 
   /// 見出しの前に付ける語（資産詳細の「購入」「売却」など）
   final String? prefix;
+
+  /// 選択モードのとき、選ばれているか（null なら選択モードではない）
+  final bool? selected;
+
+  /// 押したとき（既定は編集を開く）
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -158,11 +168,25 @@ class TxnTile extends StatelessWidget {
       TxnKind.expense => formatYenSigned(-txn.amount),
       TxnKind.transfer => formatYen(txn.amount),
     };
+    final mark = isTransfer
+        ? const Icon(Icons.swap_horiz)
+        : ColorDot(lookup.categoryColor(txn.categoryId));
     return ListTile(
+      key: Key('txn-tile-${txn.id}'),
       dense: true,
-      leading: isTransfer
-          ? const Icon(Icons.swap_horiz)
-          : ColorDot(lookup.categoryColor(txn.categoryId)),
+      selected: selected ?? false,
+      leading: selected == null
+          ? mark
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  selected! ? Icons.check_box : Icons.check_box_outline_blank,
+                ),
+                const SizedBox(width: 8),
+                mark,
+              ],
+            ),
       title: Text(prefix == null ? title : '$prefix　$title'),
       subtitle: sub.isEmpty ? null : Text(sub),
       trailing: Text(
@@ -175,7 +199,8 @@ class TxnTile extends StatelessWidget {
           },
         ),
       ),
-      onTap: () => context.push('/entry/txn/${txn.id}'),
+      onTap: onTap ?? () => context.push('/entry/txn/${txn.id}'),
+      onLongPress: onLongPress,
     );
   }
 }
