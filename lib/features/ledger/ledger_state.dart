@@ -102,7 +102,7 @@ final ledgerProvider = NotifierProvider<LedgerController, LedgerState>(
   LedgerController.new,
 );
 
-/// 家計簿のリストで選んだ実績のID（空なら選択モードではない）。
+/// 家計簿のリストで選んだ実績（予定のリストでは計画行）のID（空なら選択モードではない）。
 /// 選択中は右下の入力ボタンを隠し、画面下に登録の帯を出す。
 class TxnSelection extends Notifier<Set<String>> {
   @override

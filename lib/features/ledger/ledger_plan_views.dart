@@ -6,6 +6,7 @@ import '../../app/providers.dart';
 import '../../core/money.dart';
 import '../../core/time.dart';
 import '../../data/db/database.dart';
+import '../../data/io/json_import.dart' show FileUnit;
 import '../../domain/calc/ledger.dart';
 import '../../domain/models/enums.dart';
 import '../shared/widgets.dart';
@@ -134,9 +135,30 @@ class PlanList extends ConsumerStatefulWidget {
 class _PlanListState extends ConsumerState<PlanList> {
   Set<PlanLineSource> _sources = const {};
 
+  /// 選択は実績のリストと同じプロバイダで持つ（選択中は入力ボタンを隠す）
+  late final TxnSelection _sel = ref.read(txnSelectionProvider.notifier);
+
+  @override
+  void initState() {
+    super.initState();
+    _sel; // dispose で使うため先に取っておく
+  }
+
+  @override
+  void dispose() {
+    final sel = _sel;
+    Future.microtask(sel.clear);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(ledgerProvider);
+    ref.listen(ledgerProvider.select((s) => (s.ym, s.filter)), (_, _) {
+      _sel.clear();
+    });
+    final selected = ref.watch(txnSelectionProvider);
+    final selecting = selected.isNotEmpty;
     final c = ref.read(ledgerProvider.notifier);
     final f = s.listFilter;
     final from = YearMonth.ofDateString(f.from);
@@ -173,8 +195,8 @@ class _PlanListState extends ConsumerState<PlanList> {
         (a, b) => a == '手入力・イベント' ? 1 : (b == '手入力・イベント' ? -1 : a.compareTo(b)),
       );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+    final list = ListView(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, selecting ? 16 : 96),
       children: [
         Wrap(
           spacing: 8,
@@ -206,25 +228,11 @@ class _PlanListState extends ConsumerState<PlanList> {
               '${from == to ? '${from.month}月' : '絞り込み期間'}の予定（${ref.watch(selectedPlanProvider).value?.name ?? ''}の計画）',
           totals: totalsOf(shown.map(ledgerTxnOfLine)),
         ),
-        Wrap(
-          spacing: 8,
-          children: [
-            TextButton(
-              onPressed: () => exportJson(
-                context,
-                ref,
-                'plan-list',
-                (e) => e.exportRows(planId: widget.planId, lines: shown),
-              ),
-              child: const Text('絞り込み結果をJSONで書き出す'),
-            ),
-            TextButton(
-              onPressed: () => pickAndImportJson(context),
-              child: const Text('収支を取り込む'),
-            ),
-          ],
+        const ImportJsonButton(expect: FileUnit.rows),
+        Text(
+          '予定 ${shown.length}件（予定は月単位なので、日付ではなく月でまとめます）'
+          '${selecting ? '' : '。長押しで選んでJSONで書き出せます'}',
         ),
-        Text('予定 ${shown.length}件（予定は月単位なので、日付ではなく月でまとめます）'),
         for (final k in keys) ...[
           Container(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -233,8 +241,44 @@ class _PlanListState extends ConsumerState<PlanList> {
             child: Text(k),
           ),
           for (final r in groups[k]!)
-            PlanLineTile(line: r, lookup: lookup, showMonth: from != to),
+            PlanLineTile(
+              line: r,
+              lookup: lookup,
+              showMonth: from != to,
+              selected: selecting ? selected.contains(r.id) : null,
+              onTap: selecting ? () => _sel.toggle(r.id) : null,
+              onLongPress: () => _sel.toggle(r.id),
+            ),
         ],
+      ],
+    );
+    if (!selecting) return list;
+    return Column(
+      children: [
+        Expanded(child: list),
+        SelectionBar(
+          count: selected.length,
+          onClear: _sel.clear,
+          onSelectAll: () => _sel.addAll([for (final r in shown) r.id]),
+          actions: [
+            FilledButton(
+              key: const Key('select-export'),
+              onPressed: () => exportJson(
+                context,
+                ref,
+                'plans',
+                (e) => e.exportRows(
+                  planId: widget.planId,
+                  lines: [
+                    for (final r in rows)
+                      if (selected.contains(r.id)) r,
+                  ],
+                ),
+              ),
+              child: const Text('JSONで書き出す'),
+            ),
+          ],
+        ),
       ],
     );
   }

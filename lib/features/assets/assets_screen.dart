@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../core/money.dart';
 import '../../core/time.dart';
 import '../../data/db/database.dart';
+import '../../data/io/json_import.dart' show FileUnit;
 import '../../data/repositories/txn_repository.dart';
 import '../../domain/calc/asset_valuation.dart';
 import '../../domain/calc/balance.dart';
@@ -30,6 +31,13 @@ class AssetsScreen extends ConsumerStatefulWidget {
 class _AssetsScreenState extends ConsumerState<AssetsScreen> {
   bool _byYear = false;
   late YearMonth _ym = YearMonth.ofDate(clock.now());
+
+  /// 長押しで選んだ資産（JSONで書き出す。設計書 3.9）
+  final Set<String> _selected = {};
+
+  void _toggle(String id) => setState(() {
+    if (!_selected.remove(id)) _selected.add(id);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +81,43 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
     final accountTotal = balances.values.fold(0, (a, b) => a + b);
     final assetTotal = states.values.fold(0, (a, s) => a + s.valuation);
     final d = parseDate(date);
+    _selected.retainWhere((id) => assets.any((a) => a.id == id));
+    final selecting = _selected.isNotEmpty;
+    _AssetTile tile(AssetRow a, CategoryRow? c) => _AssetTile(
+      asset: a,
+      category: c,
+      state: states[a.id]!,
+      selected: selecting ? _selected.contains(a.id) : null,
+      onTap: selecting ? () => _toggle(a.id) : null,
+      onLongPress: () => _toggle(a.id),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const PlanSwitchTitle(title: '資産')),
+      bottomNavigationBar: selecting
+          ? SelectionBar(
+              count: _selected.length,
+              onClear: () => setState(_selected.clear),
+              onSelectAll: () => setState(
+                () => _selected.addAll([for (final a in assets) a.id]),
+              ),
+              actions: [
+                FilledButton(
+                  key: const Key('select-export'),
+                  onPressed: () => exportJson(
+                    context,
+                    ref,
+                    'assets',
+                    (e) => e.exportAssets(plan.id, [
+                      for (final a in assets)
+                        if (_selected.contains(a.id)) a.id,
+                    ]),
+                  ),
+                  child: const Text('JSONで書き出す'),
+                ),
+              ],
+            )
+          : null,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
@@ -193,32 +235,19 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                 ),
               ),
               for (final a in assets.where((a) => a.categoryId == c.id))
-                _AssetTile(asset: a, category: c, state: states[a.id]!),
+                tile(a, c),
             ],
           for (final a in assets.where(
             (a) => !assetCats.any((c) => c.id == a.categoryId),
           ))
-            _AssetTile(asset: a, category: null, state: states[a.id]!),
+            tile(a, null),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            children: [
-              TextButton(
-                onPressed: () => exportJson(
-                  context,
-                  ref,
-                  'assets',
-                  (e) =>
-                      e.exportAssets(plan.id, [for (final a in assets) a.id]),
-                ),
-                child: const Text('資産リストを書き出す'),
-              ),
-              TextButton(
-                onPressed: () => pickAndImportJson(context),
-                child: const Text('資産を取り込む'),
-              ),
-            ],
-          ),
+          if (assets.isNotEmpty)
+            Text(
+              '資産を長押しで選んで、JSONで書き出せます。',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          const ImportJsonButton(expect: FileUnit.assets),
         ],
       ),
     );
@@ -230,11 +259,19 @@ class _AssetTile extends StatelessWidget {
     required this.asset,
     required this.category,
     required this.state,
+    this.selected,
+    this.onTap,
+    this.onLongPress,
   });
 
   final AssetRow asset;
   final CategoryRow? category;
   final AssetState state;
+
+  /// 選択モードのとき、選ばれているか（null なら選択モードではない）
+  final bool? selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +286,9 @@ class _AssetTile extends StatelessWidget {
     return ListTile(
       key: Key('asset-${asset.name}'),
       contentPadding: EdgeInsets.zero,
+      selected: selected ?? false,
+      leading: selected == null ? null : SelectMark(selected: selected!),
+      onLongPress: onLongPress,
       title: Text(asset.name),
       subtitle: Text(sub),
       trailing: Column(
@@ -265,7 +305,7 @@ class _AssetTile extends StatelessWidget {
           ),
         ],
       ),
-      onTap: () => context.push('/assets/detail/${asset.id}'),
+      onTap: onTap ?? () => context.push('/assets/detail/${asset.id}'),
     );
   }
 }

@@ -185,12 +185,76 @@ void main() {
     );
   });
 
+  test('ファイルの種類（各画面の取り込みで受け付けるか）', () {
+    Map<String, dynamic> f(Map<String, dynamic> body) => {
+      'format': 'lifeplan-data',
+      ...body,
+    };
+    expect(FileUnit.of(f({'masters': {}})), FileUnit.full);
+    expect(
+      FileUnit.of(
+        f({
+          'plans': [
+            {'plan': {}, 'settings': {}},
+          ],
+          'assets': [{}],
+        }),
+      ),
+      FileUnit.plan,
+    );
+    expect(
+      FileUnit.of(
+        f({
+          'assets': [{}],
+          'actuals': [{}],
+        }),
+      ),
+      FileUnit.assets,
+    );
+    expect(
+      FileUnit.of(
+        f({
+          'groups': [{}],
+          'templates': [{}],
+        }),
+      ),
+      FileUnit.groups,
+    );
+    expect(
+      FileUnit.of(
+        f({
+          'templates': [{}],
+        }),
+      ),
+      FileUnit.templates,
+    );
+    expect(
+      FileUnit.of(
+        f({
+          'actuals': [{}],
+          'templates': [],
+        }),
+      ),
+      FileUnit.rows,
+    );
+  });
+
   test('予定・実績：別の端末へ取り込むと、参照先を同じUUIDで作る。下見では何も変えない。もう一度取り込むと上書き', () async {
     final json = roundTrip(
-      await JsonExporter(a).exportPeriod(
+      await JsonExporter(a).exportRows(
         planId: planA,
-        from: YearMonth(2026, 11),
-        to: YearMonth(2026, 12),
+        txns: await (a.select(
+          a.txns,
+        )..where((t) => t.planId.equals(planA))).get(),
+        // 2026年11〜12月の予定（家計簿のリストで選んだ想定）
+        lines:
+            await (a.select(a.planLines)..where(
+                  (l) =>
+                      l.planId.equals(planA) &
+                      l.year.equals(2026) &
+                      l.month.isBiggerOrEqualValue(11),
+                ))
+                .get(),
       ),
     );
     final targetB = await PlanRepository(b, sb).createPlan(planInput);

@@ -17,6 +17,7 @@ import 'ledger_state.dart';
 import 'ledger_widgets.dart';
 import '../data/file_io.dart';
 import '../../data/db/database.dart';
+import '../../data/io/json_import.dart' show FileUnit;
 
 /// 家計簿（ワイヤーフレーム Ledger / LedgerMonth / LedgerList / LedgerCalendar）。
 ///
@@ -31,7 +32,7 @@ class LedgerScreen extends ConsumerWidget {
     final c = ref.read(ledgerProvider.notifier);
     final plan = ref.watch(selectedPlanProvider).value;
     final selecting =
-        s.mode == LedgerMode.actual &&
+        s.mode != LedgerMode.compare &&
         s.view == LedgerView.list &&
         ref.watch(txnSelectionProvider).isNotEmpty;
     return Scaffold(
@@ -467,37 +468,11 @@ class _ListViewState extends ConsumerState<_ListView> {
         ),
         const SizedBox(height: 8),
         TotalsRow(title: '絞り込み結果の実績', totals: totals),
-        Wrap(
-          spacing: 8,
-          children: [
-            TextButton(
-              onPressed: () {
-                final ids = {for (final t in txns) t.id};
-                exportJson(
-                  context,
-                  ref,
-                  'list',
-                  (e) => e.exportRows(
-                    planId: planId,
-                    txns: [
-                      for (final r in rows.value ?? const <TxnRow>[])
-                        if (ids.contains(r.id)) r,
-                    ],
-                  ),
-                );
-              },
-              child: const Text('絞り込み結果をJSONで書き出す'),
-            ),
-            TextButton(
-              onPressed: () => pickAndImportJson(context),
-              child: const Text('収支を取り込む'),
-            ),
-          ],
-        ),
+        const ImportJsonButton(expect: FileUnit.rows),
         Text(
           selecting
               ? '絞り込み結果 ${txns.length}件（タップで選ぶ）'
-              : '絞り込み結果 ${txns.length}件（長押しで選んでテンプレート・グループに登録）',
+              : '絞り込み結果 ${txns.length}件（長押しで選んで、JSONの書き出しやテンプレート・グループへの登録）',
         ),
         for (final e in byDate.entries) ...[
           _DayHeader(date: e.key, totals: totalsOf(e.value)),
@@ -522,58 +497,38 @@ class _ListViewState extends ConsumerState<_ListView> {
     return Column(
       children: [
         Expanded(child: list),
-        Material(
-          elevation: 8,
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      key: const Key('select-clear'),
-                      tooltip: '選択をやめる',
-                      icon: const Icon(Icons.close),
-                      onPressed: _sel.clear,
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${selected.length}件を選択中',
-                        key: const Key('select-count'),
-                      ),
-                    ),
-                    TextButton(
-                      key: const Key('select-all'),
-                      onPressed: () =>
-                          _sel.addAll([for (final t in txns) t.id]),
-                      child: const Text('すべて選ぶ'),
-                    ),
+        SelectionBar(
+          count: selected.length,
+          onClear: _sel.clear,
+          onSelectAll: () => _sel.addAll([for (final t in txns) t.id]),
+          actions: [
+            OutlinedButton(
+              key: const Key('select-export'),
+              onPressed: () => exportJson(
+                context,
+                ref,
+                'actuals',
+                (e) => e.exportRows(
+                  planId: planId,
+                  txns: [
+                    for (final r in rows.value ?? const <TxnRow>[])
+                      if (selected.contains(r.id)) r,
                   ],
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        key: const Key('select-to-templates'),
-                        onPressed: () => _register(selected, asGroup: false),
-                        child: const Text('テンプレートに登録'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: FilledButton(
-                        key: const Key('select-to-group'),
-                        onPressed: () => _register(selected, asGroup: true),
-                        child: const Text('グループに登録'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+              child: const Text('JSONで書き出す'),
             ),
-          ),
+            OutlinedButton(
+              key: const Key('select-to-templates'),
+              onPressed: () => _register(selected, asGroup: false),
+              child: const Text('テンプレートに登録'),
+            ),
+            FilledButton(
+              key: const Key('select-to-group'),
+              onPressed: () => _register(selected, asGroup: true),
+              child: const Text('グループに登録'),
+            ),
+          ],
         ),
       ],
     );

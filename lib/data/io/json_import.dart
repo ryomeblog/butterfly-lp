@@ -75,6 +75,36 @@ class ImportReport {
   }
 }
 
+/// ファイルの種類。各画面の「取り込む」は、その画面に合う種類だけを受け付ける（設計書 3.9）。
+enum FileUnit {
+  full('アプリの全データ', '設定の「データ管理」'),
+  plan('ライフプラン', 'ホームの「ライフプラン」'),
+  assets('資産', '資産の画面'),
+  groups('グループ', 'ホームの「グループ」'),
+  templates('テンプレート', 'ホームの「テンプレート」'),
+  rows('予定・実績', '家計簿のリスト');
+
+  const FileUnit(this.label, this.where);
+
+  final String label;
+
+  /// 取り込める画面
+  final String where;
+
+  /// 中身から種類を決める。資産・グループのファイルには実績やテンプレートも入るので、この順に見る。
+  static FileUnit of(Map<String, dynamic> json) {
+    bool has(String key) => json[key] is List && (json[key] as List).isNotEmpty;
+    return switch (JsonImporter.detect(json)) {
+      ImportKind.full => FileUnit.full,
+      ImportKind.plan => FileUnit.plan,
+      ImportKind.rows when has('assets') => FileUnit.assets,
+      ImportKind.rows when has('groups') => FileUnit.groups,
+      ImportKind.rows when has('templates') => FileUnit.templates,
+      ImportKind.rows => FileUnit.rows,
+    };
+  }
+}
+
 class _DryRun implements Exception {
   const _DryRun();
 }

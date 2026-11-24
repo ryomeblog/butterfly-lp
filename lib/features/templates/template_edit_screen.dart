@@ -9,6 +9,7 @@ import '../../data/repositories/template_repository.dart';
 import '../../domain/calc/growth.dart';
 import '../../domain/models/enums.dart';
 import '../assets/asset_common.dart';
+import '../data/file_io.dart';
 import '../shared/widgets.dart';
 
 /// テンプレートの追加・編集（ワイヤーフレーム TemplateEdit）。
@@ -167,7 +168,24 @@ class _TemplateEditScreenState extends ConsumerState<TemplateEditScreen> {
         !cats.any((c) => c.id == _categoryId);
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isNew ? 'テンプレートを作成' : 'テンプレートを編集')),
+      appBar: AppBar(
+        title: Text(_isNew ? 'テンプレートを作成' : 'テンプレートを編集'),
+        actions: [
+          // 保存済みのこのテンプレートを書き出す（設計書 3.9）
+          if (!_isNew)
+            IconButton(
+              key: const Key('template-export'),
+              tooltip: 'このテンプレートをJSONで書き出す',
+              icon: const Icon(Icons.ios_share),
+              onPressed: () => exportJson(
+                context,
+                ref,
+                'template',
+                (e) => e.exportTemplates([widget.templateId!]),
+              ),
+            ),
+        ],
+      ),
       body: !_loaded
           ? const Center(child: CircularProgressIndicator())
           : Form(

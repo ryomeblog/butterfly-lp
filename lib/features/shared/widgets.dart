@@ -215,3 +215,68 @@ class SaveCancelBar extends StatelessWidget {
     ),
   );
 }
+
+/// 一覧で選んでいるときに画面下に出す帯。件数・「すべて選ぶ」・選択をやめる×と、操作のボタン（[actions]）。
+class SelectionBar extends StatelessWidget {
+  const SelectionBar({
+    super.key,
+    required this.count,
+    required this.onClear,
+    required this.onSelectAll,
+    required this.actions,
+  });
+
+  final int count;
+  final VoidCallback onClear;
+  final VoidCallback onSelectAll;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    elevation: 8,
+    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                key: const Key('select-clear'),
+                tooltip: '選択をやめる',
+                icon: const Icon(Icons.close),
+                onPressed: onClear,
+              ),
+              Expanded(
+                child: Text('$count件を選択中', key: const Key('select-count')),
+              ),
+              TextButton(
+                key: const Key('select-all'),
+                onPressed: onSelectAll,
+                child: const Text('すべて選ぶ'),
+              ),
+            ],
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            alignment: WrapAlignment.center,
+            children: actions,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// 選択モードの行の先頭に付けるチェック。
+class SelectMark extends StatelessWidget {
+  const SelectMark({super.key, required this.selected});
+
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) =>
+      Icon(selected ? Icons.check_box : Icons.check_box_outline_blank);
+}

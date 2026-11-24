@@ -10,6 +10,7 @@ import '../../data/db/database.dart';
 import '../../domain/calc/group_entry.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/group_item.dart';
+import '../data/file_io.dart';
 import '../shared/widgets.dart';
 
 /// グループ編集（ワイヤーフレーム GroupEdit）。
@@ -231,6 +232,19 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
         appBar: AppBar(
           title: Text(_isNew ? 'グループを作成' : 'グループを編集'),
           actions: [
+            // 保存済みのこのグループ（項目が使うテンプレートを含む）を書き出す（設計書 3.9）
+            if (!_isNew)
+              IconButton(
+                key: const Key('group-export'),
+                tooltip: 'このグループをJSONで書き出す',
+                icon: const Icon(Icons.ios_share),
+                onPressed: () => exportJson(
+                  context,
+                  ref,
+                  'group',
+                  (e) => e.exportGroups([widget.groupId!]),
+                ),
+              ),
             if (!_isNew)
               IconButton(
                 tooltip: '削除',

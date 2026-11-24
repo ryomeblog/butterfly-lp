@@ -180,9 +180,7 @@ class TxnTile extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  selected! ? Icons.check_box : Icons.check_box_outline_blank,
-                ),
+                SelectMark(selected: selected!),
                 const SizedBox(width: 8),
                 mark,
               ],
@@ -258,12 +256,20 @@ class PlanLineTile extends StatelessWidget {
     required this.lookup,
     this.showMonth = false,
     this.showYear = false,
+    this.selected,
+    this.onTap,
+    this.onLongPress,
   });
 
   final PlanLineRow line;
   final Lookup lookup;
   final bool showMonth;
   final bool showYear;
+
+  /// 選択モードのとき、選ばれているか（null なら選択モードではない）
+  final bool? selected;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -282,11 +288,23 @@ class PlanLineTile extends StatelessWidget {
           ? '${lookup.accountName(line.accountId)} → ${lookup.accountName(line.toAccountId)}'
           : lookup.accountName(line.accountId),
     ].join('・');
+    final mark = isTransfer
+        ? const Icon(Icons.swap_horiz)
+        : ColorDot(lookup.categoryColor(line.categoryId));
     return ListTile(
+      key: Key('line-tile-${line.id}'),
       dense: true,
-      leading: isTransfer
-          ? const Icon(Icons.swap_horiz)
-          : ColorDot(lookup.categoryColor(line.categoryId)),
+      selected: selected ?? false,
+      leading: selected == null
+          ? mark
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SelectMark(selected: selected!),
+                const SizedBox(width: 8),
+                mark,
+              ],
+            ),
       title: Text(title.trim()),
       subtitle: Text(sub),
       trailing: Text(
@@ -303,7 +321,8 @@ class PlanLineTile extends StatelessWidget {
           },
         ),
       ),
-      onTap: () => context.push('/entry/plan-line/${line.id}'),
+      onTap: onTap ?? () => context.push('/entry/plan-line/${line.id}'),
+      onLongPress: onLongPress,
     );
   }
 }

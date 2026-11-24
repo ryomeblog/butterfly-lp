@@ -83,18 +83,18 @@ void main() {
     await stopApp(tester, db);
   }, timeout: const Timeout(Duration(seconds: 60)));
 
-  testWidgets('設定からデータ管理を開き、書き出す単位を切り替えられる', (tester) async {
+  testWidgets('設定のデータ管理：バックアップ・全データのJSON・CSVだけ（ほかの単位は各画面から）', (tester) async {
     final db = await startApp(tester, prepare: _plan);
     await tester.tap(find.text('設定'));
     await settle(tester);
     await tester.tap(find.text('データ管理'));
     await settle(tester);
     expect(find.text('バックアップを書き出す'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('json-unit')));
-    await settle(tester);
-    await tester.tap(find.text('ライフプラン').last);
-    await settle(tester);
-    expect(find.textContaining('家族・イベント・率・グループの登録'), findsOneWidget);
+    expect(find.text('全データをJSONで書き出す'), findsOneWidget);
+    expect(find.text('アプリの全データのJSONを取り込む'), findsOneWidget);
+    expect(find.text('CSVを書き出す'), findsOneWidget);
+    expect(find.byKey(const Key('json-unit')), findsNothing);
+    expect(find.textContaining('参考アプリ'), findsNothing);
     await stopApp(tester, db);
   }, timeout: const Timeout(Duration(seconds: 60)));
 }

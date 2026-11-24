@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../data/db/database.dart';
+import '../../data/io/json_import.dart' show FileUnit;
+import '../data/file_io.dart';
 import '../groups/group_list.dart';
 import '../masters/category_list.dart';
 import '../templates/template_list.dart';
@@ -85,6 +87,9 @@ class _PlanListTab extends ConsumerWidget {
             icon: const Icon(Icons.add),
             label: const Text('プランを作成'),
           ),
+          const SizedBox(height: 8),
+          // プランの書き出しは各カードのメニューから（設計書 3.9）
+          const ImportJsonButton(expect: FileUnit.plan),
         ],
       ),
     );

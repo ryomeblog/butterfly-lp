@@ -233,7 +233,7 @@ class JsonExporter {
 
   // ---- 単位ごとの書き出し ----
 
-  /// 予定・実績／収支1件／収支リスト：実績（actuals）と予定（plans の lines）。
+  /// 予定・実績（家計簿のリストで選んだもの・収支1件）：実績（actuals）と予定（plans の lines）。
   Future<Map<String, Object?>> exportRows({
     required String planId,
     List<TxnRow> txns = const [],
@@ -250,41 +250,6 @@ class JsonExporter {
           },
         ],
     });
-  }
-
-  /// 予定・実績（プランと期間を指定）。
-  Future<Map<String, Object?>> exportPeriod({
-    required String planId,
-    required YearMonth from,
-    required YearMonth to,
-    bool actuals = true,
-    bool plans = true,
-  }) async {
-    final txns = actuals
-        ? await (db.select(db.txns)..where(
-                (t) =>
-                    t.planId.equals(planId) &
-                    t.deletedAt.isNull() &
-                    t.date.isBetweenValues(
-                      from.firstDayString,
-                      to.lastDayString,
-                    ),
-              ))
-              .get()
-        : <TxnRow>[];
-    final lines = plans
-        ? [
-            for (final l
-                in await (db.select(db.planLines)..where(
-                      (l) => l.planId.equals(planId) & l.deletedAt.isNull(),
-                    ))
-                    .get())
-              if (YearMonth(l.year, l.month) >= from &&
-                  YearMonth(l.year, l.month) <= to)
-                l,
-          ]
-        : <PlanLineRow>[];
-    return exportRows(planId: planId, txns: txns, lines: lines);
   }
 
   /// テンプレート単位。

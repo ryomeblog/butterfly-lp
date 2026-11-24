@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/providers.dart';
 import '../../core/time.dart';
 import '../../data/io/json_export.dart';
+import '../../data/io/json_import.dart';
 
 /// ファイルを作り、共有シート（ファイルに保存・ドライブ・メールなど）で書き出す。
 Future<void> shareFile(
@@ -54,9 +55,17 @@ Future<void> exportJson(
 }
 
 /// JSON のファイルを選び、取り込みの確認画面を開く。
-Future<void> pickAndImportJson(BuildContext context) async {
+///
+/// 各画面の「取り込む」は、その画面に合う種類（[expect]）のファイルだけを受け付ける（設計書 3.9）。
+/// 違う種類なら、取り込める画面を案内する。
+Future<void> pickAndImportJson(
+  BuildContext context, {
+  required FileUnit expect,
+}) async {
   final f = await pickFile();
   if (f == null || !context.mounted) return;
+  void snack(String m) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
   Object? json;
   try {
     json = jsonDecode(utf8.decode(f.bytes));
@@ -64,9 +73,37 @@ Future<void> pickAndImportJson(BuildContext context) async {
     json = null;
   }
   if (json is! Map<String, dynamic>) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('JSONファイルとして読めませんでした')));
+    snack('JSONファイルとして読めませんでした');
+    return;
+  }
+  final String? mismatch;
+  try {
+    final unit = FileUnit.of(json);
+    mismatch = unit == expect
+        ? null
+        : 'このファイルは「${unit.label}」のファイルです。${unit.where}から取り込んでください。';
+  } on ImportFormatError catch (e) {
+    snack(e.message);
+    return;
+  }
+  if (mismatch != null) {
+    snack(mismatch);
     return;
   }
   await context.push('/entry/json-import', extra: (name: f.name, json: json));
+}
+
+/// 取り込みの入口のボタン（各一覧の画面に置く）。
+class ImportJsonButton extends StatelessWidget {
+  const ImportJsonButton({super.key, required this.expect});
+
+  final FileUnit expect;
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    key: Key('import-${expect.name}'),
+    onPressed: () => pickAndImportJson(context, expect: expect),
+    icon: const Icon(Icons.file_download_outlined),
+    label: Text('${expect.label}のJSONを取り込む'),
+  );
 }
