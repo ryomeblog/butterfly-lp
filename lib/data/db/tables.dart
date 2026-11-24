@@ -292,3 +292,35 @@ class DeviceSettings extends Table {
   @override
   Set<Column<Object>> get primaryKey => {deviceId};
 }
+
+/// 明細の取り込みで覚える「内容→カテゴリ」の規則（設計書 3.11）。
+///
+/// この端末だけに持ち、同期・バックアップ・JSON には入れない。内容が完全に同じときだけ使う。
+@DataClassName('CategoryRuleRow')
+class CategoryRules extends Table {
+  @override
+  String get tableName => 'category_rule';
+
+  /// income / expense
+  TextColumn get kind => text()();
+
+  /// 明細の内容（店名・商品名）。読み取ったままの文字列
+  TextColumn get content => text()();
+  TextColumn get categoryId => text().named('category_id')();
+  TextColumn get updatedAt => text().named('updated_at')();
+
+  @override
+  Set<Column<Object>> get primaryKey => {kind, content};
+}
+
+/// この端末だけの設定（キーと値。明細の Excel の列の指定など）。
+@DataClassName('DevicePrefRow')
+class DevicePrefs extends Table {
+  @override
+  String get tableName => 'device_pref';
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {key};
+}

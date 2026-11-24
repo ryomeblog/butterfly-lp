@@ -12095,6 +12095,532 @@ class DeviceSettingsCompanion extends UpdateCompanion<DeviceSettingRow> {
   }
 }
 
+class $CategoryRulesTable extends CategoryRules
+    with TableInfo<$CategoryRulesTable, CategoryRuleRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CategoryRulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [kind, content, categoryId, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'category_rule';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CategoryRuleRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {kind, content};
+  @override
+  CategoryRuleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CategoryRuleRow(
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CategoryRulesTable createAlias(String alias) {
+    return $CategoryRulesTable(attachedDatabase, alias);
+  }
+}
+
+class CategoryRuleRow extends DataClass implements Insertable<CategoryRuleRow> {
+  /// income / expense
+  final String kind;
+
+  /// 明細の内容（店名・商品名）。読み取ったままの文字列
+  final String content;
+  final String categoryId;
+  final String updatedAt;
+  const CategoryRuleRow({
+    required this.kind,
+    required this.content,
+    required this.categoryId,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['kind'] = Variable<String>(kind);
+    map['content'] = Variable<String>(content);
+    map['category_id'] = Variable<String>(categoryId);
+    map['updated_at'] = Variable<String>(updatedAt);
+    return map;
+  }
+
+  CategoryRulesCompanion toCompanion(bool nullToAbsent) {
+    return CategoryRulesCompanion(
+      kind: Value(kind),
+      content: Value(content),
+      categoryId: Value(categoryId),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CategoryRuleRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CategoryRuleRow(
+      kind: serializer.fromJson<String>(json['kind']),
+      content: serializer.fromJson<String>(json['content']),
+      categoryId: serializer.fromJson<String>(json['categoryId']),
+      updatedAt: serializer.fromJson<String>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'kind': serializer.toJson<String>(kind),
+      'content': serializer.toJson<String>(content),
+      'categoryId': serializer.toJson<String>(categoryId),
+      'updatedAt': serializer.toJson<String>(updatedAt),
+    };
+  }
+
+  CategoryRuleRow copyWith({
+    String? kind,
+    String? content,
+    String? categoryId,
+    String? updatedAt,
+  }) => CategoryRuleRow(
+    kind: kind ?? this.kind,
+    content: content ?? this.content,
+    categoryId: categoryId ?? this.categoryId,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CategoryRuleRow copyWithCompanion(CategoryRulesCompanion data) {
+    return CategoryRuleRow(
+      kind: data.kind.present ? data.kind.value : this.kind,
+      content: data.content.present ? data.content.value : this.content,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryRuleRow(')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(kind, content, categoryId, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CategoryRuleRow &&
+          other.kind == this.kind &&
+          other.content == this.content &&
+          other.categoryId == this.categoryId &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CategoryRulesCompanion extends UpdateCompanion<CategoryRuleRow> {
+  final Value<String> kind;
+  final Value<String> content;
+  final Value<String> categoryId;
+  final Value<String> updatedAt;
+  final Value<int> rowid;
+  const CategoryRulesCompanion({
+    this.kind = const Value.absent(),
+    this.content = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CategoryRulesCompanion.insert({
+    required String kind,
+    required String content,
+    required String categoryId,
+    required String updatedAt,
+    this.rowid = const Value.absent(),
+  }) : kind = Value(kind),
+       content = Value(content),
+       categoryId = Value(categoryId),
+       updatedAt = Value(updatedAt);
+  static Insertable<CategoryRuleRow> custom({
+    Expression<String>? kind,
+    Expression<String>? content,
+    Expression<String>? categoryId,
+    Expression<String>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (kind != null) 'kind': kind,
+      if (content != null) 'content': content,
+      if (categoryId != null) 'category_id': categoryId,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CategoryRulesCompanion copyWith({
+    Value<String>? kind,
+    Value<String>? content,
+    Value<String>? categoryId,
+    Value<String>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CategoryRulesCompanion(
+      kind: kind ?? this.kind,
+      content: content ?? this.content,
+      categoryId: categoryId ?? this.categoryId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryRulesCompanion(')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DevicePrefsTable extends DevicePrefs
+    with TableInfo<$DevicePrefsTable, DevicePrefRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DevicePrefsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'device_pref';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DevicePrefRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  DevicePrefRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DevicePrefRow(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+    );
+  }
+
+  @override
+  $DevicePrefsTable createAlias(String alias) {
+    return $DevicePrefsTable(attachedDatabase, alias);
+  }
+}
+
+class DevicePrefRow extends DataClass implements Insertable<DevicePrefRow> {
+  final String key;
+  final String value;
+  const DevicePrefRow({required this.key, required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  DevicePrefsCompanion toCompanion(bool nullToAbsent) {
+    return DevicePrefsCompanion(key: Value(key), value: Value(value));
+  }
+
+  factory DevicePrefRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DevicePrefRow(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  DevicePrefRow copyWith({String? key, String? value}) =>
+      DevicePrefRow(key: key ?? this.key, value: value ?? this.value);
+  DevicePrefRow copyWithCompanion(DevicePrefsCompanion data) {
+    return DevicePrefRow(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevicePrefRow(')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DevicePrefRow &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class DevicePrefsCompanion extends UpdateCompanion<DevicePrefRow> {
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const DevicePrefsCompanion({
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DevicePrefsCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
+  static Insertable<DevicePrefRow> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DevicePrefsCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return DevicePrefsCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevicePrefsCompanion(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12116,6 +12642,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PlanBaselinesTable planBaselines = $PlanBaselinesTable(this);
   late final $PlanGroupsTable planGroups = $PlanGroupsTable(this);
   late final $DeviceSettingsTable deviceSettings = $DeviceSettingsTable(this);
+  late final $CategoryRulesTable categoryRules = $CategoryRulesTable(this);
+  late final $DevicePrefsTable devicePrefs = $DevicePrefsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12138,6 +12666,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     planBaselines,
     planGroups,
     deviceSettings,
+    categoryRules,
+    devicePrefs,
   ];
 }
 
@@ -17991,6 +18521,345 @@ typedef $$DeviceSettingsTableProcessedTableManager =
       DeviceSettingRow,
       PrefetchHooks Function()
     >;
+typedef $$CategoryRulesTableCreateCompanionBuilder =
+    CategoryRulesCompanion Function({
+      required String kind,
+      required String content,
+      required String categoryId,
+      required String updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CategoryRulesTableUpdateCompanionBuilder =
+    CategoryRulesCompanion Function({
+      Value<String> kind,
+      Value<String> content,
+      Value<String> categoryId,
+      Value<String> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CategoryRulesTableFilterComposer
+    extends Composer<_$AppDatabase, $CategoryRulesTable> {
+  $$CategoryRulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CategoryRulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CategoryRulesTable> {
+  $$CategoryRulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CategoryRulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CategoryRulesTable> {
+  $$CategoryRulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CategoryRulesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CategoryRulesTable,
+          CategoryRuleRow,
+          $$CategoryRulesTableFilterComposer,
+          $$CategoryRulesTableOrderingComposer,
+          $$CategoryRulesTableAnnotationComposer,
+          $$CategoryRulesTableCreateCompanionBuilder,
+          $$CategoryRulesTableUpdateCompanionBuilder,
+          (
+            CategoryRuleRow,
+            BaseReferences<_$AppDatabase, $CategoryRulesTable, CategoryRuleRow>,
+          ),
+          CategoryRuleRow,
+          PrefetchHooks Function()
+        > {
+  $$CategoryRulesTableTableManager(_$AppDatabase db, $CategoryRulesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CategoryRulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CategoryRulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CategoryRulesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> kind = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<String> categoryId = const Value.absent(),
+                Value<String> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CategoryRulesCompanion(
+                kind: kind,
+                content: content,
+                categoryId: categoryId,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String kind,
+                required String content,
+                required String categoryId,
+                required String updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CategoryRulesCompanion.insert(
+                kind: kind,
+                content: content,
+                categoryId: categoryId,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CategoryRulesTable, CategoryRuleRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CategoryRulesTable,
+                    CategoryRuleRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CategoryRulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CategoryRulesTable,
+      CategoryRuleRow,
+      $$CategoryRulesTableFilterComposer,
+      $$CategoryRulesTableOrderingComposer,
+      $$CategoryRulesTableAnnotationComposer,
+      $$CategoryRulesTableCreateCompanionBuilder,
+      $$CategoryRulesTableUpdateCompanionBuilder,
+      (
+        CategoryRuleRow,
+        BaseReferences<_$AppDatabase, $CategoryRulesTable, CategoryRuleRow>,
+      ),
+      CategoryRuleRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DevicePrefsTableCreateCompanionBuilder =
+    DevicePrefsCompanion Function({
+      required String key,
+      required String value,
+      Value<int> rowid,
+    });
+typedef $$DevicePrefsTableUpdateCompanionBuilder =
+    DevicePrefsCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> rowid,
+    });
+
+class $$DevicePrefsTableFilterComposer
+    extends Composer<_$AppDatabase, $DevicePrefsTable> {
+  $$DevicePrefsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DevicePrefsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DevicePrefsTable> {
+  $$DevicePrefsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DevicePrefsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DevicePrefsTable> {
+  $$DevicePrefsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+}
+
+class $$DevicePrefsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DevicePrefsTable,
+          DevicePrefRow,
+          $$DevicePrefsTableFilterComposer,
+          $$DevicePrefsTableOrderingComposer,
+          $$DevicePrefsTableAnnotationComposer,
+          $$DevicePrefsTableCreateCompanionBuilder,
+          $$DevicePrefsTableUpdateCompanionBuilder,
+          (
+            DevicePrefRow,
+            BaseReferences<_$AppDatabase, $DevicePrefsTable, DevicePrefRow>,
+          ),
+          DevicePrefRow,
+          PrefetchHooks Function()
+        > {
+  $$DevicePrefsTableTableManager(_$AppDatabase db, $DevicePrefsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DevicePrefsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DevicePrefsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DevicePrefsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> key = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => DevicePrefsCompanion(key: key, value: value, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String key,
+                required String value,
+                Value<int> rowid = const Value.absent(),
+              }) => DevicePrefsCompanion.insert(
+                key: key,
+                value: value,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DevicePrefsTable, DevicePrefRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DevicePrefsTable,
+                    DevicePrefRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DevicePrefsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DevicePrefsTable,
+      DevicePrefRow,
+      $$DevicePrefsTableFilterComposer,
+      $$DevicePrefsTableOrderingComposer,
+      $$DevicePrefsTableAnnotationComposer,
+      $$DevicePrefsTableCreateCompanionBuilder,
+      $$DevicePrefsTableUpdateCompanionBuilder,
+      (
+        DevicePrefRow,
+        BaseReferences<_$AppDatabase, $DevicePrefsTable, DevicePrefRow>,
+      ),
+      DevicePrefRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18028,4 +18897,8 @@ class $AppDatabaseManager {
       $$PlanGroupsTableTableManager(_db, _db.planGroups);
   $$DeviceSettingsTableTableManager get deviceSettings =>
       $$DeviceSettingsTableTableManager(_db, _db.deviceSettings);
+  $$CategoryRulesTableTableManager get categoryRules =>
+      $$CategoryRulesTableTableManager(_db, _db.categoryRules);
+  $$DevicePrefsTableTableManager get devicePrefs =>
+      $$DevicePrefsTableTableManager(_db, _db.devicePrefs);
 }

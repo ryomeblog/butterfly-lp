@@ -40,4 +40,35 @@ void main() {
     await db.close();
     await dir.delete(recursive: true);
   });
+
+  test('v2→v3：明細の取り込みの規則と端末の設定の表ができる', () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    final dir = await Directory.systemTemp.createTemp('lp_migration');
+    final file = File('${dir.path}/db.sqlite');
+
+    var db = AppDatabase(NativeDatabase(file));
+    await db.customStatement('DROP TABLE category_rule');
+    await db.customStatement('DROP TABLE device_pref');
+    await db.customStatement('PRAGMA user_version = 2');
+    await db.close();
+
+    db = AppDatabase(NativeDatabase(file));
+    await db
+        .into(db.categoryRules)
+        .insert(
+          CategoryRulesCompanion.insert(
+            kind: 'expense',
+            content: '店',
+            categoryId: 'c',
+            updatedAt: 'x',
+          ),
+        );
+    await db
+        .into(db.devicePrefs)
+        .insert(DevicePrefsCompanion.insert(key: 'k', value: 'v'));
+    expect(await db.select(db.categoryRules).get(), hasLength(1));
+    expect((await db.select(db.devicePrefs).getSingle()).value, 'v');
+    await db.close();
+    await dir.delete(recursive: true);
+  });
 }

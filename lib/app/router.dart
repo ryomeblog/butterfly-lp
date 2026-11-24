@@ -34,6 +34,8 @@ import '../features/plan/plan_year_screen.dart';
 import '../features/plan/rates_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/settings/sync_screen.dart';
+import '../data/statement/statement.dart';
+import '../features/statement/statement_import_screen.dart';
 import 'providers.dart';
 
 /// 画面の移動。下部5タブ（ホーム／家計簿／資産／イベント／設定）ごとに履歴を持つ（設計書 7・11）。
@@ -106,6 +108,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           final x = state.extra! as ({List<String> txnIds, bool asGroup});
           return RegisterFromTxnsScreen(txnIds: x.txnIds, asGroup: x.asGroup);
         },
+      ),
+      // 明細（Amazon・Excel・PDF）の取り込み（デスクトップ版・Web版。設計書 3.11）
+      GoRoute(
+        path: '/entry/statement',
+        builder: (context, state) => StatementImportScreen(
+          asPlan: state.uri.queryParameters['plan'] == '1',
+          initial: state.extra as StatementResult?,
+        ),
       ),
       // 予定から実績入力・グループから実績入力（家計簿・ホームから開く）
       GoRoute(

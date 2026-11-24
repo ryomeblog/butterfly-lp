@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/platform.dart';
 import '../../core/money.dart';
 import '../../core/time.dart';
 import '../../data/repositories/txn_repository.dart';
@@ -10,6 +11,7 @@ import '../../domain/calc/ledger.dart';
 import '../../domain/models/enums.dart';
 import '../shared/plan_switch_sheet.dart';
 import '../shared/widgets.dart';
+import '../statement/statement_import_screen.dart';
 import '../compare/ledger_compare_view.dart';
 import 'ledger_filter_sheet.dart';
 import 'ledger_plan_views.dart';
@@ -469,6 +471,7 @@ class _ListViewState extends ConsumerState<_ListView> {
         const SizedBox(height: 8),
         TotalsRow(title: '絞り込み結果の実績', totals: totals),
         const ImportJsonButton(expect: FileUnit.rows),
+        if (AppPlatform.canReadStatements) const StatementImportButton(),
         Text(
           selecting
               ? '絞り込み結果 ${txns.length}件（タップで選ぶ）'

@@ -9,7 +9,7 @@ part 'database.g.dart';
 /// データ形式のバージョン（household.schema_version・同期の互換判定に使う。設計書 5.3）。
 const currentSchemaVersion = 1;
 
-/// 同期対象の16テーブル名（device_setting は含まない）。
+/// 同期対象の16テーブル名（device_setting・category_rule・device_pref は含まない）。
 const syncedTableNames = <String>[
   'household',
   'account',
@@ -48,6 +48,8 @@ const syncedTableNames = <String>[
     PlanBaselines,
     PlanGroups,
     DeviceSettings,
+    CategoryRules,
+    DevicePrefs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -68,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -89,6 +91,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         // v2: template.account_id を空にできるようにした（設計書 3.7）
         await m.alterTable(TableMigration(templates));
+      }
+      if (from < 3) {
+        // v3: 明細の取り込みの規則と端末の設定（同期しない。設計書 3.11）
+        await m.createTable(categoryRules);
+        await m.createTable(devicePrefs);
       }
     },
     beforeOpen: (details) async {

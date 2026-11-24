@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../core/time.dart';
 import '../data/db/database.dart';
+import '../data/repositories/statement_repository.dart';
 import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
 import '../data/repositories/event_repository.dart';
@@ -115,6 +116,13 @@ final txnsProvider = StreamProvider.family<List<TxnRow>, TxnQuery>(
   (ref, q) => ref
       .watch(txnRepositoryProvider)
       .watchTxns(q.planId, from: q.from, to: q.to),
+);
+
+final statementRepositoryProvider = Provider<StatementRepository>(
+  (ref) => StatementRepository(
+    ref.watch(databaseProvider),
+    ref.watch(stampProvider),
+  ),
 );
 
 final planLineRepositoryProvider = Provider<PlanLineRepository>(

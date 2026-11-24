@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/platform.dart';
 import '../../core/money.dart';
 import '../../core/time.dart';
 import '../../data/db/database.dart';
@@ -10,6 +11,7 @@ import '../../data/io/json_import.dart' show FileUnit;
 import '../../domain/calc/ledger.dart';
 import '../../domain/models/enums.dart';
 import '../shared/widgets.dart';
+import '../statement/statement_import_screen.dart';
 import 'ledger_filter_sheet.dart';
 import 'ledger_state.dart';
 import 'ledger_widgets.dart';
@@ -229,6 +231,8 @@ class _PlanListState extends ConsumerState<PlanList> {
           totals: totalsOf(shown.map(ledgerTxnOfLine)),
         ),
         const ImportJsonButton(expect: FileUnit.rows),
+        if (AppPlatform.canReadStatements)
+          const StatementImportButton(asPlan: true),
         Text(
           '予定 ${shown.length}件（予定は月単位なので、日付ではなく月でまとめます）'
           '${selecting ? '' : '。長押しで選んでJSONで書き出せます'}',
