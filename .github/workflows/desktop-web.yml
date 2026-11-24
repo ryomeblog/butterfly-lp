@@ -11,7 +11,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.9
@@ -24,13 +24,13 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.9
           channel: stable
       - run: flutter build web --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: butterfly-lp-web
           path: build/web
@@ -39,14 +39,14 @@ jobs:
     needs: test
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.9
           channel: stable
       - run: flutter build macos --release
-      - run: ditto -c -k --keepParent "build/macos/Build/Products/Release/バタフライLP.app" butterfly-lp-macos.zip
-      - uses: actions/upload-artifact@v4
+      - run: ditto -c -k --keepParent "build/macos/Build/Products/Release/ButterflyLP.app" butterfly-lp-macos.zip
+      - uses: actions/upload-artifact@v5
         with:
           name: butterfly-lp-macos
           path: butterfly-lp-macos.zip
@@ -55,13 +55,13 @@ jobs:
     needs: test
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.9
           channel: stable
       - run: flutter build windows --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: butterfly-lp-windows
           path: build/windows/x64/runner/Release
