@@ -54,8 +54,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   /// アプリ本体用（端末のアプリ領域に `butterfly_lp.sqlite` を作る）。
-  factory AppDatabase.open() =>
-      AppDatabase(driftDatabase(name: 'butterfly_lp'));
+  ///
+  /// Web 版はブラウザ内（OPFS か IndexedDB）に保存する。`web/` の sqlite3.wasm と
+  /// drift_worker.js を使う（設計書 3.12）。
+  factory AppDatabase.open() => AppDatabase(
+    driftDatabase(
+      name: 'butterfly_lp',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    ),
+  );
 
   @override
   int get schemaVersion => 2;

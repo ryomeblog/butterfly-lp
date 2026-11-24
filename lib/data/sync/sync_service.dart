@@ -18,7 +18,10 @@ abstract class SecretStore {
 class SecureSecretStore implements SecretStore {
   const SecureSecretStore();
 
-  static const _s = FlutterSecureStorage();
+  // macOS は署名のチームなしでも使えるよう、従来のキーチェーンに保存する
+  static const _s = FlutterSecureStorage(
+    mOptions: MacOsOptions(usesDataProtectionKeychain: false),
+  );
 
   @override
   Future<String?> read(String key) => _s.read(key: key);

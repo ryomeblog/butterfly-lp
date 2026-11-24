@@ -1,30 +1,38 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/providers.dart';
+import '../../core/platform.dart';
 import '../../core/time.dart';
 import '../../data/io/json_export.dart';
 import '../../data/io/json_import.dart';
+import 'temp_file_stub.dart' if (dart.library.io) 'temp_file_io.dart';
 
-/// ファイルを作り、共有シート（ファイルに保存・ドライブ・メールなど）で書き出す。
+/// ファイルを書き出す。スマホ版は共有シート（ファイルに保存・ドライブ・メールなど）、
+/// デスクトップ版は保存ダイアログ、Web 版はダウンロードで保存する。
 Future<void> shareFile(
   String fileName,
   List<int> bytes, {
   String mime = 'application/json',
 }) async {
-  final dir = await getTemporaryDirectory();
-  final file = File('${dir.path}/$fileName');
-  await file.writeAsBytes(bytes, flush: true);
+  if (!AppPlatform.isMobile) {
+    await FilePicker.saveFile(
+      fileName: fileName,
+      bytes: Uint8List.fromList(bytes),
+      mimeType: mime,
+    );
+    return;
+  }
+  final path = await writeTempFile(fileName, bytes);
   await SharePlus.instance.share(
     ShareParams(
-      files: [XFile(file.path, mimeType: mime)],
+      files: [XFile(path, mimeType: mime)],
       subject: fileName,
     ),
   );

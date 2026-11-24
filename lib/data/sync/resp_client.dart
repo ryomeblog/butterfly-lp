@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
+
+import 'resp_socket_stub.dart' if (dart.library.io) 'resp_socket_io.dart';
 
 /// Redis がエラーを返した。
 class RedisError implements Exception {
@@ -109,7 +110,7 @@ class RespClient {
         _drain();
       },
       onError: (Object e) => _failAll(e),
-      onDone: () => _failAll(const SocketException('Redis との接続が切れました')),
+      onDone: () => _failAll(const RespConnectionClosed()),
     );
   }
 
@@ -118,11 +119,10 @@ class RespClient {
     int port, {
     Duration timeout = const Duration(seconds: 5),
   }) async {
-    final s = await Socket.connect(host, port, timeout: timeout);
-    return RespClient._(s);
+    return RespClient._(await openRespSocket(host, port, timeout));
   }
 
-  final Socket _socket;
+  final RespSocket _socket;
   late final StreamSubscription<Uint8List> _sub;
   final _parser = RespParser();
   final _waiting = <Completer<Object?>>[];

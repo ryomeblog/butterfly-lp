@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart' show GZipDecoder, GZipEncoder;
 import 'package:cryptography/cryptography.dart';
 
 /// 合言葉から作るもの（設計書 5.1）。
@@ -41,7 +41,7 @@ class SyncCrypto {
   static Future<Uint8List> encrypt(List<int> plain, List<int> key) async {
     final aes = AesGcm.with256bits();
     final box = await aes.encrypt(
-      gzip.encode(plain),
+      const GZipEncoder().encodeBytes(plain),
       secretKey: SecretKey(key),
       nonce: aes.newNonce(),
     );
@@ -65,6 +65,6 @@ class SyncCrypto {
       SecretBox(cipher, nonce: nonce, mac: Mac(mac)),
       secretKey: SecretKey(key),
     );
-    return gzip.decode(plain);
+    return const GZipDecoder().decodeBytes(plain);
   }
 }

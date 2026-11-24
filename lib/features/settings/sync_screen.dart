@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../app/providers.dart';
+import '../../core/platform.dart';
 import '../../data/sync/resp_client.dart';
 import '../../data/sync/sync_service.dart';
 import '../shared/widgets.dart';
@@ -278,11 +279,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 icon: const Icon(Icons.qr_code),
                 label: const Text('QRコードを表示'),
               ),
-              OutlinedButton.icon(
-                onPressed: _scanQr,
-                icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('QRコードを読み取る'),
-              ),
+              if (AppPlatform.canScanQr)
+                OutlinedButton.icon(
+                  onPressed: _scanQr,
+                  icon: const Icon(Icons.qr_code_scanner),
+                  label: const Text('QRコードを読み取る'),
+                ),
             ],
           ),
           const SizedBox(height: 4),

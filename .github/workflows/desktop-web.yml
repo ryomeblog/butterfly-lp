@@ -1,0 +1,67 @@
+# デスクトップ版（macOS・Windows）とWeb版を作る（設計書 3.12）。
+# 作ったものは各実行の「Artifacts」から受け取れる。
+name: build desktop and web
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  web:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+      - run: flutter build web --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: butterfly-lp-web
+          path: build/web
+
+  macos:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+      - run: flutter build macos --release
+      - run: ditto -c -k --keepParent "build/macos/Build/Products/Release/バタフライLP.app" butterfly-lp-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: butterfly-lp-macos
+          path: butterfly-lp-macos.zip
+
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+      - run: flutter build windows --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: butterfly-lp-windows
+          path: build/windows/x64/runner/Release
