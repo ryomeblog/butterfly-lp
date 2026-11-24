@@ -1,0 +1,4 @@
+# サーバーは Flutter に依存しないので、親の analysis_options（flutter_lints）を使わない
+analyzer:
+  language:
+    strict-casts: false

@@ -4,6 +4,7 @@ import 'package:butterfly_lp/data/db/database.dart';
 import 'package:butterfly_lp/data/repositories/device_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers.dart';
@@ -23,6 +24,7 @@ Future<void> settle(WidgetTester tester, {int rounds = 8}) async {
 Future<AppDatabase> startApp(
   WidgetTester tester, {
   Future<void> Function(AppDatabase db, String deviceId)? prepare,
+  List<Override> overrides = const [],
 }) async {
   final db = memoryDb();
   final device = (await tester.runAsync(() => DeviceRepository(db).ensure()))!;
@@ -35,6 +37,7 @@ Future<AppDatabase> startApp(
       overrides: [
         databaseProvider.overrideWithValue(db),
         deviceIdProvider.overrideWithValue(device.deviceId),
+        ...overrides,
       ],
       child: const ButterflyApp(),
     ),

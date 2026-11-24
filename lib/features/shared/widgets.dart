@@ -184,11 +184,15 @@ class SaveCancelBar extends StatelessWidget {
     required this.onSave,
     this.saveLabel = '保存',
     this.saveKey,
+    this.onCancel,
   });
 
   final VoidCallback? onSave;
   final String saveLabel;
   final Key? saveKey;
+
+  /// 省略すると前の画面に戻る
+  final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -198,7 +202,7 @@ class SaveCancelBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: () => Navigator.of(context).maybePop(),
+              onPressed: onCancel ?? () => Navigator.of(context).maybePop(),
               child: const Text('キャンセル'),
             ),
           ),

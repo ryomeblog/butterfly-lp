@@ -34,7 +34,9 @@ import '../features/plan/plan_year_screen.dart';
 import '../features/plan/rates_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/settings/sync_screen.dart';
+import '../data/share/share_link.dart';
 import '../data/statement/statement.dart';
+import '../features/share/share_screens.dart';
 import '../features/statement/statement_import_screen.dart';
 import 'providers.dart';
 
@@ -55,6 +57,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final has = hasPlans.value;
       if (has == null) return null;
       final onWelcome = state.matchedLocation.startsWith('/welcome');
+      // 共有の受け取りは、プランがなくても開ける（設計書 3.12）
+      if (state.matchedLocation.startsWith('/share/')) return null;
       if (!has && !onWelcome) return '/welcome';
       if (has && onWelcome) return '/home';
       return null;
@@ -108,6 +112,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           final x = state.extra! as ({List<String> txnIds, bool asGroup});
           return RegisterFromTxnsScreen(txnIds: x.txnIds, asGroup: x.asGroup);
         },
+      ),
+      // QRでの共有の受け取り（設計書 3.12）。Web 版は URL を開くとここに来る
+      GoRoute(
+        path: '/share/:id',
+        builder: (context, state) => ShareReceiveScreen(
+          link:
+              state.extra as ShareLink? ??
+              ShareLink.fromParts(
+                server: Uri.base,
+                id: state.pathParameters['id']!,
+                key: state.uri.queryParameters['k'],
+              ),
+        ),
       ),
       // 明細（Amazon・Excel・PDF）の取り込み（デスクトップ版・Web版。設計書 3.11）
       GoRoute(

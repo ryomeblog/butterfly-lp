@@ -1,0 +1,10 @@
+name: butterfly_lp_server
+description: バタフライLPの Web 版の配信と、QRでの共有の受け渡し（設計書 3.12）。
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ^3.9.0
+
+dev_dependencies:
+  test: ^1.25.0

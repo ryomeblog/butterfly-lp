@@ -8,6 +8,7 @@ import '../../core/platform.dart';
 import '../../app/providers.dart';
 import '../../core/time.dart';
 import '../../data/repositories/plan_repository.dart';
+import '../share/share_screens.dart';
 
 /// プランの作成。初回起動では「最初のプランを作る画面」として出す（設計書 7.1）。
 class PlanCreateScreen extends ConsumerStatefulWidget {
@@ -201,6 +202,10 @@ class _PlanCreateScreenState extends ConsumerState<PlanCreateScreen> {
               onPressed: _saving ? null : _save,
               child: Text(widget.isFirst ? 'このプランで始める' : 'プランを作成'),
             ),
+            if (widget.isFirst) ...[
+              const SizedBox(height: 12),
+              const Center(child: ShareReceiveButton()),
+            ],
             // Web 版は同期を持たない（設計書 3.12）
             if (widget.isFirst && AppPlatform.canSync) ...[
               const SizedBox(height: 12),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/platform.dart';
+import '../share/share_screens.dart';
 import 'sync_screen.dart';
 
 /// 設定（ワイヤーフレーム Settings）。
@@ -33,6 +34,17 @@ class SettingsScreen extends ConsumerWidget {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/sync'),
+            ),
+          // Web 版は開いているサーバーを使う（設計書 3.12）
+          if (!AppPlatform.isWeb)
+            ListTile(
+              key: const Key('settings-share-server'),
+              title: const Text('共有サーバー'),
+              subtitle: Text(
+                ref.watch(shareServerProvider).value ?? '未設定（QRでの共有に使います）',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => askShareServer(context, ref),
             ),
           ListTile(
             title: const Text('データ管理'),

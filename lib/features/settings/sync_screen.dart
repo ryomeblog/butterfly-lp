@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../app/providers.dart';
 import '../../core/platform.dart';
 import '../../data/sync/resp_client.dart';
 import '../../data/sync/sync_service.dart';
+import '../shared/qr_scan_page.dart';
 import '../shared/widgets.dart';
 
 /// 秘密の値の置き場所（main で端末のセキュアストレージに上書きする。テストはメモリ）。
@@ -160,8 +160,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Future<void> _scanQr() async {
-    final code = await Navigator.of(context)
-        .push<String>(MaterialPageRoute(builder: (_) => const _QrScanPage()));
+    final code = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => const QrScanPage(title: '合言葉のQRコードを読み取る'),
+      ),
+    );
     if (code != null) await _registerPassphrase(code);
   }
 
@@ -298,33 +301,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _QrScanPage extends StatefulWidget {
-  const _QrScanPage();
-
-  @override
-  State<_QrScanPage> createState() => _QrScanPageState();
-}
-
-class _QrScanPageState extends State<_QrScanPage> {
-  bool _done = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('合言葉のQRコードを読み取る')),
-      body: MobileScanner(
-        onDetect: (capture) {
-          if (_done) return;
-          final v = capture.barcodes.firstOrNull?.rawValue;
-          if (v == null) return;
-          _done = true;
-          Navigator.of(context).pop(v);
-        },
       ),
     );
   }

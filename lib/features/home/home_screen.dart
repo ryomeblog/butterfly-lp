@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../share/share_screens.dart';
 import '../../app/providers.dart';
 import '../../data/db/database.dart';
 import '../../data/io/json_import.dart' show FileUnit;
@@ -90,6 +91,7 @@ class _PlanListTab extends ConsumerWidget {
           const SizedBox(height: 8),
           // プランの書き出しは各カードのメニューから（設計書 3.9）
           const ImportJsonButton(expect: FileUnit.plan),
+          const Center(child: ShareReceiveButton()),
         ],
       ),
     );

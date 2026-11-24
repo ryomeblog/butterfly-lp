@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../core/time.dart';
 import '../data/db/database.dart';
+import '../data/repositories/device_pref_repository.dart';
+import '../data/share/share_link.dart';
 import '../data/repositories/statement_repository.dart';
 import '../data/repositories/asset_repository.dart';
 import '../data/repositories/device_repository.dart';
@@ -117,6 +119,20 @@ final txnsProvider = StreamProvider.family<List<TxnRow>, TxnQuery>(
       .watch(txnRepositoryProvider)
       .watchTxns(q.planId, from: q.from, to: q.to),
 );
+
+final devicePrefRepositoryProvider = Provider<DevicePrefRepository>(
+  (ref) => DevicePrefRepository(ref.watch(databaseProvider)),
+);
+
+/// 共有サーバーの URL（この端末の設定。Web 版は開いているサーバー）。
+final shareServerProvider = StreamProvider<String?>(
+  (ref) => ref
+      .watch(devicePrefRepositoryProvider)
+      .watch(DevicePrefRepository.shareServer),
+);
+
+/// 共有サーバーとのやり取り（テストで差し替える）。
+final shareClientProvider = Provider<ShareClient>((ref) => ShareClient());
 
 final statementRepositoryProvider = Provider<StatementRepository>(
   (ref) => StatementRepository(

@@ -20,6 +20,18 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: server
+      - run: dart analyze
+        working-directory: server
+      - run: dart test
+        working-directory: server
+
   web:
     needs: test
     runs-on: ubuntu-latest
@@ -65,3 +77,17 @@ jobs:
         with:
           name: butterfly-lp-windows
           path: build/windows/x64/runner/Release
+
+  docker:
+    needs: [test, server]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -f server/Dockerfile -t butterfly-lp .
+      # 起動して Web 版と共有の API が動くことを確かめる
+      - run: |
+          docker run -d --name lp -p 8080:8080 butterfly-lp
+          for i in $(seq 1 20); do curl -sf http://localhost:8080/ >/dev/null && break; sleep 1; done
+          curl -sf http://localhost:8080/ | grep -q flutter_bootstrap
+          id=$(curl -sf -X POST --data-binary 'x' http://localhost:8080/api/share | sed 's/.*"id":"\([^"]*\)".*/\1/')
+          test "$(curl -sf http://localhost:8080/api/share/$id)" = "x"

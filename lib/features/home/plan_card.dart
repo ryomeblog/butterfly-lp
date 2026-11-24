@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../share/share_screens.dart';
 import '../../app/providers.dart';
 import '../../app/simulation.dart';
 import '../../core/money.dart';
@@ -159,6 +160,8 @@ class PlanMenuButton extends ConsumerWidget {
                 (e) => e.exportPlan(plan.id),
               );
             }
+          case 'share':
+            if (context.mounted) await sharePlanByQr(context, ref, plan);
           case 'delete':
             final plans = ref.read(plansProvider).value ?? const [];
             if (plans.length <= 1) {
@@ -199,6 +202,7 @@ class PlanMenuButton extends ConsumerWidget {
         PopupMenuItem(value: 'rename', child: Text('名前を変更')),
         PopupMenuItem(value: 'copy', child: Text('複製（今日を起点に計算し直す）')),
         PopupMenuItem(value: 'json', child: Text('JSONで書き出す')),
+        PopupMenuItem(value: 'share', child: Text('QRで共有（24時間）')),
         PopupMenuItem(value: 'delete', child: Text('削除（配下のデータごと）')),
       ],
     );

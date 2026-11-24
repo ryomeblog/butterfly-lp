@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../core/time.dart';
 import '../../domain/models/enums.dart';
 import '../db/database.dart';
+import 'device_pref_repository.dart';
 import 'plan_line_repository.dart';
 import 'stamp.dart';
 import 'txn_repository.dart';
@@ -60,15 +61,10 @@ class StatementRepository {
     return out;
   }
 
-  Future<String?> pref(String key) async => (await (db.select(
-    db.devicePrefs,
-  )..where((p) => p.key.equals(key))).getSingleOrNull())?.value;
+  Future<String?> pref(String key) => DevicePrefRepository(db).get(key);
 
-  Future<void> setPref(String key, String value) => db
-      .into(db.devicePrefs)
-      .insertOnConflictUpdate(
-        DevicePrefsCompanion.insert(key: key, value: value),
-      );
+  Future<void> setPref(String key, String value) =>
+      DevicePrefRepository(db).set(key, value);
 
   /// まとめて実績（[asPlan] なら予定）にし、内容→カテゴリを覚える。作った件数を返す。
   Future<int> register({
